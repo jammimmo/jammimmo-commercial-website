@@ -20,9 +20,9 @@ const { lang } = Astro.props;
 
   <div class="absolute inset-0 pointer-events-none" id="hero-stars" aria-hidden="true"></div>
 
-  <!-- Sun -->
+  <!-- Sun (with dashed orbital rings via .sun-rings ::before/::after in globals.css) -->
   <div
-    class="absolute left-1/2 top-[48%] w-[560px] h-[560px] rounded-full -translate-x-1/2 -translate-y-1/2 z-[1] max-w-[80vw] max-h-[80vw]"
+    class="sun-rings absolute left-1/2 top-[48%] w-[560px] h-[560px] rounded-full -translate-x-1/2 -translate-y-1/2 z-[1] max-w-[80vw] max-h-[80vw]"
     style="background:radial-gradient(circle at 35% 35%, #ffd590, #f5a552 40%, #F08826 65%, #d6620e 100%); box-shadow:0 0 120px 30px rgba(245,165,82,.45),0 0 260px 80px rgba(240,136,38,.25);"
     data-parallax="-0.18"
   >
@@ -65,45 +65,61 @@ const { lang } = Astro.props;
     </svg>
   </div>
 
-  <!-- Content -->
-  <div class="relative z-[5] container py-40 sm:py-48 grid items-end min-h-screen gap-14 lg:grid-cols-[1.2fr_0.8fr]">
+  <!-- Content: 1320 px max, asymmetric 160 px top / 120 px bottom padding,
+       1.2fr × 0.8fr grid with the search card aligned to the bottom-right. -->
+  <div
+    class="relative z-[5] mx-auto grid items-end gap-[60px] min-h-screen w-full max-w-[1320px] px-5 md:px-8 pt-[120px] pb-[80px] md:pt-[160px] md:pb-[120px] lg:grid-cols-[1.2fr_0.8fr]"
+  >
     <div>
-      <span class="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-full bg-white/10 border border-white/25 text-[12.5px] font-medium tracking-wider backdrop-blur">
+      <span class="reveal inline-flex items-center gap-2.5 px-3.5 py-2 rounded-full bg-white/10 border border-white/25 text-[12.5px] font-medium tracking-[0.06em] backdrop-blur">
         <span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_0_4px_rgba(240,136,38,.25)]"></span>
         {t('hero.eyebrow', lang)}
       </span>
 
-      <h1 class="font-serif font-light text-[clamp(48px,7.2vw,120px)] leading-[0.96] tracking-tight my-6">
+      <h1
+        class="reveal d1 font-serif font-light text-[clamp(48px,7.2vw,120px)] leading-[0.96] tracking-[-0.02em] mt-6 mb-7 [text-wrap:balance]"
+      >
         {t('hero.title.line1', lang).split(/(au Sénégal|in Senegal|ci Senegaal)/i).map((part, i) => i === 1 ? <em class="italic text-[hsl(var(--secondary)/.9)] font-normal">{part}</em> : part)}
         <br />
         {t('hero.title.line2', lang).split(/(jamm)/i).map((part, i) => i === 1 ? <em class="italic text-[hsl(var(--secondary)/.9)] font-normal">{part}</em> : part)}
       </h1>
 
-      <p class="text-[18px] leading-relaxed max-w-[540px] opacity-85">{t('hero.subtitle', lang)}</p>
+      <p class="reveal d2 text-[18px] leading-[1.55] max-w-[540px] opacity-85">{t('hero.subtitle', lang)}</p>
 
-      <div class="flex flex-wrap gap-3.5 mt-9">
+      <div class="reveal d3 flex flex-wrap gap-3.5 mt-9">
         <a
           href="#proprietes"
-          class="inline-flex items-center gap-2.5 px-7 py-4 rounded-full bg-secondary text-secondary-foreground font-semibold shadow-[0_10px_30px_-4px_rgba(240,136,38,.4)] hover:translate-y-[-2px] hover:shadow-[0_16px_36px_-4px_rgba(240,136,38,.5)] transition"
+          class="inline-flex items-center gap-2.5 px-[26px] py-4 rounded-full bg-secondary text-secondary-foreground font-semibold text-[15px] shadow-[0_10px_30px_-4px_rgba(240,136,38,.4)] hover:translate-y-[-2px] hover:shadow-[0_16px_36px_-4px_rgba(240,136,38,.5)] transition"
         >
           {t('hero.cta.primary', lang)}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
         </a>
         <a
           href="#contact"
-          class="inline-flex items-center gap-2.5 px-7 py-4 rounded-full bg-white/10 border border-white/30 hover:bg-white/20 transition font-semibold"
+          class="inline-flex items-center gap-2.5 px-[26px] py-4 rounded-full bg-white/10 border border-white/30 hover:bg-white/20 transition font-semibold text-[15px]"
         >
           {t('hero.cta.secondary', lang)}
         </a>
       </div>
     </div>
 
-    <HeroSearch client:visible lang={lang} />
+    <!-- Search card: base translateY(-40 px) lift on large screens (an inner
+         wrapper holds it so the outer wrapper's transform stays free for the
+         parallax JS), plus data-parallax="-0.04" so it nudges as you scroll. -->
+    <div class="reveal d3 self-end" data-parallax="-0.04">
+      <div class="lg:-translate-y-10">
+        <HeroSearch client:visible lang={lang} />
+      </div>
+    </div>
   </div>
 
+  <!-- Scroll cue with looping fill animation -->
   <div class="absolute left-1/2 bottom-8 -translate-x-1/2 z-[6] text-white text-[11px] tracking-[0.3em] uppercase flex flex-col items-center gap-2.5 opacity-70 pointer-events-none">
     <span>{t('hero.scroll', lang)}</span>
-    <span class="w-px h-10 bg-gradient-to-b from-white to-transparent"></span>
+    <span
+      class="w-px h-10 bg-gradient-to-b from-white to-transparent"
+      style="animation: slide-cue 2.2s ease-in-out infinite;"
+    ></span>
   </div>
 </header>
 
@@ -117,20 +133,20 @@ const { lang } = Astro.props;
       wrap.appendChild(s);
     }
   }
-  // Parallax
+  // Parallax — preserve the sun's centring transform when scrolling.
   function onScroll() {
     document.querySelectorAll('[data-parallax]').forEach((el) => {
       const rate = parseFloat(el.dataset.parallax);
       const rect = el.getBoundingClientRect();
       if (rect.bottom < -200 || rect.top > window.innerHeight + 200) return;
       const offset = window.scrollY * rate;
-      el.style.transform = `translate3d(0,${offset}px,0)`;
+      if (el.classList.contains('sun-rings')) {
+        el.style.transform = `translate(-50%, calc(-50% + ${offset}px))`;
+      } else {
+        el.style.transform = `translate3d(0,${offset}px,0)`;
+      }
     });
   }
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 </script>
-
-<style is:inline>
-  @keyframes twinkle { 50% { opacity: 0.15; } }
-</style>

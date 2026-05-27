@@ -15,8 +15,9 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: { DEFAULT: '1rem', md: '2rem' },
-      screens: { '2xl': '1400px' },
+      // Match the standalone reference: 32 px gutter at all sizes, 1320 px cap.
+      padding: { DEFAULT: '1.25rem', md: '2rem' },
+      screens: { '2xl': '1320px' },
     },
     extend: {
       colors: {
