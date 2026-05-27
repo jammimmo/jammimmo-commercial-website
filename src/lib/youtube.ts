@@ -20,14 +20,19 @@ export function isYoutubeShorts(url: string | null | undefined): boolean {
 
 /**
  * Best-guess aspect ratio for a YouTube URL.
- *   - `/shorts/` → "9 / 16"
- *   - everything else → "16 / 9"
  *
- * For exotic ratios (4:3, square, vertical non-Shorts) the caller should
- * upgrade to a runtime oEmbed fetch (see fetchYoutubeAspect below).
+ * **Default is portrait (9:16)** because Jamm Immobilier's tour videos are
+ * shot on phones — virtually all are vertical, including the ones uploaded
+ * via `/watch?v=…` (not just `/shorts/`). Switch the default back to 16:9
+ * the day someone records landscape on a real camera.
+ *
+ * Note: oEmbed (`fetchYoutubeAspect`) is NOT used as an auto-upgrade
+ * because it returns the *player iframe* dimensions (almost always 16:9)
+ * rather than the source-video aspect ratio. Auto-upgrading would actually
+ * worsen the layout for portrait content.
  */
-export function youtubeAspect(url: string | null | undefined): string {
-  return isYoutubeShorts(url) ? '9 / 16' : '16 / 9';
+export function youtubeAspect(_url: string | null | undefined): string {
+  return '9 / 16';
 }
 
 /**

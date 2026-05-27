@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { youtubeIdFromUrl, youtubeAspect, fetchYoutubeAspect } from '@/lib/youtube';
+import { youtubeIdFromUrl, youtubeAspect } from '@/lib/youtube';
 
 interface Props {
   images: string[];
@@ -85,15 +85,11 @@ export default function PropertyGallery({ images, videoLinks = [], title }: Prop
       )}
 
       {videos.length > 0 && (
-        <div
-          className={
-            // One column when *any* video is portrait (Shorts), otherwise the
-            // original two-up layout for landscape clips.
-            videos.some((v) => /\/shorts\//.test(v.url))
-              ? 'grid gap-3 sm:grid-cols-1 sm:max-w-md'
-              : 'grid gap-3 sm:grid-cols-2'
-          }
-        >
+        // Portrait videos take roughly half the width of a landscape pair, so
+        // we cap each embed at ~360 px and let them flow side-by-side on wide
+        // screens. The single-column max-w-md prevents the player swallowing
+        // the whole gallery on mobile.
+        <div className="grid gap-3 sm:grid-cols-2 sm:[grid-template-columns:repeat(auto-fit,minmax(260px,360px))] justify-center">
           {videos.map((v) => (
             <YoutubeEmbed key={v.id} url={v.url} id={v.id} title={title} />
           ))}
@@ -129,23 +125,12 @@ export default function PropertyGallery({ images, videoLinks = [], title }: Prop
 }
 
 /**
- * YouTube iframe sized to the video's actual dimensions. Starts with the
- * URL-derived guess (16:9 or 9:16 for /shorts/), then asks oEmbed for the
- * exact width × height so 4:3 / square / unusual ratios fit precisely.
+ * YouTube iframe sized to the source video's aspect ratio. JammImmo's tour
+ * videos are phone-shot vertical, so the lib defaults to 9:16. See
+ * `youtubeAspect` for why we don't auto-upgrade via oEmbed.
  */
 function YoutubeEmbed({ url, id, title }: { url: string; id: string; title: string }) {
-  const [aspect, setAspect] = useState<string>(() => youtubeAspect(url));
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchYoutubeAspect(url).then((real) => {
-      if (!cancelled && real) setAspect(real);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [url]);
-
+  const aspect = youtubeAspect(url);
   return (
     <div
       className="overflow-hidden rounded-2xl border border-clay bg-ink"
