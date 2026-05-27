@@ -1,8 +1,8 @@
 name: Build check
 
+# Push to main is built + deployed by Cloudflare Pages via GitHub integration.
+# This workflow only smoke-builds PRs.
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -13,8 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -23,8 +21,8 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Build
+      - name: Build (smoke — admin credentials optional on fork PRs)
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          ADMIN_SUPABASE_URL: ${{ secrets.ADMIN_SUPABASE_URL }}
+          ADMIN_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.ADMIN_SUPABASE_SERVICE_ROLE_KEY }}
         run: pnpm build

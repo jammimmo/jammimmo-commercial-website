@@ -1,47 +1,68 @@
 /**
- * Supabase client — anon key only. RLS does the auth on the admin side; we
- * only ever SELECT rows where `is_public = true AND status = 'Disponible'`,
- * and INSERT into `leads` + `property_views` (both granted to anon).
+ * Build-time admin DB reader. Tier 3 isolation:
  *
- * The URL and key live in Cloudflare Pages env vars (and in `.env` for local
- * dev). At build time they're consumed by SSG pages — the rendered HTML
- * contains zero references to either value. At runtime (the /api/* route
- * handlers) they're read from `import.meta.env`.
+ * - Reads `process.env.ADMIN_SUPABASE_*` (not `import.meta.env`) so Vite
+ *   cannot bundle the values into the client output. The variables are
+ *   supplied by GitHub Actions secrets at build time and never reach the
+ *   deployed Cloudflare Pages runtime.
+ * - Uses the **service-role** key (full read of `properties`). The trade-off
+ *   is acceptable because the key lives only in GH Actions, never on the
+ *   public site. RLS becomes belt-and-suspenders, not the primary boundary.
+ * - The runtime guard below throws if this module is imported outside of a
+ *   build context (no `process.env` available, or `MODE === 'runtime'`).
+ *
+ * Anything that the deployed Worker needs to read from a DB goes through
+ * `@/lib/intake` (separate Supabase project, anon key only).
  */
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { DbProperty, PublicProperty } from '@/types/property';
 
-const SUPABASE_URL = import.meta.env.SUPABASE_URL ?? '';
-const SUPABASE_ANON_KEY = import.meta.env.SUPABASE_ANON_KEY ?? '';
+const isNodeBuild =
+  typeof process !== 'undefined' &&
+  typeof process.env !== 'undefined' &&
+  // Astro/Vite set NODE_ENV during build; Cloudflare Workers runtime does not
+  // expose process.env at all by default.
+  typeof process.versions?.node === 'string';
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  // Soft-fail at build time so a missing env var doesn't break the build —
-  // the queries below short-circuit to [] and pages fall back to demo data.
-  // We log instead of throw so CI logs surface the problem.
+if (!isNodeBuild) {
+  throw new Error(
+    '[supabase.build] imported at runtime. This module is build-only — ' +
+      'use @/lib/intake for runtime DB access.',
+  );
+}
+
+const ADMIN_URL = process.env.ADMIN_SUPABASE_URL ?? '';
+const ADMIN_KEY =
+  process.env.ADMIN_SUPABASE_SERVICE_ROLE_KEY ?? process.env.ADMIN_SUPABASE_ANON_KEY ?? '';
+
+if (!ADMIN_URL || !ADMIN_KEY) {
+  // Soft-fail at build time so a missing env var doesn't break the build;
+  // the queries below short-circuit to [] and pages render fallback empty
+  // states. CI logs surface the warning.
   // eslint-disable-next-line no-console
   console.warn(
-    '[supabase] SUPABASE_URL or SUPABASE_ANON_KEY missing — public property fetch will return [].',
+    '[supabase.build] ADMIN_SUPABASE_URL or ADMIN_SUPABASE_SERVICE_ROLE_KEY missing — ' +
+      'property fetch will return []. Fine for CI smoke build, not for prod.',
   );
 }
 
 let _client: SupabaseClient | null = null;
-export function supabase(): SupabaseClient {
+function client(): SupabaseClient {
   if (!_client) {
-    _client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    _client = createClient(ADMIN_URL, ADMIN_KEY, {
       auth: { persistSession: false, autoRefreshToken: false },
-      global: { headers: { 'x-application-name': 'jammimmo-vitrine' } },
+      global: { headers: { 'x-application-name': 'jammimmo-vitrine-build' } },
     });
   }
   return _client;
 }
 
 /**
- * Project a DB row to its render-safe public shape. This is where the field
- * masking happens — commission, apporteur, source_*, caution, avance,
- * accessibility, manager, deal_type and the other admin-internal fields are
- * explicitly dropped (the anon RLS returns the full row but the front never
- * keeps them in scope).
+ * Project a DB row to its render-safe public shape. Commission, apporteur,
+ * source_*, caution, avance, accessibility, manager, deal_type and other
+ * admin-internal fields are dropped here — the build process sees them in
+ * memory but they never make it into the rendered HTML.
  */
 function maskRow(p: DbProperty): PublicProperty {
   return {
@@ -74,7 +95,6 @@ function maskRow(p: DbProperty): PublicProperty {
   };
 }
 
-/** SELECT-only column list — covers every field we mask down to. */
 const PUBLIC_COLUMNS = `
   id, reference, title, type, transaction_type, status,
   city, quartier, address, gps,
@@ -86,20 +106,28 @@ const PUBLIC_COLUMNS = `
   is_public, published_at, created_at, updated_at,
   caution, avance, commission_amount, negotiable_price,
   accessibility
-`.replace(/\s+/g, ' ').trim();
+`
+  .replace(/\s+/g, ' ')
+  .trim();
 
-export async function listPublicProperties(opts: {
-  limit?: number;
-  order?: 'published_at_desc' | 'price_asc' | 'price_desc';
-  type?: string;
-  transaction?: string;
-  city?: string;
-  priceMin?: number;
-  priceMax?: number;
-} = {}): Promise<PublicProperty[]> {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return [];
+export async function listPublicProperties(
+  opts: {
+    limit?: number;
+    order?: 'published_at_desc' | 'price_asc' | 'price_desc';
+    type?: string;
+    transaction?: string;
+    city?: string;
+    priceMin?: number;
+    priceMax?: number;
+  } = {},
+): Promise<PublicProperty[]> {
+  if (!ADMIN_URL || !ADMIN_KEY) return [];
 
-  let q = supabase().from('properties').select(PUBLIC_COLUMNS).eq('is_public', true).eq('status', 'Disponible');
+  let q = client()
+    .from('properties')
+    .select(PUBLIC_COLUMNS)
+    .eq('is_public', true)
+    .eq('status', 'Disponible');
 
   if (opts.type) q = q.eq('type', opts.type);
   if (opts.transaction) q = q.eq('transaction_type', opts.transaction);
@@ -116,15 +144,15 @@ export async function listPublicProperties(opts: {
   const { data, error } = await q;
   if (error) {
     // eslint-disable-next-line no-console
-    console.warn('[supabase] listPublicProperties failed:', error.message);
+    console.warn('[supabase.build] listPublicProperties failed:', error.message);
     return [];
   }
   return (data ?? []).map((row) => maskRow(row as DbProperty));
 }
 
 export async function getPublicPropertyByRef(ref: string): Promise<PublicProperty | null> {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
-  const { data, error } = await supabase()
+  if (!ADMIN_URL || !ADMIN_KEY) return null;
+  const { data, error } = await client()
     .from('properties')
     .select(PUBLIC_COLUMNS)
     .eq('reference', ref)
@@ -135,10 +163,9 @@ export async function getPublicPropertyByRef(ref: string): Promise<PublicPropert
   return maskRow(data as DbProperty);
 }
 
-/** Find 3 similar properties — same type + same city, excluding the current id. */
 export async function findSimilar(p: PublicProperty, n: number = 3): Promise<PublicProperty[]> {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return [];
-  const { data, error } = await supabase()
+  if (!ADMIN_URL || !ADMIN_KEY) return [];
+  const { data, error } = await client()
     .from('properties')
     .select(PUBLIC_COLUMNS)
     .eq('is_public', true)
@@ -151,10 +178,9 @@ export async function findSimilar(p: PublicProperty, n: number = 3): Promise<Pub
   return data.map((row) => maskRow(row as DbProperty));
 }
 
-/** All references — used by getStaticPaths for /biens/[ref] and by sitemap. */
 export async function listAllPublicRefs(): Promise<Array<{ reference: string; updated_at: string }>> {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return [];
-  const { data, error } = await supabase()
+  if (!ADMIN_URL || !ADMIN_KEY) return [];
+  const { data, error } = await client()
     .from('properties')
     .select('reference, updated_at')
     .eq('is_public', true)

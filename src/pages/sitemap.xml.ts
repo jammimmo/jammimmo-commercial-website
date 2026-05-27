@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { listAllPublicRefs } from '@/lib/supabase';
+import { listAllPublicRefs } from '@/lib/supabase.build';
 
 export const prerender = true;
 

@@ -2,7 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import DetailContent from '@/components/property/DetailContent.astro';
 import JsonLdProperty from '@/components/seo/JsonLdProperty.astro';
-import { listAllPublicRefs, getPublicPropertyByRef, findSimilar } from '@/lib/supabase';
+import { listAllPublicRefs, getPublicPropertyByRef, findSimilar } from '@/lib/supabase.build';
 import { formatRentalPrice } from '@/lib/format';
 import { slugToRef } from '@/lib/reference';
 import { t, getLang } from '@/lib/i18n';

@@ -2,46 +2,96 @@
 
 Site marketing public pour Jamm Immobilier. Reconstruction greenfield en Astro 4, déploiement Cloudflare Pages. Sœur du SaaS admin [`jammimmo-estate-flow`](https://github.com/jammimmo/jammimmo-estate-flow).
 
+## Architecture — Tier 3 (vitrine ↔ admin isolation)
+
+La vitrine est **complètement statique** côté visiteurs. Aucun secret d'admin n'existe au runtime ; admin et intake vivent chez deux fournisseurs différents (Supabase pour admin, Cloudflare D1 pour intake) :
+
+```
+   admin Supabase (jammimmo-estate-flow)              GitHub Actions
+   ┌─────────────────────────────────┐                ┌──────────────┐
+   │ properties (is_public, …)       │◀───service-role┤  build + SSG │
+   │ trigger pg_net + HMAC           │                │  + wrangler  │
+   └────────────┬────────────────────┘                │     deploy   │
+                │ webhook HMAC                        └──────┬───────┘
+                ▼                                            │
+   ┌─────────────────────────────────┐                       │  static HTML
+   │ /api/revalidate                 │                       ▼  + Functions
+   │  - verify HMAC                  │              ┌────────────────────┐
+   │  - KV debounce 60 s             │──repository──▶│   jammimmo.com    │
+   │  - GitHub repository_dispatch   │   dispatch    │ (CF Pages edge)   │
+   └─────────────────────────────────┘               │ INTAKE_DB binding │
+                                                     │ (no key on wire)  │
+                                                     └─────────┬─────────┘
+                                                               │ leads/views
+                                                               ▼
+                                                   ┌──────────────────────┐
+                                                   │ Cloudflare D1        │
+                                                   │ (jammimmo-intake)    │
+                                                   │ leads, property_views│
+                                                   └──────────────────────┘
+```
+
+**Pourquoi cette séparation** :
+
+- Le visiteur télécharge du HTML pré-rendu, jamais de JS qui contient un endpoint admin.
+- Le seul credential capable de lire la DB admin (clé `service_role`) vit dans les secrets GitHub Actions, jamais dans le runtime Pages.
+- L'intake (D1) est accessible uniquement via le binding Worker — **aucune clé API n'est sur le fil**. Une compromission du runtime se limite à l'envoi de lignes dans D1 ; rien ne peut atteindre Supabase admin.
+- D1 (Cloudflare) et Supabase (admin) sont deux fournisseurs distincts : une panne ou une compromission de l'un n'affecte pas l'autre.
+
+### Budget de rafraîchissement
+
+| Phase | Typique | Pire cas |
+|---|---|---|
+| Admin UPDATE → webhook `pg_net` | 1 s | 5 s |
+| `/api/revalidate` HMAC + KV debounce | 0.3 s | 1 s |
+| GitHub `repository_dispatch` ack | 0.8 s | 3 s |
+| Runner cold start | 15 s | 60 s |
+| `pnpm install` (cache) | 15 s | 45 s |
+| `astro build` (SSG) | 40 s | 90 s |
+| `wrangler pages deploy` | 30 s | 90 s |
+| CF edge propagation | 5 s | 15 s |
+| **Total admin UPDATE → live edge** | **~1 m 47 s** | **~5 m 9 s** |
+
+Bursts (5 toggles en 30 s) sont collapsés en 1 build via le debounce KV + `concurrency: cancel-in-progress`.
+
 ## Stack
 
 - **Astro 4** (`output: 'hybrid'`) — SSG par défaut + SSR pour les route handlers
 - **@astrojs/cloudflare** — adapter Cloudflare Pages
-- **React 18** — îlots hydratés à la demande (`client:visible`, `client:idle`, `client:load`)
+- **React 18** — îlots hydratés à la demande
 - **TypeScript** strict
-- **Tailwind CSS 3.4** + tokens **Jamm Sahel** (palette indigo + soleil + terra/ochre/emerald/sand) — dupliqués depuis l'admin (voir [`DESIGN.md`](https://github.com/jammimmo/jammimmo-estate-flow/blob/main/DESIGN.md))
-- **@supabase/supabase-js v2** — clé anon uniquement, RLS côté admin
-- **shadcn/ui** — primitives Button, Input, Select, Textarea, Label, Checkbox, Badge
-- **Lucide React** — icônes
-- **Leaflet + react-leaflet@4** — map fiche bien (v4 = React 18 compatible)
-- **react-hook-form + zod** — formulaires validés
+- **Tailwind CSS 3.4** + tokens **Jamm Sahel** (cf. [`DESIGN.md`](https://github.com/jammimmo/jammimmo-estate-flow/blob/main/DESIGN.md))
+- **@supabase/supabase-js v2** — deux clients distincts (build-only admin, runtime intake)
+- **shadcn/ui**, **Lucide React**, **Leaflet + react-leaflet@4**, **react-hook-form + zod**
 - **pnpm 9** + **Node 20+**
 
 ## Routes
 
 | Route | Type | Donnée |
 |---|---|---|
-| `/`, `/en/`, `/wo/` | SSG | 6 biens publics récents + sections home |
-| `/biens`, `/en/biens`, `/wo/biens` | SSG + filtres client | tous biens publics |
+| `/`, `/en/`, `/wo/` | SSG | 6 biens publics + sections home |
+| `/biens` (×3 langs) | SSG + filtres client | tous biens publics |
 | `/biens/[ref]` (×3 langs) | SSG (1 page par bien) | bien complet + 3 similaires |
 | `/contact` (×3 langs) | SSG | form contact général |
-| `/comparer` (×3 langs) | SSG + island | comparateur (lit localStorage) |
-| `/api/leads` | SSR (POST) | INSERT dans `leads` |
-| `/api/views` | SSR (POST) | INSERT dans `property_views`, hash IP côté serveur |
-| `/api/revalidate` | SSR (POST) | webhook Supabase → Cloudflare Deploy Hook |
+| `/comparer` (×3 langs) | SSG + island | comparateur (localStorage) |
+| `/api/leads` | SSR (POST) | INSERT dans D1 `leads` (binding `INTAKE_DB`) |
+| `/api/views` | SSR (POST) | INSERT dans D1 `property_views` (hash IP côté serveur) |
+| `/api/revalidate` | SSR (POST) | webhook admin → `repository_dispatch` |
 | `/api/property/[ref].json` | SSG | un bien (lue par le comparateur côté client) |
-| `/sitemap-index.xml` | SSG | généré par `@astrojs/sitemap`, multi-langue |
-| `/robots.txt` | static | indexation autorisée |
+| `/sitemap.xml` | SSG | multi-langue |
 
 ## Pré-requis côté admin (eStateflow)
 
-Cette vitrine consomme la migration **`20260524130000_add_public_visibility.sql`** publiée en PR sur `jammimmo-estate-flow`. Elle ajoute :
+Migration **`20260524130000_add_public_visibility.sql`** (PR #3 sur `jammimmo-estate-flow`) : ajoute `is_public`, `published_at`, le trigger, l'index partiel, et la policy RLS anon SELECT. Les tables `leads` / `property_views` ne vivent **plus** dans la DB admin — elles ont été déplacées vers Cloudflare D1 (cf. [`d1/`](d1/)).
 
-1. `properties.is_public BOOLEAN DEFAULT false` + `published_at TIMESTAMPTZ` (trigger qui stamp au premier passage à true)
-2. Une **policy RLS anon** : `SELECT` uniquement sur `is_public = true AND status = 'Disponible'`
-3. Tables `property_views` + `leads` avec policies anon INSERT, authenticated SELECT/FULL
-4. CHECKs de longueur sur `leads` (anti payload-bomb)
+## Modules clés
 
-**Sans cette migration**, la vitrine se construit quand même mais les pages biens sont vides.
+| Fichier | Quand | Pour quoi |
+|---|---|---|
+| `src/lib/supabase.build.ts` | build-only (Node, GH Actions) | lecture admin via `process.env.ADMIN_SUPABASE_*` — jamais bundlé dans le runtime |
+| `src/lib/intake.ts` | runtime (CF Pages Worker) | INSERT intake via le binding D1 `INTAKE_DB` (wrangler.toml) |
+| `src/pages/api/revalidate.ts` | runtime | HMAC verify + KV debounce + GitHub dispatch |
+| `.github/workflows/deploy.yml` | CI | build + deploy déclenchés par push/dispatch |
 
 ## Données — règle de masquage
 
@@ -56,9 +106,9 @@ L'anon RLS retourne toute la ligne, mais on **ne rend jamais** les champs sensib
 | images (R2), video_links (YouTube) | accessibility, manager, deal_type, auto_title |
 | commodities, nearby_commerce | whatsapp_business, whatsapp_channel |
 | commercial_message (accroche) | created_at, updated_at (côté front) |
-| description complète, documents (URLs R2), tags publics, flux_passage (Magasin/Bureau/Hangar) | comments |
+| description, documents (URLs R2), tags publics, flux_passage | comments |
 
-Le masquage est appliqué dans [`src/lib/supabase.ts`](src/lib/supabase.ts) → `maskRow()`. La fonction renvoie un `PublicProperty` (séparé du `DbProperty` interne). Toute fuite forcerait à éditer ce fichier.
+Le masquage est appliqué dans [`src/lib/supabase.build.ts`](src/lib/supabase.build.ts) → `maskRow()`. La fonction renvoie un `PublicProperty` (séparé du `DbProperty` interne).
 
 ## Setup local
 
@@ -67,69 +117,65 @@ git clone git@github.com:jammimmo/jammimmo-commercial-website.git
 cd jammimmo-commercial-website
 pnpm install
 
-# Variables d'env (vraies valeurs dans le wrangler.jsonc de l'admin)
 cp .env.example .env
-# Renseigner SUPABASE_URL + SUPABASE_ANON_KEY
+# Renseigner ADMIN_SUPABASE_* (lecture biens au build)
+
+# Bootstrap D1 local (une fois)
+wrangler d1 create jammimmo-intake               # copier l'id retourné dans wrangler.toml
+wrangler d1 execute jammimmo-intake --local --file=d1/migrations/0001_init.sql
 
 pnpm dev      # http://localhost:4321
 pnpm build    # build prod (vers dist/)
 pnpm preview  # serve dist/ localement
 ```
 
-**Sync types Supabase** après chaque migration côté admin :
+## Secrets — qui va où
 
-```bash
-pnpm dlx supabase gen types typescript --project-id ygaawqgwxlbtkcuqecxh > src/types/supabase.ts
-# remplacer ensuite le DbProperty manuel par Database['public']['Tables']['properties']['Row']
-```
+| Secret / binding | GitHub Actions | Cloudflare Pages | Rôle |
+|---|---|---|---|
+| `ADMIN_SUPABASE_URL` | ✅ | ❌ | lecture biens au build |
+| `ADMIN_SUPABASE_SERVICE_ROLE_KEY` | ✅ | ❌ | lecture biens au build |
+| `INTAKE_DB` | ❌ | binding (wrangler.toml) | écriture leads/views au runtime (D1) |
+| `REFRESH_KV` | ❌ | binding (wrangler.toml) | debounce webhook |
+| `REVALIDATE_HMAC_SECRET` | ❌ | ✅ | vérif webhook admin |
+| `GH_DISPATCH_TOKEN` | ❌ | ✅ | déclencher `repository_dispatch` |
+| `GH_REPO` | ❌ | ✅ | nom du repo |
+| `CLOUDFLARE_API_TOKEN` | ✅ | ❌ | déploiement Pages |
+| `CLOUDFLARE_ACCOUNT_ID` | ✅ | ❌ | déploiement Pages |
 
-## Déploiement Cloudflare Pages
+⚠️ **CF Pages git auto-deploy doit rester désactivé.** Le build doit passer par GitHub Actions pour que la clé `service_role` admin ne se retrouve jamais dans l'env Pages. Le bouton `Settings → Builds & deployments → Git integration` doit être OFF.
 
-1. **Connect** le repo `jammimmo-commercial-website` à Cloudflare Pages.
-2. **Settings → Environment variables** :
-   - `SUPABASE_URL` = `https://ygaawqgwxlbtkcuqecxh.supabase.co`
-   - `SUPABASE_ANON_KEY` = `<anon publishable key>` (dans wrangler.jsonc admin)
-   - `REVALIDATE_SECRET` = `<long random string>` (pour le webhook)
-   - `DEPLOY_HOOK_URL` = `<URL générée dans Pages → Deploy hooks>`
-3. **Build settings** :
-   - Build command : `pnpm build`
-   - Build output directory : `dist`
-   - Node version : `20`
-4. **Custom domain** : `jammimmo.com` (admin reste sur `jammimmo-estate-flow.jammimmo221admin.workers.dev`).
-5. **Supabase host allowlist** : ouvrir pour les IPs Cloudflare Pages (sinon le build ne pourra pas lire la DB). À régler dans Supabase Dashboard → Settings → Network restrictions.
+## Déploiement initial
 
-### Webhook revalidation (V2)
-
-À configurer dans Supabase Studio (Database → Webhooks) :
-- Trigger : `UPDATE` sur `properties` où `is_public` change
-- URL : `https://jammimmo.com/api/revalidate`
-- Headers : `Authorization: Bearer <REVALIDATE_SECRET>`
-
-En V1, prévoir un cron Cloudflare quotidien qui POST sur la Deploy Hook (faisable depuis Cloudflare Workers Cron Triggers).
+1. **Créer la D1 intake** : `wrangler d1 create jammimmo-intake` → copier `database_id` dans `wrangler.toml` → `wrangler d1 execute jammimmo-intake --remote --file=d1/migrations/0001_init.sql`. Voir [`d1/README.md`](d1/README.md).
+2. **Créer un KV namespace** : `wrangler kv:namespace create REFRESH_KV` → copier l'`id` dans `wrangler.toml`.
+3. **Configurer les secrets GitHub** : `gh secret set` pour `ADMIN_SUPABASE_URL`, `ADMIN_SUPABASE_SERVICE_ROLE_KEY`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`.
+4. **Configurer les secrets Cloudflare Pages** : dashboard ou `wrangler pages secret put` pour `REVALIDATE_HMAC_SECRET`, `GH_DISPATCH_TOKEN`, `GH_REPO`.
+5. **Créer un PAT fine-grained GitHub** scoped à ce repo : `Contents:write` + `Metadata:read`. Le mettre dans `GH_DISPATCH_TOKEN`.
+6. **Configurer le trigger admin** : créer un trigger `pg_net` côté admin Supabase qui POST sur `https://jammimmo.com/api/revalidate` avec headers `x-vitrine-signature` (hex HMAC-SHA256) + `x-vitrine-timestamp` (unix seconds). Voir [`/api/revalidate`](src/pages/api/revalidate.ts) pour le format attendu.
+7. **Premier déploiement** : push sur `main` ou déclencher manuellement le workflow `deploy.yml`.
 
 ## i18n
 
 3 langues : **fr** (défaut, sans préfixe) · **en** (`/en/`) · **wo** (Wolof, `/wo/`).
 
-Le helper `t(key, lang)` (`src/lib/i18n.ts`) fait un fallback FR si une clé manque dans EN/WO. Les fichiers `src/i18n/locales/*.json` sont sources de vérité. **Wolof à relire par un locuteur natif** — les chaînes existantes sont une première passe.
-
-Pour ajouter une langue : ajouter à `LANGS` dans `src/lib/i18n.ts`, créer le `.json` correspondant, et créer les pages parallèles dans `src/pages/<lang>/`.
+Le helper `t(key, lang)` (`src/lib/i18n.ts`) fait un fallback FR si une clé manque dans EN/WO. **Wolof à relire par un locuteur natif.**
 
 ## Comparateur
 
-Pas de notion de compte sur la vitrine en v1 (décision produit). Le comparateur stocke la sélection dans `localStorage` (clé `jammimmo:compare`, max 3 biens), synchronisé entre pages via un `CustomEvent`. Sticky bar en bas affichée dès qu'un bien est ajouté ; page `/comparer` rend le tableau côte-à-côte.
+Pas de notion de compte sur la vitrine en v1. Le comparateur stocke la sélection dans `localStorage` (clé `jammimmo:compare`, max 3 biens), synchronisé entre pages via un `CustomEvent`. Sticky bar en bas dès qu'un bien est ajouté ; page `/comparer` rend le tableau côte-à-côte.
 
 ## Tracking vues
 
-Beacon `requestIdleCallback` après chargement de la fiche → `POST /api/views`. Le route handler hash l'IP (sha-256, tronquée à 16 chars) et stocke `cf-ipcountry`. Aucun cookie déposé. Conforme GDPR.
+Beacon `requestIdleCallback` après chargement de la fiche → `POST /api/views`. Le route handler hash l'IP (sha-256, tronquée à 16 chars) et stocke `cf-ipcountry`. Aucun cookie. Conforme GDPR.
 
 ## Décisions v1 / v2
 
-- **v1** : FR + EN + WO, comparateur, beacon vues, lead INSERT-only.
+- **v1** : FR + EN + WO, comparateur, beacon vues, lead INSERT-only, Tier 3 isolation.
 - **v2** :
-  - Notif lead par email **Resend** (token dans `RESEND_API_KEY`) + WhatsApp Cloud API
-  - Favoris anonymes localStorage (le user a explicitement dit "pas de compte sur la vitrine pour l'instant")
-  - Webhook Supabase → revalidation automatique au lieu du cron quotidien
+  - Worker côté admin pour mirror intake → `intake_leads_mirror` (60 s pull)
+  - Notif lead par email **Resend** + WhatsApp Cloud API
+  - Favoris anonymes localStorage
   - Vraies traductions Wolof + EN review natif
   - Pagination réelle `/biens` si > 50 biens publics
 

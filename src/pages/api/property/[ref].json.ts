@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
-import { getPublicPropertyByRef } from '@/lib/supabase';
+import { getPublicPropertyByRef, listAllPublicRefs } from '@/lib/supabase.build';
 import { slugToRef } from '@/lib/reference';
-import { listAllPublicRefs } from '@/lib/supabase';
 
 export const prerender = true;
 
