@@ -1,0 +1,26 @@
+---
+import { t, type Lang } from '@/lib/i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const stats = [
+  { key: 'stat.1', delay: '' as const },
+  { key: 'stat.2', delay: 'd1' as const },
+  { key: 'stat.3', delay: 'd2' as const },
+  { key: 'stat.4', delay: 'd3' as const },
+];
+---
+
+<section class="bg-card border-y border-clay">
+  <div class="container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 py-16">
+    {stats.map((s, i) => (
+      <div class={`reveal ${s.delay} ${i > 0 ? 'lg:pl-8 lg:border-l border-clay' : ''}`}>
+        <div class="font-serif font-light text-[60px] leading-none tracking-tight">
+          <span class="text-secondary">{t(`${s.key}.value`, lang)}</span>
+        </div>
+        <p class="mt-2.5 text-sm text-muted-foreground max-w-[180px] leading-relaxed">
+          {t(`${s.key}.label`, lang)}
+        </p>
+      </div>
+    ))}
+  </div>
+</section>

@@ -1,0 +1,39 @@
+---
+import type { PublicProperty } from '@/types/property';
+import { parseGps } from '@/lib/gps';
+
+interface Props {
+  property: PublicProperty;
+  url: string;
+}
+const { property: p, url } = Astro.props;
+const geo = parseGps(p.gps);
+
+const data = {
+  '@context': 'https://schema.org',
+  '@type': 'RealEstateListing',
+  name: p.title,
+  description: p.description || p.commercial_message,
+  image: p.images.length > 0 ? p.images : undefined,
+  url,
+  datePosted: p.published_at ?? undefined,
+  offers: {
+    '@type': 'Offer',
+    price: p.price,
+    priceCurrency: 'XOF',
+    availability: 'https://schema.org/InStock',
+  },
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: p.address ?? undefined,
+    addressLocality: p.quartier,
+    addressRegion: p.city,
+    addressCountry: 'SN',
+  },
+  ...(geo ? { geo: { '@type': 'GeoCoordinates', latitude: geo.lat, longitude: geo.lng } } : {}),
+  floorSize: p.surface > 0 ? { '@type': 'QuantitativeValue', value: p.surface, unitCode: 'MTK' } : undefined,
+  numberOfRooms: p.bedrooms > 0 ? p.bedrooms : undefined,
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(data)} />

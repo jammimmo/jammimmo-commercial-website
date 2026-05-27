@@ -1,0 +1,117 @@
+---
+import type { PublicProperty } from '@/types/property';
+import { formatRentalPrice, formatLocation } from '@/lib/format';
+import { formatPublicRef } from '@/lib/reference';
+import { getStatusBadge, getTransactionBadge } from '@/lib/status';
+import { localizedPath, t, type Lang } from '@/lib/i18n';
+import CompareToggle from './CompareToggle.tsx';
+
+interface Props {
+  property: PublicProperty;
+  lang: Lang;
+  /** When true, hide the "Comparer" toggle (e.g. on the comparer page itself). */
+  hideCompare?: boolean;
+  /** Reveal animation delay class (d1/d2/d3). */
+  delay?: '' | 'd1' | 'd2' | 'd3';
+}
+
+const { property: p, lang, hideCompare = false, delay = '' } = Astro.props;
+
+const statusBadge = getStatusBadge(p.status);
+const transactionBadge = getTransactionBadge(p.transaction_type);
+const heroImage = p.images[0];
+const href = localizedPath(`/biens/${p.reference.toLowerCase()}`, lang);
+
+// Placeholder gradient when no image
+const palette: Array<[string, string]> = [
+  ['#2632A0', '#0E1450'],
+  ['#F08826', '#a04f0a'],
+  ['#1B2378', '#080C3C'],
+  ['#F5A552', '#b94e10'],
+];
+const hash = (p.reference.charCodeAt(0) + p.reference.charCodeAt(p.reference.length - 1)) % palette.length;
+const [phA, phB] = palette[hash]!;
+---
+
+<article
+  class:list={['group reveal flex flex-col bg-card rounded-[22px] overflow-hidden border border-clay transition-all duration-500 hover:translate-y-[-6px] hover:shadow-[0_40px_80px_-40px_hsl(var(--ink)/.3)]', delay]}
+  data-property-ref={p.reference}
+>
+  <a href={href} class="block relative aspect-[4/3] overflow-hidden bg-ink" aria-label={p.title}>
+    {heroImage ? (
+      <img
+        src={heroImage}
+        alt={p.title}
+        loading="lazy"
+        decoding="async"
+        class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+      />
+    ) : (
+      <div
+        class="absolute inset-0 grid place-items-center text-white/85"
+        style={`background: repeating-linear-gradient(135deg, rgba(255,255,255,.05) 0 12px, transparent 12px 24px), linear-gradient(135deg, ${phA}, ${phB});`}
+      >
+        <span class="font-mono text-[11.5px] tracking-[0.12em] uppercase bg-black/40 px-3 py-1.5 rounded border border-white/20">
+          {p.type} · {p.quartier || p.city}
+        </span>
+      </div>
+    )}
+
+    <div class="absolute top-3.5 left-3.5 flex gap-1.5 z-[2]">
+      <span class:list={['px-3 py-1.5 rounded-full text-[11.5px] font-semibold tracking-wide shadow-md backdrop-blur', transactionBadge.badgeClass]}>
+        {transactionBadge.label}
+      </span>
+    </div>
+
+    <div class="absolute top-3.5 right-3.5 z-[2] flex items-center gap-1.5">
+      <span class:list={['inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold tracking-wide uppercase shadow-md backdrop-blur', statusBadge.badgeClass]}>
+        <span aria-hidden>{statusBadge.emoji}</span>{statusBadge.label}
+      </span>
+    </div>
+
+    {p.tags.length > 0 && (
+      <div class="absolute bottom-3.5 left-3.5 flex gap-1.5 z-[2]">
+        {p.tags.slice(0, 2).map((tag) => (
+          <span class="px-2.5 py-1 rounded-full text-[10.5px] font-semibold bg-black/55 text-white backdrop-blur">
+            {tag}
+          </span>
+        ))}
+      </div>
+    )}
+  </a>
+
+  <div class="flex flex-col gap-2.5 p-6">
+    <div class="flex items-center justify-between gap-2">
+      <span class="text-[12.5px] font-semibold tracking-[0.08em] uppercase text-muted-foreground">
+        {formatLocation(p.city, p.quartier)}
+      </span>
+      <span class="text-[11px] font-mono text-muted-foreground/70">{formatPublicRef(p.reference)}</span>
+    </div>
+
+    <a href={href} class="block group/title">
+      <h4 class="font-serif font-normal text-[22px] tracking-tight leading-tight m-0 group-hover/title:text-primary transition">
+        {p.title}
+      </h4>
+    </a>
+
+    <div class="flex flex-wrap gap-3.5 text-[13px] text-muted-foreground mt-1">
+      {p.bedrooms > 0 && <span class="inline-flex items-center gap-1.5">🛏 {p.bedrooms} ch.</span>}
+      {p.surface > 0 && <span class="inline-flex items-center gap-1.5">📐 {p.surface} m²</span>}
+      {p.commodities.slice(0, 2).map((c) => <span class="inline-flex items-center gap-1.5">✓ {c}</span>)}
+    </div>
+
+    <div class="flex items-baseline justify-between mt-3 pt-3.5 border-t border-clay">
+      <div class="font-serif text-[22px] font-normal tracking-tight">
+        {formatRentalPrice(p.price, p.transaction_type)}
+        {p.negotiable && (
+          <span class="ml-2 text-[11px] font-sans font-semibold text-terra align-middle">{t('property.price.negotiable', lang)}</span>
+        )}
+      </div>
+      <a href={href} class="text-[12.5px] font-semibold text-primary inline-flex items-center gap-1.5">
+        Détails <span aria-hidden>↗</span>
+      </a>
+    </div>
+
+    {!hideCompare && <CompareToggle client:visible reference={p.reference} title={p.title} lang={lang} />}
+  </div>
+</article>

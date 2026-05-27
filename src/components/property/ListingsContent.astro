@@ -1,0 +1,108 @@
+---
+import { listPublicProperties } from '@/lib/supabase';
+import PropertyCard from './PropertyCard.astro';
+import PropertyFilters from './PropertyFilters.tsx';
+import CompareBar from './CompareBar.tsx';
+import { t, getLang } from '@/lib/i18n';
+
+export const prerender = true;
+
+const lang = getLang(Astro.url);
+const properties = await listPublicProperties({ limit: 100 });
+const cities = [...new Set(properties.map((p) => p.city))].sort();
+---
+
+<section class="bg-card border-b border-clay py-12 sm:py-16">
+  <div class="container">
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      <h1 class="font-serif font-light text-[clamp(36px,5vw,56px)] leading-tight tracking-tight">
+        {t('page.listings.title', lang)}
+      </h1>
+      <p class="mt-3 text-muted-foreground">{t('page.listings.subtitle', lang)}</p>
+    </div>
+    <PropertyFilters client:idle cities={cities} />
+  </div>
+</section>
+
+<section class="py-12 sm:py-16">
+  <div class="container">
+    <div id="results-meta" class="text-sm text-muted-foreground mb-6">
+      <span data-results-count>{properties.length}</span> bien{properties.length > 1 ? 's' : ''} affiché{properties.length > 1 ? 's' : ''}
+    </div>
+
+    {properties.length === 0 ? (
+      <div class="text-center py-16 text-muted-foreground">
+        <p>{t('properties.empty', lang)}</p>
+      </div>
+    ) : (
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-property-grid>
+        {properties.map((p, i) => (
+          <div
+            data-property-card
+            data-property-ref={p.reference}
+            data-property-title={p.title.toLowerCase()}
+            data-property-city={p.city}
+            data-property-quartier={p.quartier.toLowerCase()}
+            data-property-type={p.type}
+            data-property-transaction={p.transaction_type}
+            data-property-price={p.price}
+          >
+            <PropertyCard
+              property={p}
+              lang={lang}
+              delay={(['', 'd1', 'd2'] as const)[i % 3]}
+            />
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+</section>
+
+<CompareBar client:idle lang={lang} />
+
+<script>
+  // Client-side filter logic — listens to filter changes from the island.
+  const grid = document.querySelector('[data-property-grid]');
+  const countEl = document.querySelector('[data-results-count]');
+  if (grid && countEl) {
+    function applyFilters(filters: any) {
+      const cards = grid.querySelectorAll<HTMLElement>('[data-property-card]');
+      let visible = 0;
+      const q = (filters.q || '').toLowerCase();
+      cards.forEach((card) => {
+        const title = card.dataset.propertyTitle || '';
+        const city = card.dataset.propertyCity || '';
+        const quartier = card.dataset.propertyQuartier || '';
+        const type = card.dataset.propertyType || '';
+        const transaction = card.dataset.propertyTransaction || '';
+        const price = Number(card.dataset.propertyPrice ?? 0);
+
+        let show = true;
+        if (filters.type && type !== filters.type) show = false;
+        if (filters.transaction && transaction !== filters.transaction) show = false;
+        if (filters.city && city !== filters.city) show = false;
+        if (filters.priceMin && price < filters.priceMin) show = false;
+        if (filters.priceMax && filters.priceMax > 0 && price > filters.priceMax) show = false;
+        if (q && !(title.includes(q) || city.toLowerCase().includes(q) || quartier.includes(q))) show = false;
+
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      countEl.textContent = String(visible);
+    }
+
+    window.addEventListener('property-filters:change', (e: any) => applyFilters(e.detail));
+
+    // Init from URL query params
+    const params = new URLSearchParams(window.location.search);
+    applyFilters({
+      type: params.get('type') || '',
+      transaction: params.get('transaction') || '',
+      city: params.get('city') || '',
+      priceMin: Number(params.get('priceMin') || 0),
+      priceMax: Number(params.get('priceMax') || 0),
+      q: params.get('q') || '',
+    });
+  }
+</script>

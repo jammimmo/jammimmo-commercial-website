@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   Jamm Sahel design tokens — HSL light + dark.
+   Source: jammimmo-estate-flow / src/index.css. Maintenu en sync manuel.
+   ============================================================================ */
+@layer base {
+  :root {
+    /* Cœur logo */
+    --primary: 234 60% 36%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 32 95% 56%;
+    --secondary-foreground: 20 35% 12%;
+
+    /* Accents Sahel */
+    --terra: 15 70% 42%;
+    --terra-foreground: 0 0% 100%;
+    --ochre: 38 88% 50%;
+    --ochre-foreground: 20 35% 12%;
+    --emerald: 155 60% 28%;
+    --emerald-foreground: 0 0% 100%;
+
+    --sand: 38 38% 93%;
+    --clay: 28 25% 86%;
+    --ink: 20 35% 12%;
+
+    /* Sémantique */
+    --background: 38 38% 93%;
+    --foreground: 20 35% 12%;
+    --card: 38 38% 96%;
+    --card-foreground: 20 35% 12%;
+    --popover: 38 38% 96%;
+    --popover-foreground: 20 35% 12%;
+    --muted: 28 18% 90%;
+    --muted-foreground: 20 15% 38%;
+    --accent: 234 60% 95%;
+    --accent-foreground: 234 60% 36%;
+    --destructive: 15 70% 42%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 28 25% 86%;
+    --input: 28 25% 86%;
+    --ring: 234 60% 36%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 15 22% 8%;
+    --foreground: 38 38% 93%;
+    --card: 15 22% 12%;
+    --card-foreground: 38 38% 93%;
+    --popover: 15 22% 12%;
+    --popover-foreground: 38 38% 93%;
+    --primary: 234 60% 66%;
+    --primary-foreground: 15 22% 8%;
+    --secondary: 32 95% 66%;
+    --secondary-foreground: 15 22% 8%;
+    --muted: 15 18% 18%;
+    --muted-foreground: 38 15% 70%;
+    --accent: 234 60% 20%;
+    --accent-foreground: 38 38% 93%;
+    --destructive: 15 70% 52%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 15 18% 20%;
+    --input: 15 18% 20%;
+    --ring: 234 60% 66%;
+    --terra: 15 70% 52%;
+    --ochre: 38 88% 60%;
+    --emerald: 155 60% 38%;
+    --sand: 15 22% 8%;
+    --clay: 15 18% 20%;
+    --ink: 38 38% 93%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased font-sans;
+  }
+  ::selection {
+    background: hsl(var(--secondary) / 0.35);
+  }
+}
+
+/* ============================================================================
+   Reveal-on-scroll utilities (no JS required — pure CSS via IntersectionObserver
+   trigger on a `.reveal.in` class added by a small inline script in BaseLayout).
+   ============================================================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+.reveal.d1 { transition-delay: 0.08s; }
+.reveal.d2 { transition-delay: 0.16s; }
+.reveal.d3 { transition-delay: 0.24s; }
+.reveal.d4 { transition-delay: 0.32s; }
+
+/* Hide focus ring on mouse, keep for keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}

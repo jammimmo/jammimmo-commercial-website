@@ -1,0 +1,44 @@
+---
+import { t, type Lang } from '@/lib/i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+---
+
+<section class="relative h-[560px] sm:h-[560px] overflow-hidden text-white" style="background: linear-gradient(180deg, #F08826 0%, #d6620e 60%, #8a3f0a 100%);">
+  <div class="absolute inset-0" style="background:radial-gradient(circle at 70% 30%, rgba(255,255,255,.5), transparent 30%),linear-gradient(180deg, #ffb45a, #F08826 50%, #b94e10);" data-parallax="0.04"></div>
+  <div class="absolute inset-0" style="background:radial-gradient(circle at 50% 65%, #fff7d8 0%, #ffd190 12%, transparent 30%);" data-parallax="0.08"></div>
+
+  <div class="absolute left-[-10%] bottom-0 h-[60%] w-[120%]" data-parallax="0.14">
+    <svg viewBox="0 0 1400 360" preserveAspectRatio="none" class="w-full h-full block">
+      <path d="M0 260 L160 160 L320 260 L480 130 L620 260 L780 180 L920 250 L1080 140 L1240 260 L1400 200 L1400 360 L0 360Z" fill="#8a3f0a" opacity=".8" />
+    </svg>
+  </div>
+  <div class="absolute left-[-10%] bottom-0 h-[40%] w-[120%]" data-parallax="0.22">
+    <svg viewBox="0 0 1400 200" preserveAspectRatio="none" class="w-full h-full block">
+      <path d="M0 140 C 200 80, 400 180, 700 100 S 1200 180, 1400 80 L1400 200 L0 200Z" fill="#6b2f08" />
+    </svg>
+  </div>
+  <div class="absolute left-[-10%] bottom-0 h-[32%] w-[120%]" data-parallax="0.32">
+    <svg viewBox="0 0 1400 200" preserveAspectRatio="none" class="w-full h-full block">
+      <g fill="#3a1a04">
+        <rect x="60" y="150" width="40" height="50" /><rect x="100" y="135" width="50" height="65" />
+        <polygon points="150,140 175,125 200,140 200,200 150,200" /><rect x="200" y="148" width="34" height="52" />
+        <rect x="380" y="155" width="30" height="45" /><rect x="410" y="140" width="44" height="60" />
+        <rect x="454" y="152" width="30" height="48" /><rect x="700" y="145" width="50" height="55" />
+        <polygon points="750,150 770,135 790,150 790,200 750,200" /><rect x="790" y="148" width="34" height="52" />
+        <rect x="1020" y="150" width="40" height="50" /><rect x="1060" y="135" width="40" height="65" />
+        <rect x="1100" y="150" width="30" height="50" /><rect x="1260" y="145" width="36" height="55" />
+        <rect x="1296" y="155" width="40" height="45" />
+      </g>
+    </svg>
+  </div>
+
+  <div class="absolute inset-0 grid place-items-center text-center container">
+    <div>
+      <div class="font-serif font-light italic text-[clamp(36px,5vw,72px)] leading-tight tracking-tight max-w-[18ch] mx-auto drop-shadow-[0_6px_30px_rgba(0,0,0,.2)]">
+        {t('band.quote', lang)}
+      </div>
+      <div class="mt-5 text-sm tracking-[0.2em] uppercase opacity-85">{t('band.sub', lang)}</div>
+    </div>
+  </div>
+</section>

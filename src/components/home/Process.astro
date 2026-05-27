@@ -1,0 +1,33 @@
+---
+import { t, type Lang } from '@/lib/i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+---
+
+<section id="process" class="py-24 sm:py-32 bg-background relative">
+  <div class="container">
+    <div class="flex flex-col lg:flex-row justify-between gap-8 mb-14">
+      <div class="reveal">
+        <div class="inline-flex items-center gap-2 text-[12px] font-semibold tracking-wider uppercase text-primary before:content-[''] before:w-6 before:h-px before:bg-primary">
+          {t('process.tag', lang)}
+        </div>
+        <h2 class="font-serif font-light text-[clamp(36px,4.8vw,68px)] leading-none tracking-tight mt-3 max-w-[14ch]">
+          <span set:html={t('process.title', lang).replace(/(clés en main|keys in hand|tànk yi)/i, '<em class="italic text-primary font-normal">$1</em>')} />
+        </h2>
+      </div>
+      <p class="reveal d1 text-muted-foreground leading-relaxed max-w-[420px] hidden md:block">{t('process.subtitle', lang)}</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-5 relative">
+      {[1, 2, 3, 4].map((n, i) => (
+        <div class={`reveal ${i > 0 ? `d${Math.min(i, 3)}` : ''} relative`}>
+          <div class="font-serif text-[96px] font-light leading-[0.85] tracking-tighter text-primary opacity-20">
+            {String(n).padStart(2, '0')}
+          </div>
+          <h4 class="font-serif text-[22px] mt-3.5 mb-2">{t(`process.${n}.title`, lang)}</h4>
+          <p class="text-muted-foreground text-[14.5px] leading-relaxed">{t(`process.${n}.desc`, lang)}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,14 @@
+---
+const items = ['Vente', 'Location', 'Gestion locative', 'Accompagnement projet', 'Estimation', 'Investissement', 'Diaspora'];
+const doubled = [...items, ...items];
+---
+
+<div class="bg-[hsl(var(--primary)/.96)] text-white overflow-hidden border-y border-white/8 relative z-[6]" aria-hidden="true">
+  <div class="flex gap-15 py-4 animate-marquee whitespace-nowrap" style="gap:60px;">
+    {doubled.map((w) => (
+      <span class="font-serif italic text-[22px] opacity-85 shrink-0">
+        {w} <b class="text-secondary not-italic font-normal">·</b>
+      </span>
+    ))}
+  </div>
+</div>

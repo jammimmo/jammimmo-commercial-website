@@ -1,0 +1,265 @@
+---
+import type { PublicProperty } from '@/types/property';
+import PropertyGallery from './PropertyGallery.tsx';
+import PropertyMap from './PropertyMap.tsx';
+import PropertyCard from './PropertyCard.astro';
+import ContactForm from '@/components/forms/ContactForm.tsx';
+import CompareBar from './CompareBar.tsx';
+import { t, type Lang, localizedPath } from '@/lib/i18n';
+import { formatRentalPrice, formatLocation } from '@/lib/format';
+import { formatPublicRef } from '@/lib/reference';
+import { getStatusBadge, getTransactionBadge } from '@/lib/status';
+import { Bed, Maximize2, MapPin, Tag, Award, FileText, Download } from 'lucide-react';
+
+interface Props {
+  property: PublicProperty;
+  similar: PublicProperty[];
+  lang: Lang;
+}
+const { property: p, similar, lang } = Astro.props;
+
+const status = getStatusBadge(p.status);
+const transaction = getTransactionBadge(p.transaction_type);
+
+// Pretty-print the attributes JSONB — only keys we know about.
+const ATTR_LABELS: Record<string, string> = {
+  chambres: 'Chambres',
+  salons: 'Salons',
+  toilettes: 'Toilettes',
+  cuisine: 'Cuisine',
+  etage: 'Étage',
+  parking: 'Parking',
+  jardin: 'Jardin',
+  piscine: 'Piscine',
+  terrasse: 'Terrasse',
+  balcon: 'Balcon',
+  niveaux: 'Niveaux',
+  ascenseur: 'Ascenseur',
+  climatisation: 'Climatisation',
+};
+const attrEntries = Object.entries(p.attributes || {})
+  .filter(([k, v]) => k in ATTR_LABELS && v !== false && v !== null && v !== '' && v !== 0)
+  .map(([k, v]) => ({ label: ATTR_LABELS[k]!, value: typeof v === 'boolean' ? '✓' : String(v) }));
+
+const documentEntries = Object.entries(p.documents || {})
+  .filter(([, url]) => typeof url === 'string' && url.length > 0);
+---
+
+<!-- Hero photos -->
+<section class="bg-card pt-8 sm:pt-12">
+  <div class="container">
+    <a href={localizedPath('/biens', lang)} class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-5">
+      <span aria-hidden>←</span> Toutes les annonces
+    </a>
+    <PropertyGallery client:visible images={p.images} videoLinks={p.video_links} title={p.title} />
+  </div>
+</section>
+
+<!-- Header info -->
+<section class="bg-card pb-12">
+  <div class="container">
+    <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 sm:gap-12">
+      <div>
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+          <span class:list={['px-3 py-1.5 rounded-full text-[12px] font-semibold tracking-wide', transaction.badgeClass]}>
+            {transaction.label}
+          </span>
+          <span class:list={['inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold tracking-wide uppercase', status.badgeClass]}>
+            <span aria-hidden>{status.emoji}</span>{status.label}
+          </span>
+          {p.tags.map((tag) => (
+            <span class="px-3 py-1.5 rounded-full text-[12px] font-semibold bg-ochre/10 text-ink border border-ochre/30">{tag}</span>
+          ))}
+          <span class="ml-auto text-[12px] font-mono text-muted-foreground/70">{formatPublicRef(p.reference)}</span>
+        </div>
+
+        <h1 class="font-serif font-light text-[clamp(28px,4vw,52px)] leading-tight tracking-tight">
+          {p.title}
+        </h1>
+
+        <p class="mt-2 inline-flex items-center gap-2 text-muted-foreground">
+          <MapPin className="w-4 h-4" />
+          {formatLocation(p.city, p.quartier)}{p.address ? ` · ${p.address}` : ''}
+        </p>
+
+        {p.commercial_message && (
+          <p class="mt-5 font-serif italic text-lg text-foreground/80 leading-relaxed">
+            « {p.commercial_message} »
+          </p>
+        )}
+
+        <!-- Specs -->
+        <div class="mt-7 flex flex-wrap gap-3">
+          {p.bedrooms > 0 && (
+            <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-background border border-clay text-sm">
+              <Bed className="w-4 h-4 text-primary" />
+              {p.bedrooms} chambre{p.bedrooms > 1 ? 's' : ''}
+            </div>
+          )}
+          {p.surface > 0 && (
+            <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-background border border-clay text-sm">
+              <Maximize2 className="w-4 h-4 text-primary" />
+              {p.surface} m²
+            </div>
+          )}
+          {p.flux_passage && (p.type === 'Magasin' || p.type === 'Bureau' || p.type === 'Hangar') && (
+            <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-background border border-clay text-sm">
+              <Award className="w-4 h-4 text-secondary" />
+              Flux passage {p.flux_passage}
+            </div>
+          )}
+          <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-background border border-clay text-sm">
+            <Tag className="w-4 h-4 text-primary" />
+            {p.type}
+          </div>
+        </div>
+      </div>
+
+      <!-- Sticky price + CTA -->
+      <aside class="lg:sticky lg:top-24 self-start">
+        <div class="rounded-2xl bg-background border border-clay p-7 shadow-sm">
+          <div class="font-serif font-light text-[clamp(28px,3.5vw,40px)] leading-none tracking-tight">
+            {formatRentalPrice(p.price, p.transaction_type)}
+          </div>
+          {p.negotiable && (
+            <span class="inline-block mt-2 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-terra/10 text-terra border border-terra/20">
+              {t('property.price.negotiable', lang)}
+            </span>
+          )}
+          <p class="mt-2 text-xs text-muted-foreground">{t('property.price.onRequest', lang)} :  conditions, caution, avance — sur demande.</p>
+          <div class="mt-5 flex flex-col gap-2.5">
+            <a href="#contact-bien" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-secondary text-secondary-foreground font-semibold shadow-md hover:translate-y-[-1px] transition">
+              Je suis intéressé
+            </a>
+            <a href="tel:+221770000000" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full border-2 border-primary text-primary font-semibold hover:bg-primary hover:text-primary-foreground transition">
+              Appeler l'agence
+            </a>
+            <a href="https://wa.me/221770000000" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-emerald/15 text-emerald font-semibold border border-emerald/30 hover:bg-emerald hover:text-emerald-foreground transition">
+              WhatsApp
+            </a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- Description + attributes + commodities + nearby -->
+<section class="py-12 bg-background">
+  <div class="container">
+    <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-12">
+      <div class="space-y-10">
+        {p.description && (
+          <div>
+            <h2 class="font-serif text-2xl mb-4">{t('property.detail.description', lang)}</h2>
+            <p class="text-foreground/80 leading-relaxed whitespace-pre-line">{p.description}</p>
+          </div>
+        )}
+
+        {attrEntries.length > 0 && (
+          <div>
+            <h2 class="font-serif text-2xl mb-4">{t('property.detail.specs', lang)}</h2>
+            <dl class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {attrEntries.map((a) => (
+                <div class="px-4 py-3 rounded-xl bg-card border border-clay">
+                  <dt class="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{a.label}</dt>
+                  <dd class="text-[15px] mt-0.5">{a.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        )}
+
+        {p.commodities.length > 0 && (
+          <div>
+            <h2 class="font-serif text-2xl mb-4">{t('property.detail.commodities', lang)}</h2>
+            <div class="flex flex-wrap gap-2">
+              {p.commodities.map((c) => (
+                <span class="px-3 py-1.5 rounded-full text-sm bg-accent text-accent-foreground border border-primary/15">{c}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {p.nearby_commerce.length > 0 && (
+          <div>
+            <h2 class="font-serif text-2xl mb-4">{t('property.detail.nearby', lang)}</h2>
+            <ul class="space-y-2">
+              {p.nearby_commerce.map((n) => (
+                <li class="flex justify-between items-center px-4 py-3 rounded-xl bg-card border border-clay">
+                  <span class="text-sm">{n.name}</span>
+                  <span class="text-[12px] font-semibold text-secondary">{n.distance}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {documentEntries.length > 0 && (
+          <div>
+            <h2 class="font-serif text-2xl mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5" />{t('property.detail.documents', lang)}
+            </h2>
+            <ul class="space-y-2">
+              {documentEntries.map(([type, url]) => (
+                <li>
+                  <a href={url} download class="flex items-center justify-between p-4 rounded-xl bg-card border border-clay hover:border-primary transition">
+                    <span class="text-sm capitalize">{type.replaceAll('_', ' ')}</span>
+                    <Download className="w-4 h-4 text-primary" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      <aside class="space-y-6">
+        <div>
+          <h2 class="font-serif text-2xl mb-4">{t('property.detail.location', lang)}</h2>
+          <PropertyMap client:visible gps={p.gps} title={p.title} className="rounded-2xl overflow-hidden h-[400px]" />
+          {p.address && <p class="mt-2 text-sm text-muted-foreground">{p.address}</p>}
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- Contact form -->
+<section id="contact-bien" class="py-16 bg-card border-y border-clay">
+  <div class="container max-w-3xl">
+    <h2 class="font-serif text-3xl text-center mb-2">{t('property.detail.contact', lang)}</h2>
+    <p class="text-muted-foreground text-center mb-8">{t('property.detail.contactSub', lang)}</p>
+    <ContactForm client:visible lang={lang} propertyId={p.id} propertyTitle={p.title} compact />
+  </div>
+</section>
+
+<!-- Similar -->
+{similar.length > 0 && (
+  <section class="py-16 bg-background">
+    <div class="container">
+      <h2 class="font-serif text-3xl mb-8">{t('property.detail.similar', lang)}</h2>
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {similar.map((sp, i) => (
+          <PropertyCard property={sp} lang={lang} delay={(['', 'd1', 'd2'] as const)[i % 3]} hideCompare />
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<CompareBar client:idle lang={lang} />
+
+<!-- View tracking beacon -->
+<script define:vars={{ propertyId: p.id }}>
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(() => {
+      fetch('/api/views', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ property_id: propertyId, referrer: document.referrer || null }),
+        keepalive: true,
+      }).catch(() => {});
+    });
+  }
+</script>

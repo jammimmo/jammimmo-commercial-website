@@ -1,0 +1,136 @@
+---
+import HeroSearch from './HeroSearch.tsx';
+import { t, type Lang } from '@/lib/i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+---
+
+<header
+  id="top"
+  class="relative min-h-screen overflow-hidden text-white isolate"
+  style="background: linear-gradient(180deg,#1f2a8e 0%, #2632A0 35%, #3845C2 80%, #4B58D8 100%);"
+>
+  <!-- Grid overlay -->
+  <div
+    class="absolute inset-0"
+    style="background-image: linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px); background-size:80px 80px; mask-image:linear-gradient(180deg, transparent, #000 30%, #000 80%, transparent); -webkit-mask-image:linear-gradient(180deg, transparent, #000 30%, #000 80%, transparent);"
+    data-parallax="0.15"
+  ></div>
+
+  <div class="absolute inset-0 pointer-events-none" id="hero-stars" aria-hidden="true"></div>
+
+  <!-- Sun -->
+  <div
+    class="absolute left-1/2 top-[48%] w-[560px] h-[560px] rounded-full -translate-x-1/2 -translate-y-1/2 z-[1] max-w-[80vw] max-h-[80vw]"
+    style="background:radial-gradient(circle at 35% 35%, #ffd590, #f5a552 40%, #F08826 65%, #d6620e 100%); box-shadow:0 0 120px 30px rgba(245,165,82,.45),0 0 260px 80px rgba(240,136,38,.25);"
+    data-parallax="-0.18"
+  >
+  </div>
+
+  <!-- Dunes -->
+  <div class="absolute left-0 right-0 bottom-0 h-[62%] z-[2] pointer-events-none">
+    <div class="absolute left-[-5%] right-[-5%] h-full opacity-85" style="bottom:30%" data-parallax="0.06">
+      <svg viewBox="0 0 1400 240" preserveAspectRatio="none" class="w-[110%] h-full block">
+        <path d="M0 200 C 200 120, 360 150, 580 100 S 980 180, 1400 60 L1400 240 L0 240Z" fill="#1B2378" opacity=".75" />
+      </svg>
+    </div>
+    <div class="absolute left-[-5%] right-[-5%] h-full opacity-95" style="bottom:14%" data-parallax="0.12">
+      <svg viewBox="0 0 1400 240" preserveAspectRatio="none" class="w-[110%] h-full block">
+        <path d="M0 180 C 220 140, 420 220, 660 140 S 1080 200, 1400 110 L1400 240 L0 240Z" fill="#0E1450" opacity=".9" />
+      </svg>
+    </div>
+    <div class="absolute left-[-5%] right-[-5%] h-full bottom-0" data-parallax="0.22">
+      <svg viewBox="0 0 1400 220" preserveAspectRatio="none" class="w-[110%] h-full block">
+        <path d="M0 160 C 240 220, 460 100, 720 160 S 1180 240, 1400 140 L1400 220 L0 220Z" fill="#080C3C" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- Village skyline -->
+  <div class="absolute left-[-10%] right-[-10%] bottom-0 h-[18%] z-[3] pointer-events-none" data-parallax="0.16">
+    <svg viewBox="0 0 1400 120" preserveAspectRatio="none" class="w-[120%] h-full block opacity-90">
+      <g fill="#060A30">
+        <rect x="60" y="60" width="40" height="60" /><rect x="100" y="40" width="54" height="80" />
+        <rect x="154" y="70" width="36" height="50" /><polygon points="190,70 220,55 250,70 250,120 190,120" />
+        <rect x="250" y="66" width="42" height="54" /><rect x="305" y="50" width="8" height="70" />
+        <path d="M340 80 Q360 50 380 80 L380 120 L340 120 Z" /><rect x="380" y="66" width="40" height="54" />
+        <rect x="460" y="74" width="30" height="46" /><rect x="490" y="60" width="50" height="60" />
+        <rect x="540" y="70" width="30" height="50" /><rect x="900" y="60" width="50" height="60" />
+        <rect x="950" y="45" width="40" height="75" /><rect x="990" y="68" width="36" height="52" />
+        <rect x="1026" y="55" width="60" height="65" /><polygon points="1086,65 1110,50 1134,65 1134,120 1086,120" />
+        <rect x="1150" y="40" width="6" height="80" /><rect x="1170" y="70" width="40" height="50" />
+        <rect x="1210" y="60" width="54" height="60" /><rect x="1264" y="74" width="36" height="46" />
+      </g>
+    </svg>
+  </div>
+
+  <!-- Content -->
+  <div class="relative z-[5] container py-40 sm:py-48 grid items-end min-h-screen gap-14 lg:grid-cols-[1.2fr_0.8fr]">
+    <div>
+      <span class="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-full bg-white/10 border border-white/25 text-[12.5px] font-medium tracking-wider backdrop-blur">
+        <span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_0_4px_rgba(240,136,38,.25)]"></span>
+        {t('hero.eyebrow', lang)}
+      </span>
+
+      <h1 class="font-serif font-light text-[clamp(48px,7.2vw,120px)] leading-[0.96] tracking-tight my-6">
+        {t('hero.title.line1', lang).split(/(au Sénégal|in Senegal|ci Senegaal)/i).map((part, i) => i === 1 ? <em class="italic text-[hsl(var(--secondary)/.9)] font-normal">{part}</em> : part)}
+        <br />
+        {t('hero.title.line2', lang).split(/(jamm)/i).map((part, i) => i === 1 ? <em class="italic text-[hsl(var(--secondary)/.9)] font-normal">{part}</em> : part)}
+      </h1>
+
+      <p class="text-[18px] leading-relaxed max-w-[540px] opacity-85">{t('hero.subtitle', lang)}</p>
+
+      <div class="flex flex-wrap gap-3.5 mt-9">
+        <a
+          href="#proprietes"
+          class="inline-flex items-center gap-2.5 px-7 py-4 rounded-full bg-secondary text-secondary-foreground font-semibold shadow-[0_10px_30px_-4px_rgba(240,136,38,.4)] hover:translate-y-[-2px] hover:shadow-[0_16px_36px_-4px_rgba(240,136,38,.5)] transition"
+        >
+          {t('hero.cta.primary', lang)}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+        </a>
+        <a
+          href="#contact"
+          class="inline-flex items-center gap-2.5 px-7 py-4 rounded-full bg-white/10 border border-white/30 hover:bg-white/20 transition font-semibold"
+        >
+          {t('hero.cta.secondary', lang)}
+        </a>
+      </div>
+    </div>
+
+    <HeroSearch client:visible lang={lang} />
+  </div>
+
+  <div class="absolute left-1/2 bottom-8 -translate-x-1/2 z-[6] text-white text-[11px] tracking-[0.3em] uppercase flex flex-col items-center gap-2.5 opacity-70 pointer-events-none">
+    <span>{t('hero.scroll', lang)}</span>
+    <span class="w-px h-10 bg-gradient-to-b from-white to-transparent"></span>
+  </div>
+</header>
+
+<script is:inline>
+  // Stars
+  const wrap = document.getElementById('hero-stars');
+  if (wrap) {
+    for (let i = 0; i < 60; i++) {
+      const s = document.createElement('i');
+      s.style.cssText = `position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;animation:twinkle 4s ease-in-out infinite;left:${Math.random()*100}%;top:${Math.random()*60}%;animation-delay:${(Math.random()*4).toFixed(2)}s;opacity:${(.2+Math.random()*.6).toFixed(2)}`;
+      wrap.appendChild(s);
+    }
+  }
+  // Parallax
+  function onScroll() {
+    document.querySelectorAll('[data-parallax]').forEach((el) => {
+      const rate = parseFloat(el.dataset.parallax);
+      const rect = el.getBoundingClientRect();
+      if (rect.bottom < -200 || rect.top > window.innerHeight + 200) return;
+      const offset = window.scrollY * rate;
+      el.style.transform = `translate3d(0,${offset}px,0)`;
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+</script>
+
+<style is:inline>
+  @keyframes twinkle { 50% { opacity: 0.15; } }
+</style>

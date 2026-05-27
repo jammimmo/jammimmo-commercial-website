@@ -1,0 +1,72 @@
+---
+import BrandMark from './BrandMark.astro';
+import LanguageSwitcher from './LanguageSwitcher.tsx';
+import { t, type Lang, localizedPath } from '@/lib/i18n';
+
+interface Props {
+  lang: Lang;
+  /** When true, the nav stays opaque from the top (e.g. on /biens pages). */
+  solid?: boolean;
+}
+const { lang, solid = false } = Astro.props;
+const p = (path: string) => localizedPath(path, lang);
+---
+
+<nav
+  id="nav"
+  class:list={[
+    'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+    solid ? 'bg-background/95 backdrop-blur shadow-sm text-foreground' : 'text-white',
+  ]}
+  data-solid={solid}
+>
+  <div class="container flex items-center justify-between h-[78px]">
+    <a href={p('/')} class="flex items-center gap-3 font-extrabold tracking-wide text-[17px]">
+      <BrandMark size={40} />
+      <span class="leading-none">
+        <span class="block">JAMM IMMOBILIER</span>
+        <small class="block font-medium text-[10px] opacity-70 mt-1 tracking-[0.12em] uppercase">
+          {t('site.tagline', lang)}
+        </small>
+      </span>
+    </a>
+
+    <div class="hidden md:flex items-center gap-7 text-[14.5px] font-medium">
+      <a href={p('/biens')} class="relative py-1.5 hover:opacity-80">{t('nav.listings', lang)}</a>
+      <a href={`${p('/')}#services`} class="relative py-1.5 hover:opacity-80">{t('nav.services', lang)}</a>
+      <a href={`${p('/')}#pourquoi`} class="relative py-1.5 hover:opacity-80">{t('nav.why', lang)}</a>
+      <a href={`${p('/')}#process`} class="relative py-1.5 hover:opacity-80">{t('nav.process', lang)}</a>
+      <a href={p('/contact')} class="relative py-1.5 hover:opacity-80">{t('nav.contact', lang)}</a>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <LanguageSwitcher client:idle lang={lang} pathname={Astro.url.pathname} />
+      <a
+        href={p('/contact')}
+        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm shadow-[0_6px_22px_-6px_hsl(var(--secondary)/.5)] hover:translate-y-[-1px] transition-transform"
+      >
+        {t('nav.cta', lang)}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" class="hidden sm:block">
+          <path d="M5 12h14M13 5l7 7-7 7" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<script>
+  // Toggle solid state on scroll for pages that start transparent.
+  const nav = document.getElementById('nav');
+  if (nav && nav.dataset.solid !== 'true') {
+    const apply = () => {
+      const scrolled = window.scrollY > 40;
+      nav.classList.toggle('bg-background/95', scrolled);
+      nav.classList.toggle('backdrop-blur', scrolled);
+      nav.classList.toggle('shadow-sm', scrolled);
+      nav.classList.toggle('text-foreground', scrolled);
+      nav.classList.toggle('text-white', !scrolled);
+    };
+    window.addEventListener('scroll', apply, { passive: true });
+    apply();
+  }
+</script>

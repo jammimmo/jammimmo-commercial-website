@@ -1,0 +1,57 @@
+{
+  "_NOTE": "Wolof translations to be reviewed by a native speaker. Keys not present here fall back to French via the t() helper in src/lib/i18n.ts.",
+
+  "site.name": "Jamm Immobilier",
+  "site.tagline": "Saytu bu wér ak xel mu dal",
+
+  "nav.listings": "Yu jaay",
+  "nav.services": "Liggéey yi",
+  "nav.why": "Lu tax",
+  "nav.process": "Tànk yi",
+  "nav.contact": "Jokkoo",
+  "nav.cta": "Saytu sa kër",
+
+  "hero.eyebrow": "Dakar · Saly · Mbour · Saint-Louis · Thiès",
+  "hero.title.line1": "Jëfandikoo kër ci Senegaal,",
+  "hero.title.line2": "ak jamm.",
+  "hero.subtitle": "Jënd, luwaa, topptoo ak dimbali sa projet — Jamm Immobilier dafa lay jàppale ngir nga jëfandikoo ak jamm.",
+  "hero.cta.primary": "Gis kër yi",
+  "hero.cta.secondary": "Saytu bu free",
+  "hero.scroll": "Gis lu ëpp",
+
+  "search.tab.vente": "Jënd",
+  "search.tab.location": "Luwaa",
+  "search.tab.gestion": "Topptoo",
+  "search.label.type": "Xeet",
+  "search.label.city": "Dëkk",
+  "search.label.rooms": "Néeg yu néew",
+  "search.label.budget": "Xaalis bu mag",
+  "search.submit": "Wut benn kër",
+
+  "properties.tag": "Yu nu tànn",
+  "properties.title": "Kër yi nu am.",
+  "properties.subtitle": "Yu am, yu jaay ba pare, yu luwaa, walla yu nu xool : leeral mooy sunu jëf.",
+  "properties.filter.all": "Yépp",
+  "properties.filter.sale": "Yu jaay",
+  "properties.filter.rent": "Yu luwaa",
+  "properties.filter.available": "Yu am",
+  "properties.filter.archive": "Yu jaay ba pare",
+  "properties.cta.viewAll": "Gis yépp",
+
+  "property.compare.add": "Méngale",
+  "property.compare.remove": "Génne",
+  "property.compare.bar.cta": "Méngale",
+  "property.compare.bar.clear": "Foltal",
+
+  "form.title": "Jokkoo ak ñun",
+  "form.subtitle": "Nu tontu la ci 24h.",
+  "form.firstName": "Tur",
+  "form.lastName": "Sant",
+  "form.phone": "Telefon",
+  "form.email": "Email",
+  "form.subject": "Sa projet",
+  "form.message": "Bataaxal",
+  "form.submit": "Yónnee",
+
+  "footer.copy": "© 2026 Jamm Immobilier — Yépp ñu mu am."
+}

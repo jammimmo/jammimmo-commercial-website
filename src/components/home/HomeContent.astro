@@ -1,0 +1,28 @@
+---
+import Hero from './Hero.astro';
+import Marquee from './Marquee.astro';
+import FeaturedListings from './FeaturedListings.astro';
+import Stats from './Stats.astro';
+import Services from './Services.astro';
+import ParallaxBand from './ParallaxBand.astro';
+import Why from './Why.astro';
+import Process from './Process.astro';
+import Testimonials from './Testimonials.astro';
+import ContactSection from './ContactSection.astro';
+import CompareBar from '@/components/property/CompareBar.tsx';
+import { getLang } from '@/lib/i18n';
+
+const lang = getLang(Astro.url);
+---
+
+<Hero lang={lang} />
+<Marquee />
+<FeaturedListings lang={lang} />
+<Stats lang={lang} />
+<Services lang={lang} />
+<ParallaxBand lang={lang} />
+<Why lang={lang} />
+<Process lang={lang} />
+<Testimonials lang={lang} />
+<ContactSection lang={lang} />
+<CompareBar client:idle lang={lang} />

@@ -1,0 +1,30 @@
+---
+import type { PublicProperty } from '@/types/property';
+import type { Lang } from '@/lib/i18n';
+import PropertyCard from './PropertyCard.astro';
+import { t } from '@/lib/i18n';
+
+interface Props {
+  properties: PublicProperty[];
+  lang: Lang;
+  hideCompare?: boolean;
+}
+const { properties, lang, hideCompare = false } = Astro.props;
+---
+
+{properties.length === 0 ? (
+  <div class="text-center py-16 text-muted-foreground">
+    <p>{t('properties.empty', lang)}</p>
+  </div>
+) : (
+  <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-property-grid>
+    {properties.map((p, i) => (
+      <PropertyCard
+        property={p}
+        lang={lang}
+        hideCompare={hideCompare}
+        delay={(['', 'd1', 'd2'] as const)[i % 3]}
+      />
+    ))}
+  </div>
+)}

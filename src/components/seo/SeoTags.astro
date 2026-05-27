@@ -1,0 +1,52 @@
+---
+import { buildHreflangLinks, type Lang } from '@/lib/i18n';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article';
+  canonical?: string;
+}
+
+const {
+  lang,
+  title,
+  description,
+  image = '/og-default.jpg',
+  imageAlt = 'Jamm Immobilier',
+  type = 'website',
+  canonical,
+} = Astro.props;
+
+const siteOrigin = Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com';
+const fullCanonical = canonical ?? `${siteOrigin}${Astro.url.pathname}`;
+const fullImage = image.startsWith('http') ? image : `${siteOrigin}${image}`;
+const hreflangs = buildHreflangLinks(Astro.url.pathname, siteOrigin);
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={fullCanonical} />
+
+{hreflangs.map((h) => <link rel="alternate" hreflang={h.hreflang} href={h.href} />)}
+
+<meta property="og:type" content={type} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={fullImage} />
+<meta property="og:image:alt" content={imageAlt} />
+<meta property="og:url" content={fullCanonical} />
+<meta property="og:site_name" content="Jamm Immobilier" />
+<meta property="og:locale" content={lang === 'fr' ? 'fr_SN' : lang === 'en' ? 'en_US' : 'wo_SN'} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={fullImage} />
+
+<meta name="theme-color" content="#2632A0" />
+<meta name="robots" content="index, follow" />
+<meta name="format-detection" content="telephone=no" />

@@ -1,0 +1,59 @@
+---
+import ContactForm from '@/components/forms/ContactForm.tsx';
+import { t, type Lang } from '@/lib/i18n';
+import { MapPin, Phone, Mail } from 'lucide-react';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+---
+
+<section id="contact" class="py-24 sm:py-32 text-white relative overflow-hidden" style="background: radial-gradient(circle at 90% 10%, rgba(240,136,38,.2), transparent 40%), linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.85) 100%);">
+  <div class="absolute left-[-10%] bottom-[-30%] w-[500px] h-[500px] rounded-full pointer-events-none" style="background:radial-gradient(circle, rgba(240,136,38,.35), transparent 70%);filter:blur(40px);"></div>
+  <div class="container relative z-[2]">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+      <div>
+        <div class="reveal inline-flex items-center gap-2 text-[12px] font-semibold tracking-wider uppercase text-[hsl(var(--secondary)/.85)] before:content-[''] before:w-6 before:h-px before:bg-[hsl(var(--secondary)/.85)]">
+          {t('contact.tag', lang)}
+        </div>
+        <h2 class="reveal d1 font-serif font-light text-[clamp(36px,4.8vw,68px)] leading-none tracking-tight mt-3 max-w-[14ch]">
+          <em class="italic text-[hsl(var(--secondary)/.95)] font-normal not-italic">{t('contact.title.line1', lang)}</em><br />
+          {t('contact.title.line2', lang)}
+        </h2>
+        <p class="reveal d1 text-white/75 max-w-[46ch] mt-7 mb-9 leading-relaxed text-[16.5px]">{t('contact.lead', lang)}</p>
+
+        <div class="flex flex-col gap-4">
+          <div class="reveal d1 flex gap-4 items-start p-5 rounded-2xl bg-white/8 border border-white/15">
+            <div class="w-10 h-10 rounded-xl bg-secondary/25 text-[hsl(var(--secondary)/.95)] grid place-items-center shrink-0">
+              <MapPin className="w-5 h-5" strokeWidth={1.7} />
+            </div>
+            <div>
+              <b class="block text-[11px] tracking-wider uppercase text-white/60 font-semibold mb-1">{t('contact.info.agency', lang)}</b>
+              <span class="text-[15px]">{t('contact.info.agencyValue', lang)}</span>
+            </div>
+          </div>
+          <div class="reveal d2 flex gap-4 items-start p-5 rounded-2xl bg-white/8 border border-white/15">
+            <div class="w-10 h-10 rounded-xl bg-secondary/25 text-[hsl(var(--secondary)/.95)] grid place-items-center shrink-0">
+              <Phone className="w-5 h-5" strokeWidth={1.7} />
+            </div>
+            <div>
+              <b class="block text-[11px] tracking-wider uppercase text-white/60 font-semibold mb-1">{t('contact.info.phone', lang)}</b>
+              <a href="tel:+221770000000" class="text-[15px] hover:text-secondary">{t('contact.info.phoneValue', lang)}</a>
+            </div>
+          </div>
+          <div class="reveal d3 flex gap-4 items-start p-5 rounded-2xl bg-white/8 border border-white/15">
+            <div class="w-10 h-10 rounded-xl bg-secondary/25 text-[hsl(var(--secondary)/.95)] grid place-items-center shrink-0">
+              <Mail className="w-5 h-5" strokeWidth={1.7} />
+            </div>
+            <div>
+              <b class="block text-[11px] tracking-wider uppercase text-white/60 font-semibold mb-1">{t('contact.info.email', lang)}</b>
+              <a href="mailto:contact@jammimmo.com" class="text-[15px] hover:text-secondary">{t('contact.info.emailValue', lang)}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal d2">
+        <ContactForm client:visible lang={lang} />
+      </div>
+    </div>
+  </div>
+</section>

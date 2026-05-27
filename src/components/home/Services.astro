@@ -1,0 +1,49 @@
+---
+import { t, type Lang } from '@/lib/i18n';
+import { Home, Key, Building2, Compass, ArrowRight } from 'lucide-react';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const services = [
+  { key: 'service.sale', icon: 'home', tone: 'primary' },
+  { key: 'service.rent', icon: 'key', tone: 'secondary' },
+  { key: 'service.manage', icon: 'building', tone: 'primary' },
+  { key: 'service.project', icon: 'compass', tone: 'secondary' },
+] as const;
+---
+
+<section id="services" class="py-24 sm:py-32 bg-background">
+  <div class="container">
+    <div class="flex flex-col lg:flex-row justify-between gap-8 mb-14">
+      <div class="reveal">
+        <div class="inline-flex items-center gap-2 text-[12px] font-semibold tracking-wider uppercase text-primary before:content-[''] before:w-6 before:h-px before:bg-primary">
+          {t('services.tag', lang)}
+        </div>
+        <h2 class="font-serif font-light text-[clamp(36px,4.8vw,68px)] leading-none tracking-tight mt-3 max-w-[14ch]">
+          <span set:html={t('services.title', lang).replace(/(projet immobilier|whole real estate project|projet bu kër)/i, '<em class="italic text-primary font-normal">$1</em>')} />
+        </h2>
+      </div>
+      <p class="reveal d1 text-muted-foreground leading-relaxed max-w-[420px] hidden md:block">
+        {t('services.subtitle', lang)}
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {services.map((s, i) => (
+        <div class={`reveal ${i > 0 ? `d${Math.min(i, 3)}` : ''} bg-card rounded-[22px] p-7 border border-clay min-h-[280px] flex flex-col justify-between hover:translate-y-[-6px] hover:shadow-[0_30px_60px_-30px_hsl(var(--ink)/.2)] hover:border-transparent transition group relative overflow-hidden`}>
+          <div>
+            <div class={`w-14 h-14 rounded-2xl grid place-items-center ${s.tone === 'primary' ? 'bg-accent text-primary' : 'bg-secondary/15 text-secondary'}`}>
+              {s.icon === 'home' && <Home className="w-6 h-6" strokeWidth={1.6} />}
+              {s.icon === 'key' && <Key className="w-6 h-6" strokeWidth={1.6} />}
+              {s.icon === 'building' && <Building2 className="w-6 h-6" strokeWidth={1.6} />}
+              {s.icon === 'compass' && <Compass className="w-6 h-6" strokeWidth={1.6} />}
+            </div>
+            <h3 class="font-serif font-normal text-[24px] tracking-tight mt-6 mb-2.5">{t(`${s.key}.title`, lang)}</h3>
+            <p class="text-muted-foreground leading-relaxed text-[14.5px]">{t(`${s.key}.desc`, lang)}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,37 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import DetailContent from '@/components/property/DetailContent.astro';
+import JsonLdProperty from '@/components/seo/JsonLdProperty.astro';
+import { listAllPublicRefs, getPublicPropertyByRef, findSimilar } from '@/lib/supabase';
+import { formatRentalPrice } from '@/lib/format';
+import { slugToRef } from '@/lib/reference';
+import { getLang } from '@/lib/i18n';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const refs = await listAllPublicRefs();
+  return refs.map((r) => ({ params: { ref: r.reference.toLowerCase() } }));
+}
+
+const { ref } = Astro.params;
+if (!ref) return Astro.redirect('/en/biens', 307);
+
+const property = await getPublicPropertyByRef(slugToRef(ref));
+const lang = getLang(Astro.url);
+
+if (!property) return Astro.redirect('/en/biens', 307);
+
+const similar = await findSimilar(property, 3);
+const seoTitle = `${property.type} ${property.surface > 0 ? `${property.surface}sqm ` : ''}${property.quartier} ${property.city} — ${formatRentalPrice(property.price, property.transaction_type)} | Jamm Immobilier`;
+const seoDescription = (property.commercial_message || property.description).slice(0, 160);
+const seoImage = property.images[0];
+const canonical = `${Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com'}${Astro.url.pathname}`;
+---
+
+<BaseLayout title={seoTitle} description={seoDescription} image={seoImage} type="article" canonical={canonical} solidNav>
+  <slot slot="head">
+    <JsonLdProperty property={property} url={canonical} />
+  </slot>
+  <DetailContent property={property} similar={similar} />
+</BaseLayout>

@@ -1,0 +1,38 @@
+---
+import { listPublicProperties } from '@/lib/supabase';
+import PropertyGrid from '@/components/property/PropertyGrid.astro';
+import { t, type Lang, localizedPath } from '@/lib/i18n';
+import { ArrowRight } from 'lucide-react';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const featured = await listPublicProperties({ limit: 6, order: 'published_at_desc' });
+---
+
+<section id="proprietes" class="py-24 sm:py-32 bg-background">
+  <div class="container">
+    <div class="flex flex-col lg:flex-row justify-between gap-8 mb-12">
+      <div class="reveal">
+        <div class="inline-flex items-center gap-2 text-[12px] font-semibold tracking-wider uppercase text-primary before:content-[''] before:w-6 before:h-px before:bg-primary">
+          {t('properties.tag', lang)}
+        </div>
+        <h2 class="font-serif font-light text-[clamp(36px,4.8vw,68px)] leading-none tracking-tight mt-3 max-w-[14ch]">
+          <span set:html={t('properties.title', lang).replace(/(biens du moment|current properties|kër yi nu am)/i, '<em class="italic text-primary font-normal">$1</em>')} />
+        </h2>
+      </div>
+      <p class="reveal d1 text-muted-foreground leading-relaxed max-w-[420px] hidden md:block">{t('properties.subtitle', lang)}</p>
+    </div>
+
+    <PropertyGrid properties={featured} lang={lang} />
+
+    <div class="flex justify-center mt-12">
+      <a
+        href={localizedPath('/biens', lang)}
+        class="inline-flex items-center gap-2 px-7 py-3.5 rounded-full border-2 border-primary text-primary font-semibold hover:bg-primary hover:text-primary-foreground transition"
+      >
+        {t('properties.cta.viewAll', lang)}
+        <ArrowRight className="w-4 h-4" />
+      </a>
+    </div>
+  </div>
+</section>
