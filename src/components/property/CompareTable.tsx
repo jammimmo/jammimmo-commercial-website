@@ -34,9 +34,14 @@ export default function CompareTable({ lang }: Props) {
       return;
     }
     setLoading(true);
+    // Static JSON files are emitted at `/api/property/<ref-lowercase>.json`
+    // (see api/property/[ref].json.ts:getStaticPaths). Stored refs preserve
+    // their original casing, so we trim + lower-case here before fetching.
     Promise.all(
       refs.map((r) =>
-        fetch(`/api/property/${encodeURIComponent(r)}.json`).then((res) => (res.ok ? res.json() : null)),
+        fetch(`/api/property/${encodeURIComponent(r.trim().toLowerCase())}.json`).then((res) =>
+          res.ok ? res.json() : null,
+        ),
       ),
     )
       .then((list) => {

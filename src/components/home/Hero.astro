@@ -133,20 +133,41 @@ const { lang } = Astro.props;
       wrap.appendChild(s);
     }
   }
-  // Parallax — preserve the sun's centring transform when scrolling.
-  function onScroll() {
-    document.querySelectorAll('[data-parallax]').forEach((el) => {
-      const rate = parseFloat(el.dataset.parallax);
-      const rect = el.getBoundingClientRect();
-      if (rect.bottom < -200 || rect.top > window.innerHeight + 200) return;
-      const offset = window.scrollY * rate;
-      if (el.classList.contains('sun-rings')) {
-        el.style.transform = `translate(-50%, calc(-50% + ${offset}px))`;
-      } else {
-        el.style.transform = `translate3d(0,${offset}px,0)`;
+
+  // Parallax — rAF-batched, skipped on touch devices and when the user
+  // prefers reduced motion. Synchronous scroll handlers cause noticeable
+  // judder on mobile Safari (the iOS rubber-band scroll fights with
+  // transform writes mid-frame), so coarse pointers get a static hero.
+  const coarsePointer = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!coarsePointer && !reduceMotion) {
+    const layers = Array.from(document.querySelectorAll('[data-parallax]')).map((el) => ({
+      el,
+      rate: parseFloat(el.dataset.parallax),
+      isSun: el.classList.contains('sun-rings'),
+    }));
+    let ticking = false;
+    function apply() {
+      const y = window.scrollY;
+      const vh = window.innerHeight;
+      for (const { el, rate, isSun } of layers) {
+        const r = el.getBoundingClientRect();
+        if (r.bottom < -200 || r.top > vh + 200) continue;
+        const offset = y * rate;
+        // will-change + translate3d already promote a compositor layer; the
+        // sun keeps its -50%/-50% centring.
+        el.style.transform = isSun
+          ? `translate(-50%, calc(-50% + ${offset}px))`
+          : `translate3d(0,${offset}px,0)`;
       }
-    });
+      ticking = false;
+    }
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(apply);
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    apply();
   }
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
 </script>

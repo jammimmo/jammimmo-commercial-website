@@ -1,15 +1,11 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { youtubeIdFromUrl, youtubeAspect } from '@/lib/youtube';
 
 interface Props {
   images: string[];
   videoLinks?: string[];
   title: string;
-}
-
-function youtubeIdFromUrl(url: string): string | null {
-  const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
-  return m ? m[1]! : null;
 }
 
 export default function PropertyGallery({ images, videoLinks = [], title }: Props) {
@@ -18,9 +14,14 @@ export default function PropertyGallery({ images, videoLinks = [], title }: Prop
 
   const hasImages = images.length > 0;
   const total = images.length;
-  const videoIds = videoLinks.map(youtubeIdFromUrl).filter((id): id is string => id !== null);
 
-  if (!hasImages && videoIds.length === 0) {
+  // Parse + keep the original URL alongside the ID so we can detect Shorts
+  // and ask oEmbed for the true aspect ratio when it differs from the guess.
+  const videos = videoLinks
+    .map((url) => ({ url, id: youtubeIdFromUrl(url) }))
+    .filter((v): v is { url: string; id: string } => v.id !== null);
+
+  if (!hasImages && videos.length === 0) {
     return (
       <div className="aspect-[16/9] grid place-items-center bg-muted text-muted-foreground rounded-2xl">
         Pas d'aperçu disponible
@@ -83,19 +84,14 @@ export default function PropertyGallery({ images, videoLinks = [], title }: Prop
         </div>
       )}
 
-      {videoIds.length > 0 && (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {videoIds.map((id) => (
-            <div key={id} className="aspect-video overflow-hidden rounded-2xl border border-clay">
-              <iframe
-                src={`https://www.youtube-nocookie.com/embed/${id}`}
-                title={`Vidéo — ${title}`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                loading="lazy"
-                className="w-full h-full"
-              />
-            </div>
+      {videos.length > 0 && (
+        // Portrait videos take roughly half the width of a landscape pair, so
+        // we cap each embed at ~360 px and let them flow side-by-side on wide
+        // screens. The single-column max-w-md prevents the player swallowing
+        // the whole gallery on mobile.
+        <div className="grid gap-3 sm:grid-cols-2 sm:[grid-template-columns:repeat(auto-fit,minmax(260px,360px))] justify-center">
+          {videos.map((v) => (
+            <YoutubeEmbed key={v.id} url={v.url} id={v.id} title={title} />
           ))}
         </div>
       )}
@@ -124,6 +120,30 @@ export default function PropertyGallery({ images, videoLinks = [], title }: Prop
           />
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * YouTube iframe sized to the source video's aspect ratio. JammImmo's tour
+ * videos are phone-shot vertical, so the lib defaults to 9:16. See
+ * `youtubeAspect` for why we don't auto-upgrade via oEmbed.
+ */
+function YoutubeEmbed({ url, id, title }: { url: string; id: string; title: string }) {
+  const aspect = youtubeAspect(url);
+  return (
+    <div
+      className="overflow-hidden rounded-2xl border border-clay bg-ink"
+      style={{ aspectRatio: aspect }}
+    >
+      <iframe
+        src={`https://www.youtube-nocookie.com/embed/${id}`}
+        title={`Vidéo — ${title}`}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        loading="lazy"
+        className="w-full h-full"
+      />
     </div>
   );
 }
