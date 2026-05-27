@@ -9,7 +9,7 @@ const { lang } = Astro.props;
 const featured = await listPublicProperties({ limit: 6, order: 'published_at_desc' });
 ---
 
-<section id="proprietes" class="py-24 sm:py-32 bg-background">
+<section id="proprietes" class="py-20 lg:py-[130px] bg-background">
   <div class="container">
     <div class="flex flex-col lg:flex-row justify-between gap-8 mb-12">
       <div class="reveal">
