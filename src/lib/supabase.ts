@@ -12,8 +12,8 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { DbProperty, PublicProperty } from '@/types/property';
 
-const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
-const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? '';
+const SUPABASE_URL = import.meta.env.SUPABASE_URL ?? '';
+const SUPABASE_ANON_KEY = import.meta.env.SUPABASE_ANON_KEY ?? '';
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   // Soft-fail at build time so a missing env var doesn't break the build —
@@ -21,7 +21,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   // We log instead of throw so CI logs surface the problem.
   // eslint-disable-next-line no-console
   console.warn(
-    '[supabase] PUBLIC_SUPABASE_URL or PUBLIC_SUPABASE_ANON_KEY missing — public property fetch will return [].',
+    '[supabase] SUPABASE_URL or SUPABASE_ANON_KEY missing — public property fetch will return [].',
   );
 }
 

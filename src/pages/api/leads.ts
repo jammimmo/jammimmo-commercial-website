@@ -16,8 +16,8 @@ const LeadSchema = z.object({
 });
 
 export const POST: APIRoute = async ({ request }) => {
-  const url = import.meta.env.PUBLIC_SUPABASE_URL;
-  const anon = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+  const url = import.meta.env.SUPABASE_URL;
+  const anon = import.meta.env.SUPABASE_ANON_KEY;
   if (!url || !anon) {
     return new Response(JSON.stringify({ error: 'Server misconfigured' }), {
       status: 500,

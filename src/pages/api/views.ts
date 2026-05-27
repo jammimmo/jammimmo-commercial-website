@@ -20,8 +20,8 @@ async function hashIp(ip: string): Promise<string> {
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const url = import.meta.env.PUBLIC_SUPABASE_URL;
-  const anon = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+  const url = import.meta.env.SUPABASE_URL;
+  const anon = import.meta.env.SUPABASE_ANON_KEY;
   if (!url || !anon) {
     // Don't 500 the beacon — just no-op so frontend never bubbles a banner.
     return new Response(null, { status: 204 });

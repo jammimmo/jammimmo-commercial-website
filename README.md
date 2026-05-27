@@ -69,7 +69,7 @@ pnpm install
 
 # Variables d'env (vraies valeurs dans le wrangler.jsonc de l'admin)
 cp .env.example .env
-# Renseigner PUBLIC_SUPABASE_URL + PUBLIC_SUPABASE_ANON_KEY
+# Renseigner SUPABASE_URL + SUPABASE_ANON_KEY
 
 pnpm dev      # http://localhost:4321
 pnpm build    # build prod (vers dist/)
@@ -87,8 +87,8 @@ pnpm dlx supabase gen types typescript --project-id ygaawqgwxlbtkcuqecxh > src/t
 
 1. **Connect** le repo `jammimmo-commercial-website` à Cloudflare Pages.
 2. **Settings → Environment variables** :
-   - `PUBLIC_SUPABASE_URL` = `https://ygaawqgwxlbtkcuqecxh.supabase.co`
-   - `PUBLIC_SUPABASE_ANON_KEY` = `<anon publishable key>` (dans wrangler.jsonc admin)
+   - `SUPABASE_URL` = `https://ygaawqgwxlbtkcuqecxh.supabase.co`
+   - `SUPABASE_ANON_KEY` = `<anon publishable key>` (dans wrangler.jsonc admin)
    - `REVALIDATE_SECRET` = `<long random string>` (pour le webhook)
    - `DEPLOY_HOOK_URL` = `<URL générée dans Pages → Deploy hooks>`
 3. **Build settings** :
