@@ -103,8 +103,13 @@ const { lang } = Astro.props;
       </div>
     </div>
 
-    <div class="reveal d3 self-end lg:-translate-y-10">
-      <HeroSearch client:visible lang={lang} />
+    <!-- Search card: base translateY(-40 px) lift on large screens (an inner
+         wrapper holds it so the outer wrapper's transform stays free for the
+         parallax JS), plus data-parallax="-0.04" so it nudges as you scroll. -->
+    <div class="reveal d3 self-end" data-parallax="-0.04">
+      <div class="lg:-translate-y-10">
+        <HeroSearch client:visible lang={lang} />
+      </div>
     </div>
   </div>
 

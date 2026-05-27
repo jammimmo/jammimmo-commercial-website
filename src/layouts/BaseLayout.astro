@@ -46,7 +46,7 @@ const {
   </head>
   <body class="min-h-screen bg-background text-foreground font-sans antialiased">
     <Header lang={lang} solid={solidNav} />
-    <main class="pt-[78px]"><slot /></main>
+    <main class={solidNav ? 'pt-[78px]' : ''}><slot /></main>
     <Footer lang={lang} />
 
     <script>
