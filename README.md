@@ -4,7 +4,7 @@ Site marketing public pour Jamm Immobilier. Reconstruction greenfield en Astro 4
 
 ## Architecture — Tier 3 (vitrine ↔ admin isolation)
 
-La vitrine est **complètement statique** côté visiteurs. Aucun secret d'admin n'existe au runtime ; deux projets Supabase distincts encadrent les flux :
+La vitrine est **complètement statique** côté visiteurs. Aucun secret d'admin n'existe au runtime ; admin et intake vivent chez deux fournisseurs différents (Supabase pour admin, Cloudflare D1 pour intake) :
 
 ```
    admin Supabase (jammimmo-estate-flow)              GitHub Actions
@@ -19,13 +19,13 @@ La vitrine est **complètement statique** côté visiteurs. Aucun secret d'admin
    │  - verify HMAC                  │              ┌────────────────────┐
    │  - KV debounce 60 s             │──repository──▶│   jammimmo.com    │
    │  - GitHub repository_dispatch   │   dispatch    │ (CF Pages edge)   │
-   └─────────────────────────────────┘               │ Functions know    │
-                                                     │ only INTAKE_* env │
+   └─────────────────────────────────┘               │ INTAKE_DB binding │
+                                                     │ (no key on wire)  │
                                                      └─────────┬─────────┘
                                                                │ leads/views
                                                                ▼
                                                    ┌──────────────────────┐
-                                                   │ intake Supabase      │
+                                                   │ Cloudflare D1        │
                                                    │ (jammimmo-intake)    │
                                                    │ leads, property_views│
                                                    └──────────────────────┘
@@ -34,8 +34,9 @@ La vitrine est **complètement statique** côté visiteurs. Aucun secret d'admin
 **Pourquoi cette séparation** :
 
 - Le visiteur télécharge du HTML pré-rendu, jamais de JS qui contient un endpoint admin.
-- Une compromission du Worker Pages déployé donne au maximum un accès `INSERT` sur la DB intake. Aucune lecture ni écriture possible côté admin.
 - Le seul credential capable de lire la DB admin (clé `service_role`) vit dans les secrets GitHub Actions, jamais dans le runtime Pages.
+- L'intake (D1) est accessible uniquement via le binding Worker — **aucune clé API n'est sur le fil**. Une compromission du runtime se limite à l'envoi de lignes dans D1 ; rien ne peut atteindre Supabase admin.
+- D1 (Cloudflare) et Supabase (admin) sont deux fournisseurs distincts : une panne ou une compromission de l'un n'affecte pas l'autre.
 
 ### Budget de rafraîchissement
 
@@ -73,22 +74,22 @@ Bursts (5 toggles en 30 s) sont collapsés en 1 build via le debounce KV + `conc
 | `/biens/[ref]` (×3 langs) | SSG (1 page par bien) | bien complet + 3 similaires |
 | `/contact` (×3 langs) | SSG | form contact général |
 | `/comparer` (×3 langs) | SSG + island | comparateur (localStorage) |
-| `/api/leads` | SSR (POST) | INSERT dans intake `leads` |
-| `/api/views` | SSR (POST) | INSERT dans intake `property_views` (hash IP côté serveur) |
+| `/api/leads` | SSR (POST) | INSERT dans D1 `leads` (binding `INTAKE_DB`) |
+| `/api/views` | SSR (POST) | INSERT dans D1 `property_views` (hash IP côté serveur) |
 | `/api/revalidate` | SSR (POST) | webhook admin → `repository_dispatch` |
 | `/api/property/[ref].json` | SSG | un bien (lue par le comparateur côté client) |
 | `/sitemap.xml` | SSG | multi-langue |
 
 ## Pré-requis côté admin (eStateflow)
 
-Migration **`20260524130000_add_public_visibility.sql`** (PR #3 sur `jammimmo-estate-flow`) : ajoute `is_public`, `published_at`, le trigger, l'index partiel, et la policy RLS anon SELECT. Les tables `leads` / `property_views` ne vivent **plus** dans la DB admin — elles ont été déplacées vers la DB intake (cf. `supabase/intake/`).
+Migration **`20260524130000_add_public_visibility.sql`** (PR #3 sur `jammimmo-estate-flow`) : ajoute `is_public`, `published_at`, le trigger, l'index partiel, et la policy RLS anon SELECT. Les tables `leads` / `property_views` ne vivent **plus** dans la DB admin — elles ont été déplacées vers Cloudflare D1 (cf. [`d1/`](d1/)).
 
 ## Modules clés
 
 | Fichier | Quand | Pour quoi |
 |---|---|---|
 | `src/lib/supabase.build.ts` | build-only (Node, GH Actions) | lecture admin via `process.env.ADMIN_SUPABASE_*` — jamais bundlé dans le runtime |
-| `src/lib/intake.ts` | runtime (CF Pages Worker) | INSERT intake via `import.meta.env.INTAKE_SUPABASE_*` |
+| `src/lib/intake.ts` | runtime (CF Pages Worker) | INSERT intake via le binding D1 `INTAKE_DB` (wrangler.toml) |
 | `src/pages/api/revalidate.ts` | runtime | HMAC verify + KV debounce + GitHub dispatch |
 | `.github/workflows/deploy.yml` | CI | build + deploy déclenchés par push/dispatch |
 
@@ -117,7 +118,11 @@ cd jammimmo-commercial-website
 pnpm install
 
 cp .env.example .env
-# Renseigner ADMIN_SUPABASE_* (lecture biens) + INTAKE_SUPABASE_* (écriture leads)
+# Renseigner ADMIN_SUPABASE_* (lecture biens au build)
+
+# Bootstrap D1 local (une fois)
+wrangler d1 create jammimmo-intake               # copier l'id retourné dans wrangler.toml
+wrangler d1 execute jammimmo-intake --local --file=d1/migrations/0001_init.sql
 
 pnpm dev      # http://localhost:4321
 pnpm build    # build prod (vers dist/)
@@ -126,12 +131,12 @@ pnpm preview  # serve dist/ localement
 
 ## Secrets — qui va où
 
-| Secret | GitHub Actions | Cloudflare Pages | Rôle |
+| Secret / binding | GitHub Actions | Cloudflare Pages | Rôle |
 |---|---|---|---|
 | `ADMIN_SUPABASE_URL` | ✅ | ❌ | lecture biens au build |
 | `ADMIN_SUPABASE_SERVICE_ROLE_KEY` | ✅ | ❌ | lecture biens au build |
-| `INTAKE_SUPABASE_URL` | ✅ (pour le build) | ✅ | écriture leads/views au runtime |
-| `INTAKE_SUPABASE_ANON_KEY` | ✅ (pour le build) | ✅ | écriture leads/views au runtime |
+| `INTAKE_DB` | ❌ | binding (wrangler.toml) | écriture leads/views au runtime (D1) |
+| `REFRESH_KV` | ❌ | binding (wrangler.toml) | debounce webhook |
 | `REVALIDATE_HMAC_SECRET` | ❌ | ✅ | vérif webhook admin |
 | `GH_DISPATCH_TOKEN` | ❌ | ✅ | déclencher `repository_dispatch` |
 | `GH_REPO` | ❌ | ✅ | nom du repo |
@@ -142,13 +147,13 @@ pnpm preview  # serve dist/ localement
 
 ## Déploiement initial
 
-1. **Créer le projet intake Supabase** (cf. [`supabase/intake/README.md`](supabase/intake/README.md)).
-2. **Créer un KV namespace** : `wrangler kv:namespace create REFRESH_KV`, copier l'ID dans `wrangler.toml`.
-3. **Configurer les secrets GitHub** : `gh secret set` pour toutes les colonnes "GitHub Actions" ci-dessus.
-4. **Configurer les secrets Cloudflare Pages** : dashboard ou `wrangler pages secret put` pour toutes les colonnes "Cloudflare Pages".
-5. **Créer un PAT fine-grained** scoped à ce repo : `Contents:write` + `Metadata:read`. Le mettre dans `GH_DISPATCH_TOKEN`.
+1. **Créer la D1 intake** : `wrangler d1 create jammimmo-intake` → copier `database_id` dans `wrangler.toml` → `wrangler d1 execute jammimmo-intake --remote --file=d1/migrations/0001_init.sql`. Voir [`d1/README.md`](d1/README.md).
+2. **Créer un KV namespace** : `wrangler kv:namespace create REFRESH_KV` → copier l'`id` dans `wrangler.toml`.
+3. **Configurer les secrets GitHub** : `gh secret set` pour `ADMIN_SUPABASE_URL`, `ADMIN_SUPABASE_SERVICE_ROLE_KEY`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`.
+4. **Configurer les secrets Cloudflare Pages** : dashboard ou `wrangler pages secret put` pour `REVALIDATE_HMAC_SECRET`, `GH_DISPATCH_TOKEN`, `GH_REPO`.
+5. **Créer un PAT fine-grained GitHub** scoped à ce repo : `Contents:write` + `Metadata:read`. Le mettre dans `GH_DISPATCH_TOKEN`.
 6. **Configurer le trigger admin** : créer un trigger `pg_net` côté admin Supabase qui POST sur `https://jammimmo.com/api/revalidate` avec headers `x-vitrine-signature` (hex HMAC-SHA256) + `x-vitrine-timestamp` (unix seconds). Voir [`/api/revalidate`](src/pages/api/revalidate.ts) pour le format attendu.
-7. **Premier déploiement** : push sur `main` ou `gh workflow run deploy.yml`.
+7. **Premier déploiement** : push sur `main` ou déclencher manuellement le workflow `deploy.yml`.
 
 ## i18n
 

@@ -23,10 +23,8 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Build (smoke — credentials optional on PRs from forks)
+      - name: Build (smoke — admin credentials optional on fork PRs)
         env:
           ADMIN_SUPABASE_URL: ${{ secrets.ADMIN_SUPABASE_URL }}
           ADMIN_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.ADMIN_SUPABASE_SERVICE_ROLE_KEY }}
-          INTAKE_SUPABASE_URL: ${{ secrets.INTAKE_SUPABASE_URL }}
-          INTAKE_SUPABASE_ANON_KEY: ${{ secrets.INTAKE_SUPABASE_ANON_KEY }}
         run: pnpm build

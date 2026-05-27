@@ -42,11 +42,8 @@ jobs:
           # exclusively via process.env so Vite never bundles it.
           ADMIN_SUPABASE_URL: ${{ secrets.ADMIN_SUPABASE_URL }}
           ADMIN_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.ADMIN_SUPABASE_SERVICE_ROLE_KEY }}
-          # Intake DB anon credentials baked into the runtime bundle (Workers
-          # need them at runtime, but they live in the separate intake project
-          # so leakage is bounded to the intake DB).
-          INTAKE_SUPABASE_URL: ${{ secrets.INTAKE_SUPABASE_URL }}
-          INTAKE_SUPABASE_ANON_KEY: ${{ secrets.INTAKE_SUPABASE_ANON_KEY }}
+          # Intake DB is Cloudflare D1, wired via wrangler.toml bindings —
+          # no build-time env vars needed.
         run: pnpm build
 
       - name: Deploy to Cloudflare Pages

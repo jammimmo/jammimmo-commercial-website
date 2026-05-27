@@ -9,6 +9,10 @@ const ViewSchema = z.object({
   referrer: z.string().max(500).nullable().optional(),
 });
 
+interface CFLocals {
+  runtime?: { env?: { INTAKE_DB?: D1Database } };
+}
+
 async function hashIp(ip: string): Promise<string> {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(ip));
   return [...new Uint8Array(buf)]
@@ -17,7 +21,7 @@ async function hashIp(ip: string): Promise<string> {
     .slice(0, 16);
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   let body: unknown;
   try {
     body = await request.json();
@@ -30,7 +34,8 @@ export const POST: APIRoute = async ({ request }) => {
   const ip = request.headers.get('cf-connecting-ip') ?? request.headers.get('x-real-ip') ?? '';
   const country = request.headers.get('cf-ipcountry') ?? null;
 
-  await insertView({
+  const db = (locals as CFLocals).runtime?.env?.INTAKE_DB;
+  await insertView(db, {
     property_id: parsed.data.property_id,
     ip_hash: ip ? await hashIp(ip) : null,
     country,

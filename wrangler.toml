@@ -3,13 +3,23 @@ compatibility_date = "2026-05-01"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "./dist"
 
-# Workers KV used by /api/revalidate to debounce bursts of webhook calls.
-# Create the namespace once: `wrangler kv:namespace create REFRESH_KV`
-# and paste the returned id below.
+# Workers KV — used by /api/revalidate to debounce bursts of webhook calls.
+# Bootstrap once: `wrangler kv:namespace create REFRESH_KV`
+# then paste the returned id below.
 [[kv_namespaces]]
 binding = "REFRESH_KV"
 id = "REPLACE_WITH_KV_NAMESPACE_ID"
 
-# No [vars] block on purpose — runtime env (INTAKE_*, REVALIDATE_HMAC_SECRET,
+# D1 intake DB — backs /api/leads and /api/views. Schema lives in
+# d1/migrations/. Bootstrap once:
+#   wrangler d1 create jammimmo-intake
+#   # paste the returned database_id below, then:
+#   wrangler d1 execute jammimmo-intake --remote --file=d1/migrations/0001_init.sql
+[[d1_databases]]
+binding = "INTAKE_DB"
+database_name = "jammimmo-intake"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+# No [vars] block on purpose — runtime env (REVALIDATE_HMAC_SECRET,
 # GH_DISPATCH_TOKEN, GH_REPO) is set via the Cloudflare Pages dashboard /
 # `wrangler pages secret put` so secrets never sit in this repo.

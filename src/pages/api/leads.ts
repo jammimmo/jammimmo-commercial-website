@@ -24,7 +24,11 @@ const LeadSchema = z.object({
   message: z.string().max(2000).optional(),
 });
 
-export const POST: APIRoute = async ({ request }) => {
+interface CFLocals {
+  runtime?: { env?: { INTAKE_DB?: D1Database } };
+}
+
+export const POST: APIRoute = async ({ request, locals }) => {
   let body: unknown;
   try {
     body = await request.json();
@@ -37,7 +41,8 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: 'Validation failed', details: parsed.error.flatten() }, 422);
   }
 
-  const result = await insertLead(parsed.data);
+  const db = (locals as CFLocals).runtime?.env?.INTAKE_DB;
+  const result = await insertLead(db, parsed.data);
   if (!result.ok) {
     return json({ error: 'Insert failed', details: result.error }, 500);
   }

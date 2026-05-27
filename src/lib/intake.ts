@@ -1,16 +1,20 @@
 /**
- * Runtime intake writer. Tier 3 isolation:
+ * Runtime intake writer — Cloudflare D1.
  *
- * Cloudflare Pages Functions only ever talk to the intake Supabase project
- * (anon key + RLS INSERT policy). If a hacker pulls these credentials off
- * the deployed Worker, the blast radius is bounded to the intake DB — they
- * cannot read or write any admin data.
+ * Tier 3 isolation:
+ * - The vitrine writes leads + views to a D1 database accessed via the
+ *   `INTAKE_DB` binding declared in wrangler.toml. There is no API key on
+ *   the wire; D1 access is a Worker-level capability that only this worker
+ *   has. Compromise of the deployed worker can spam this DB at worst; it
+ *   cannot read or write the admin Supabase project.
+ * - Only `insertLead` and `insertView` are exposed. Nothing in this module
+ *   does SELECT/UPDATE/DELETE — even though D1 has no RLS-style guard, the
+ *   worker code is the only thing that can touch the binding, and this file
+ *   is the only thing in the worker that uses it.
  *
- * Reads `import.meta.env.INTAKE_SUPABASE_*` (NOT the admin keys). Schema is
- * owned by `supabase/intake/migrations/` in this same repo.
+ * The admin-side mirror worker reads via the D1 HTTP API with an account
+ * token (separate PR, separate credential).
  */
-
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 export interface LeadPayload {
   property_id?: string;
@@ -27,46 +31,50 @@ export interface ViewPayload {
   referrer: string | null;
 }
 
-let _client: SupabaseClient | null = null;
-function client(url: string, anon: string): SupabaseClient {
-  if (!_client) {
-    _client = createClient(url, anon, {
-      auth: { persistSession: false, autoRefreshToken: false },
-      global: { headers: { 'x-application-name': 'jammimmo-vitrine-runtime' } },
-    });
+export async function insertLead(
+  db: D1Database | undefined,
+  payload: LeadPayload,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!db) return { ok: false, error: 'Intake DB not configured' };
+  try {
+    await db
+      .prepare(
+        `INSERT INTO leads
+           (id, property_id, full_name, phone, email, message, source, status)
+         VALUES (?, ?, ?, ?, ?, ?, 'vitrine', 'nouveau')`,
+      )
+      .bind(
+        crypto.randomUUID(),
+        payload.property_id ?? null,
+        payload.full_name,
+        payload.phone,
+        payload.email ?? null,
+        payload.message ?? null,
+      )
+      .run();
+    return { ok: true };
+  } catch (e: any) {
+    return { ok: false, error: e?.message ?? 'Insert failed' };
   }
-  return _client;
 }
 
-function env(): { url: string; anon: string } | null {
-  const url = import.meta.env.INTAKE_SUPABASE_URL as string | undefined;
-  const anon = import.meta.env.INTAKE_SUPABASE_ANON_KEY as string | undefined;
-  if (!url || !anon) return null;
-  return { url, anon };
-}
-
-export async function insertLead(payload: LeadPayload): Promise<{ ok: true } | { ok: false; error: string }> {
-  const e = env();
-  if (!e) return { ok: false, error: 'Intake DB not configured' };
-  const { error } = await client(e.url, e.anon).from('leads').insert({
-    property_id: payload.property_id ?? null,
-    full_name: payload.full_name,
-    phone: payload.phone,
-    email: payload.email ?? null,
-    message: payload.message ?? null,
-    source: 'vitrine',
-    status: 'nouveau',
-  });
-  if (error) return { ok: false, error: error.message };
-  return { ok: true };
-}
-
-export async function insertView(payload: ViewPayload): Promise<void> {
-  const e = env();
-  if (!e) return;
-  // Fire and forget — beacon writes never bubble errors to the client.
-  await client(e.url, e.anon)
-    .from('property_views')
-    .insert(payload)
-    .then(() => undefined, () => undefined);
+export async function insertView(db: D1Database | undefined, payload: ViewPayload): Promise<void> {
+  if (!db) return;
+  try {
+    await db
+      .prepare(
+        `INSERT INTO property_views (id, property_id, ip_hash, country, referrer)
+         VALUES (?, ?, ?, ?, ?)`,
+      )
+      .bind(
+        crypto.randomUUID(),
+        payload.property_id,
+        payload.ip_hash,
+        payload.country,
+        payload.referrer,
+      )
+      .run();
+  } catch {
+    // Beacon: never bubble errors to the visitor.
+  }
 }
