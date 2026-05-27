@@ -1,8 +1,8 @@
 name: Build check
 
+# Tier 3: push:main is handled by deploy.yml (which both checks and ships).
+# This job exists for pull requests + manual smoke runs.
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -23,8 +23,10 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Build
+      - name: Build (smoke — credentials optional on PRs from forks)
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          ADMIN_SUPABASE_URL: ${{ secrets.ADMIN_SUPABASE_URL }}
+          ADMIN_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.ADMIN_SUPABASE_SERVICE_ROLE_KEY }}
+          INTAKE_SUPABASE_URL: ${{ secrets.INTAKE_SUPABASE_URL }}
+          INTAKE_SUPABASE_ANON_KEY: ${{ secrets.INTAKE_SUPABASE_ANON_KEY }}
         run: pnpm build

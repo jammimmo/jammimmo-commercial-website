@@ -2,3 +2,14 @@ name = "jammimmo-commercial-website"
 compatibility_date = "2026-05-01"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "./dist"
+
+# Workers KV used by /api/revalidate to debounce bursts of webhook calls.
+# Create the namespace once: `wrangler kv:namespace create REFRESH_KV`
+# and paste the returned id below.
+[[kv_namespaces]]
+binding = "REFRESH_KV"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# No [vars] block on purpose — runtime env (INTAKE_*, REVALIDATE_HMAC_SECRET,
+# GH_DISPATCH_TOKEN, GH_REPO) is set via the Cloudflare Pages dashboard /
+# `wrangler pages secret put` so secrets never sit in this repo.
