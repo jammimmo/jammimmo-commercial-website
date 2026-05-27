@@ -8,7 +8,7 @@ pages_build_output_dir = "./dist"
 # then paste the returned id below.
 [[kv_namespaces]]
 binding = "REFRESH_KV"
-id = "2edddc17ca9347a7bcb339c6bbe0597b"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
 
 # D1 intake DB — backs /api/leads and /api/views. Schema lives in
 # d1/migrations/. Bootstrap once:
@@ -18,7 +18,7 @@ id = "2edddc17ca9347a7bcb339c6bbe0597b"
 [[d1_databases]]
 binding = "INTAKE_DB"
 database_name = "jammimmo-intake"
-database_id = "a160c319-6236-4727-84ce-3d0d2c58c9a4"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
 
 # No [vars] block on purpose — runtime env (REVALIDATE_HMAC_SECRET,
 # GH_DISPATCH_TOKEN, GH_REPO) is set via the Cloudflare Pages dashboard /
