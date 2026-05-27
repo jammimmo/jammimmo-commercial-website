@@ -1,7 +1,7 @@
 name: Build check
 
-# Tier 3: push:main is handled by deploy.yml (which both checks and ships).
-# This job exists for pull requests + manual smoke runs.
+# Push to main is built + deployed by Cloudflare Pages via GitHub integration.
+# This workflow only smoke-builds PRs.
 on:
   pull_request:
     branches: [main]
@@ -13,8 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
