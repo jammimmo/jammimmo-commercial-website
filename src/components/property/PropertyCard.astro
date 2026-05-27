@@ -5,6 +5,7 @@ import { formatPublicRef } from '@/lib/reference';
 import { getStatusBadge, getTransactionBadge } from '@/lib/status';
 import { localizedPath, t, type Lang } from '@/lib/i18n';
 import CompareToggle from './CompareToggle.tsx';
+import { youtubeThumb } from '@/lib/youtube';
 
 interface Props {
   property: PublicProperty;
@@ -19,7 +20,11 @@ const { property: p, lang, hideCompare = false, delay = '' } = Astro.props;
 
 const statusBadge = getStatusBadge(p.status);
 const transactionBadge = getTransactionBadge(p.transaction_type);
-const heroImage = p.images[0];
+// Hero image cascade: uploaded photo → YouTube thumbnail of the first video
+// → gradient placeholder. Lets us render real visuals for properties that
+// only have a tour video, before someone uploads photos in admin.
+const heroImage: string | null = p.images[0] ?? youtubeThumb(p.video_links[0]);
+const heroImageIsYoutube = !p.images[0] && heroImage !== null;
 const href = localizedPath(`/biens/${p.reference.toLowerCase()}`, lang);
 
 // Placeholder gradient when no image
@@ -39,13 +44,21 @@ const [phA, phB] = palette[hash]!;
 >
   <a href={href} class="block relative aspect-[4/3] overflow-hidden bg-ink" aria-label={p.title}>
     {heroImage ? (
-      <img
-        src={heroImage}
-        alt={p.title}
-        loading="lazy"
-        decoding="async"
-        class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-      />
+      <>
+        <img
+          src={heroImage}
+          alt={p.title}
+          loading="lazy"
+          decoding="async"
+          class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        {heroImageIsYoutube && (
+          <span class="absolute bottom-3.5 right-3.5 z-[2] inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] font-semibold bg-black/55 text-white backdrop-blur" aria-hidden="true">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Visite vidéo
+          </span>
+        )}
+      </>
     ) : (
       <div
         class="absolute inset-0 grid place-items-center text-white/85"
