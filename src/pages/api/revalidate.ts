@@ -6,13 +6,11 @@ export const prerender = false;
  * Webhook endpoint called by the admin Supabase project when a property row
  * changes (typically the `is_public` flag flipping). Verifies an HMAC-SHA256
  * signature against the raw body, debounces via Workers KV (60 s window),
- * then dispatches a GitHub `repository_dispatch` event that runs the build +
- * deploy workflow.
+ * then triggers a Cloudflare Pages production rebuild via a Deploy Hook URL.
  *
  * Required env vars:
- *   - REVALIDATE_HMAC_SECRET   shared with admin DB trigger
- *   - GH_DISPATCH_TOKEN        fine-grained PAT: Contents:write + Metadata:read
- *   - GH_REPO                  e.g. "jammimmo/jammimmo-commercial-website"
+ *   - REVALIDATE_HMAC_SECRET     shared with admin DB trigger
+ *   - REVALIDATE_DEPLOY_HOOK_URL CF Pages Deploy Hook URL (full path)
  *
  * KV binding (wrangler.toml): REFRESH_KV (namespace).
  *
@@ -30,12 +28,14 @@ interface CFLocals {
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = (locals as CFLocals).runtime?.env ?? {};
-  const secret = (env.REVALIDATE_HMAC_SECRET as string | undefined) ?? import.meta.env.REVALIDATE_HMAC_SECRET;
-  const ghToken = (env.GH_DISPATCH_TOKEN as string | undefined) ?? import.meta.env.GH_DISPATCH_TOKEN;
-  const ghRepo = (env.GH_REPO as string | undefined) ?? import.meta.env.GH_REPO;
+  const secret =
+    (env.REVALIDATE_HMAC_SECRET as string | undefined) ?? import.meta.env.REVALIDATE_HMAC_SECRET;
+  const deployHookUrl =
+    (env.REVALIDATE_DEPLOY_HOOK_URL as string | undefined) ??
+    import.meta.env.REVALIDATE_DEPLOY_HOOK_URL;
   const kv = env.REFRESH_KV as KVNamespace | undefined;
 
-  if (!secret || !ghToken || !ghRepo) {
+  if (!secret || !deployHookUrl) {
     return json({ error: 'Server misconfigured' }, 500);
   }
 
@@ -57,6 +57,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return json({ error: 'Bad signature' }, 401);
   }
 
+  // 60 s debounce — collapses bursts of admin updates into one build.
   if (kv) {
     const lock = await kv.get('pending');
     const now = Date.now();
@@ -66,27 +67,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
     await kv.put('pending', String(now), { expirationTtl: 90 });
   }
 
-  const dispatchRes = await fetch(`https://api.github.com/repos/${ghRepo}/dispatches`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${ghToken}`,
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'Content-Type': 'application/json',
-      'User-Agent': 'jammimmo-vitrine-revalidate',
-    },
-    body: JSON.stringify({
-      event_type: 'vitrine_refresh',
-      client_payload: { triggered_at: new Date().toISOString() },
-    }),
-  });
-
-  if (!dispatchRes.ok) {
-    const detail = await dispatchRes.text().catch(() => '');
-    return json({ error: 'Dispatch failed', status: dispatchRes.status, detail }, 502);
+  const hookRes = await fetch(deployHookUrl, { method: 'POST' });
+  if (!hookRes.ok) {
+    const detail = await hookRes.text().catch(() => '');
+    return json({ error: 'Deploy hook failed', status: hookRes.status, detail }, 502);
   }
-
-  return json({ status: 'dispatched', at: new Date().toISOString() }, 202);
+  const hookBody = (await hookRes.json().catch(() => ({}))) as { result?: { id?: string } };
+  return json(
+    { status: 'dispatched', deployment_id: hookBody?.result?.id, at: new Date().toISOString() },
+    202,
+  );
 };
 
 async function verifyHmac(secret: string, body: string, sigHex: string): Promise<boolean> {
