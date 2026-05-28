@@ -202,9 +202,6 @@ const hasImages = p.images.length > 0;
           <span class="w-6 h-px bg-primary"></span>
           {t('property.detail.description', lang)}
         </div>
-        <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mt-2">
-          Le bien en quelques mots
-        </h2>
 
         <!-- Essentials row (above description) — colourful icon cards -->
         {facts.length > 0 && (
@@ -238,17 +235,8 @@ const hasImages = p.images.length > 0;
           </div>
         )}
 
-        <!-- 2-col: MAP left, description text right (stacks on mobile) -->
-        <div class="mt-7 grid gap-5 lg:gap-6 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] items-stretch">
-          <div class="rounded-xl overflow-hidden border border-clay min-h-[260px] lg:min-h-[320px]">
-            <PropertyMap
-              client:visible
-              gps={p.gps}
-              title={p.title}
-              className="w-full h-full block"
-            />
-          </div>
-
+        <!-- 2-col: description text LEFT, MAP RIGHT (stacks on mobile) -->
+        <div class="mt-7 grid gap-5 lg:gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)] items-stretch">
           <div>
             {p.commercial_message && (
               <p class="font-serif italic text-[clamp(17px,1.3vw,21px)] text-foreground/85 leading-relaxed max-w-[58ch] mb-5">
@@ -261,6 +249,15 @@ const hasImages = p.images.length > 0;
                 <MapPin className="w-4 h-4" />{p.address}
               </p>
             )}
+          </div>
+
+          <div class="rounded-xl overflow-hidden border border-clay min-h-[260px] lg:min-h-[320px]">
+            <PropertyMap
+              client:visible
+              gps={p.gps}
+              title={p.title}
+              className="w-full h-full block"
+            />
           </div>
         </div>
       </article>
@@ -412,16 +409,19 @@ const hasImages = p.images.length > 0;
 <CompareBar client:idle lang={lang} />
 
 <style>
-  /* Elegant dot pattern behind all property-detail content. Very low
-     opacity so it reads as texture, not noise. Two layers (24 px dot
-     grid + 96 px wider grid) give it a subtle depth. */
+  /* Elegant dot pattern behind all property-detail content.
+       layer A — ink at 12 % on a 20 px grid (the visible texture)
+       layer B — primary indigo at 8 % on a 56 px grid (subtle depth)
+     Cards sit on top with their bg-card surface, so the pattern only
+     shows through in the gutters between blocks. */
   .property-detail-bg {
     background-color: hsl(var(--background));
     background-image:
-      radial-gradient(circle at 1px 1px, hsl(var(--ink) / 0.055) 1px, transparent 0),
-      radial-gradient(circle at 1px 1px, hsl(var(--primary) / 0.04) 1px, transparent 0);
-    background-size: 24px 24px, 96px 96px;
-    background-position: 0 0, 12px 12px;
+      radial-gradient(circle at 1.2px 1.2px, hsl(var(--ink) / 0.12) 1.2px, transparent 0),
+      radial-gradient(circle at 1.4px 1.4px, hsl(var(--primary) / 0.08) 1.4px, transparent 0);
+    background-size: 20px 20px, 56px 56px;
+    background-position: 0 0, 10px 10px;
+    background-attachment: fixed;
   }
 
   .prop-description .description-body::first-letter {
