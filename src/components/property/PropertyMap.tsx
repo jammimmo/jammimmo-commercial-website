@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { parseGps, type LatLng } from '@/lib/gps';
+import { STREETS, MAP_BASE_OPTIONS } from '@/lib/map-tiles';
 
 interface Props {
   gps: string | null;
@@ -41,7 +42,7 @@ export default function PropertyMap({ gps, title, className }: Props) {
     );
   }
 
-  const { MapContainer, TileLayer, Marker, Popup } = Mod;
+  const { MapContainer, TileLayer, Marker, Popup, AttributionControl } = Mod;
 
   return (
     <div className={className}>
@@ -50,10 +51,15 @@ export default function PropertyMap({ gps, title, className }: Props) {
         zoom={15}
         scrollWheelZoom={false}
         style={{ height: '100%', minHeight: 300, width: '100%', borderRadius: 16, border: '1px solid hsl(var(--clay))' }}
+        {...MAP_BASE_OPTIONS}
       >
+        {/* Custom attribution control without the "Leaflet" prefix — the
+            provider/OSM credits remain (legal requirement). */}
+        <AttributionControl position="bottomright" prefix={false} />
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url={STREETS.url}
+          attribution={STREETS.attribution}
+          maxZoom={STREETS.maxZoom}
         />
         <Marker position={[coords.lat, coords.lng]}>
           <Popup>{title}</Popup>
