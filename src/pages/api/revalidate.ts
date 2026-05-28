@@ -57,14 +57,29 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return json({ error: 'Bad signature' }, 401);
   }
 
-  // 60 s debounce — collapses bursts of admin updates into one build.
+  // 60 s debounce — collapses bursts of admin updates into a single
+  // build. Workers KV doesn't expose an atomic "set-if-not-exists" so we
+  // emulate it with a per-request token: write our token, wait a moment
+  // (KV is eventually consistent), then read back. If we still own the
+  // key, we're the winner; otherwise another concurrent request beat us.
   if (kv) {
-    const lock = await kv.get('pending');
+    const existing = await kv.get('pending');
     const now = Date.now();
-    if (lock && now - Number(lock) < 60_000) {
+    if (existing) {
+      const [ts] = existing.split(':');
+      if (now - Number(ts) < 60_000) {
+        return json({ status: 'debounced' }, 202);
+      }
+    }
+    // Race-narrowing: random token, ~5 ms ack pause, then verify ownership.
+    const token = `${now}:${crypto.randomUUID()}`;
+    await kv.put('pending', token, { expirationTtl: 90 });
+    await new Promise((r) => setTimeout(r, 5));
+    const owner = await kv.get('pending');
+    if (owner !== token) {
+      // Another request wrote after ours; let it run, we bail.
       return json({ status: 'debounced' }, 202);
     }
-    await kv.put('pending', String(now), { expirationTtl: 90 });
   }
 
   const hookRes = await fetch(deployHookUrl, { method: 'POST' });

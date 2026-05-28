@@ -18,6 +18,34 @@ export function formatRentalPrice(price: number, transactionType: string): strin
     : formatFCFA(price);
 }
 
+/**
+ * Sanitise a free-text field (commercial_message / description) for use
+ * inside `<meta name="description">` and Open Graph descriptions:
+ *   - strip emojis and other display-only symbols
+ *   - collapse all whitespace (including newlines) to single spaces
+ *   - trim
+ *   - cut to ≤160 chars at the last whole word
+ *
+ * SERP snippets typically render 150–160 chars on mobile and 920 px on
+ * desktop — 160 is the safe cap. Raw `description.slice(0, 160)` was
+ * leaking `\n` and emojis verbatim into the meta tag.
+ */
+export function metaDescription(...sources: Array<string | null | undefined>): string {
+  const raw = sources.find((s) => s && s.trim().length > 0) ?? '';
+  const stripped = raw
+    // Remove most pictographic emoji ranges + variation selectors + zero-width joiners.
+    // U+1F300..U+1FAFF (symbols/pictographs), U+2600..U+27BF (misc symbols + dingbats),
+    // U+FE0F (VS-16), U+200D (ZWJ).
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (stripped.length <= 160) return stripped;
+  // Cut at the last space ≤160 to avoid splitting a word
+  const cut = stripped.slice(0, 160);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > 100 ? cut.slice(0, lastSpace) : cut).trim() + '…';
+}
+
 /** "5 ch.", or "Studio" if 0 */
 export function formatBedrooms(n: number): string {
   if (!n || n <= 0) return 'Studio';
