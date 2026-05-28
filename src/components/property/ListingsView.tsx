@@ -1,8 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Search, SlidersHorizontal, X, Map as MapIcon, List as ListIcon } from 'lucide-react';
+import { Search, SlidersHorizontal, Map as MapIcon, List as ListIcon, ArrowUpDown } from 'lucide-react';
 import type { PublicProperty } from '@/types/property';
 import MiniCard from './MiniCard';
 import ListingsMap from './ListingsMap';
+
+type SortKey = 'relevance' | 'price_asc' | 'price_desc' | 'newest';
+const SORTS: Array<{ value: SortKey; label: string }> = [
+  { value: 'relevance', label: 'Pertinence' },
+  { value: 'price_asc', label: 'Prix croissant' },
+  { value: 'price_desc', label: 'Prix décroissant' },
+  { value: 'newest', label: 'Plus récents' },
+];
 
 interface Props {
   properties: PublicProperty[];
@@ -50,14 +58,19 @@ const FCFA = new Intl.NumberFormat('fr-FR');
  */
 export default function ListingsView({ properties, cities, hrefByRef, lang }: Props) {
   const [filters, setFilters] = useState<Filters>(() => readFromUrl());
+  const [sort, setSort] = useState<SortKey>(() => {
+    if (typeof window === 'undefined') return 'relevance';
+    const s = new URLSearchParams(window.location.search).get('sort');
+    return (SORTS.find((x) => x.value === s)?.value ?? 'relevance') as SortKey;
+  });
   const [activeRef, setActiveRef] = useState<string | null>(null);
   const [mobileMapOpen, setMobileMapOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
 
-  // ── Filtered list ───────────────────────────────────────────
+  // ── Filtered + sorted list ─────────────────────────────────
   const filtered = useMemo(() => {
-    return properties.filter((p) => {
+    const result = properties.filter((p) => {
       if (filters.type && p.type !== filters.type) return false;
       if (filters.transaction && p.transaction_type !== filters.transaction) return false;
       if (filters.city && p.city !== filters.city) return false;
@@ -74,7 +87,16 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
       }
       return true;
     });
-  }, [properties, filters]);
+    if (sort === 'price_asc') result.sort((a, b) => a.price - b.price);
+    else if (sort === 'price_desc') result.sort((a, b) => b.price - a.price);
+    else if (sort === 'newest')
+      result.sort((a, b) => {
+        const da = a.published_at ? Date.parse(a.published_at) : 0;
+        const db = b.published_at ? Date.parse(b.published_at) : 0;
+        return db - da;
+      });
+    return result;
+  }, [properties, filters, sort]);
 
   // ── Sync URL when filters change ────────────────────────────
   useEffect(() => {
@@ -86,10 +108,11 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
     if (filters.priceMin) sp.set('priceMin', String(filters.priceMin));
     if (filters.priceMax) sp.set('priceMax', String(filters.priceMax));
     if (filters.bedsMin) sp.set('bedsMin', String(filters.bedsMin));
+    if (sort !== 'relevance') sp.set('sort', sort);
     const qs = sp.toString();
     const url = qs ? `?${qs}` : window.location.pathname;
     window.history.replaceState({}, '', url);
-  }, [filters]);
+  }, [filters, sort]);
 
   // ── Pin click → scroll card into view + highlight ───────────
   const onPinClick = (ref: string) => {
@@ -218,12 +241,24 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
 
       {/* ── Split view ──────────────────────────────────────────────── */}
       <div className="container py-6 lg:py-8">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <p className="text-sm text-muted-foreground">
             <strong className="text-foreground font-semibold">{filtered.length}</strong> bien
             {filtered.length > 1 ? 's' : ''} affiché{filtered.length > 1 ? 's' : ''}
             {filtered.length < properties.length && ` sur ${properties.length}`}
           </p>
+          <label className="inline-flex items-center gap-2 text-[13px] text-muted-foreground">
+            <ArrowUpDown className="w-3.5 h-3.5" /> Trier&nbsp;:
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortKey)}
+              className="px-3 py-1.5 rounded-full bg-card border border-clay text-[13px] font-semibold text-foreground outline-none focus:border-primary transition"
+            >
+              {SORTS.map((s) => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
+            </select>
+          </label>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,58fr)_minmax(0,42fr)] items-start">

@@ -412,20 +412,10 @@ const hasImages = p.images.length > 0;
 <CompareBar client:idle lang={lang} />
 
 <style>
-  /* Elegant dot pattern behind all property-detail content.
-       layer A — ink at 12 % on a 20 px grid (the visible texture)
-       layer B — primary indigo at 8 % on a 56 px grid (subtle depth)
-     Cards sit on top with their bg-card surface, so the pattern only
-     shows through in the gutters between blocks. */
-  .property-detail-bg {
-    background-color: hsl(var(--background));
-    background-image:
-      radial-gradient(circle at 1.2px 1.2px, hsl(var(--ink) / 0.12) 1.2px, transparent 0),
-      radial-gradient(circle at 1.4px 1.4px, hsl(var(--primary) / 0.08) 1.4px, transparent 0);
-    background-size: 20px 20px, 56px 56px;
-    background-position: 0 0, 10px 10px;
-    background-attachment: fixed;
-  }
+  /* .property-detail-bg used to set its own dot pattern; now the body
+     in globals.css owns a richer Sahel-weave pattern (ink dot + ochre
+     halo + faint primary chevron). Leaving this wrapper empty so the
+     body texture shows through the gutters between floating cards. */
 
   .prop-description .description-body::first-letter {
     font-family: 'Fraunces', Georgia, serif;

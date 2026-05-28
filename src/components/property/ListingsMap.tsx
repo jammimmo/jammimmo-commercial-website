@@ -31,6 +31,7 @@ export default function ListingsMap({ properties, activeRef, onPinClick }: Props
   type Leaflet = typeof import('leaflet');
   const [RL, setRL] = useState<LeafletMod | null>(null);
   const [L, setL] = useState<Leaflet | null>(null);
+  const [tileStyle, setTileStyle] = useState<'streets' | 'satellite'>('streets');
 
   const placed = useMemo(
     () =>
@@ -147,26 +148,63 @@ export default function ListingsMap({ properties, activeRef, onPinClick }: Props
         .price-pin.is-active .price-pin-tail { border-top-color: hsl(var(--secondary)); }
         .price-pin:hover { transform: scale(1.05); }
       `}</style>
-      <MapContainer
-        center={center}
-        zoom={11}
-        scrollWheelZoom
-        style={{ height: '100%', width: '100%', minHeight: 360 }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <FitBounds coords={placed.map((x) => [x.coords.lat, x.coords.lng])} />
-        {placed.map(({ p, coords }) => (
-          <Marker
-            key={p.reference}
-            position={[coords.lat, coords.lng]}
-            icon={makeIcon(p, p.reference === activeRef)}
-            eventHandlers={{ click: () => onPinClick?.(p.reference) }}
-          />
-        ))}
-      </MapContainer>
+      <div className="relative h-full">
+        {/* Map style toggle — top-right pill */}
+        <div className="absolute top-3 right-3 z-[401] inline-flex p-1 rounded-full bg-card/95 backdrop-blur border border-clay shadow-md text-[12px] font-semibold">
+          <button
+            type="button"
+            onClick={() => setTileStyle('streets')}
+            className={
+              'px-3 py-1 rounded-full transition ' +
+              (tileStyle === 'streets'
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground')
+            }
+          >
+            Plan
+          </button>
+          <button
+            type="button"
+            onClick={() => setTileStyle('satellite')}
+            className={
+              'px-3 py-1 rounded-full transition ' +
+              (tileStyle === 'satellite'
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground')
+            }
+          >
+            Satellite
+          </button>
+        </div>
+
+        <MapContainer
+          center={center}
+          zoom={11}
+          scrollWheelZoom
+          style={{ height: '100%', width: '100%', minHeight: 360 }}
+        >
+          {tileStyle === 'streets' ? (
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          ) : (
+            <TileLayer
+              attribution='Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            />
+          )}
+          <FitBounds coords={placed.map((x) => [x.coords.lat, x.coords.lng])} />
+          {placed.map(({ p, coords }) => (
+            <Marker
+              key={p.reference}
+              position={[coords.lat, coords.lng]}
+              icon={makeIcon(p, p.reference === activeRef)}
+              eventHandlers={{ click: () => onPinClick?.(p.reference) }}
+            />
+          ))}
+        </MapContainer>
+      </div>
     </>
   );
 }

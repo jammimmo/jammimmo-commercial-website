@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Bed, Maximize2, Play } from 'lucide-react';
+import { Bed, Maximize2, Play, Images } from 'lucide-react';
 import type { PublicProperty } from '@/types/property';
 import { youtubeIdFromUrl, youtubeThumb } from '@/lib/youtube';
 
@@ -92,6 +92,13 @@ export default function MiniCard({ property: p, href, active, onEnter, onLeave }
         >
           {p.transaction_type === 'Location' ? 'À louer' : 'À vendre'}
         </span>
+
+        {/* Photo-count badge — Zillow-style */}
+        {p.images.length > 0 && (
+          <span className="absolute bottom-3 right-3 z-[2] inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-semibold bg-black/55 text-white backdrop-blur">
+            <Images className="w-3 h-3" /> {p.images.length}
+          </span>
+        )}
       </div>
 
       <div className="p-4">

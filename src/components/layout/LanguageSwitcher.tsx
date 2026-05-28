@@ -37,8 +37,6 @@ export default function LanguageSwitcher({ lang, pathname }: Props) {
     };
   }, [open]);
 
-  const current = LANG_LABELS[lang];
-
   return (
     <div ref={ref} className="relative">
       <button
@@ -47,10 +45,9 @@ export default function LanguageSwitcher({ lang, pathname }: Props) {
         aria-expanded={open}
         aria-label="Change language"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full hover:bg-white/10 text-sm font-semibold transition"
+        className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-[12.5px] font-bold tracking-[0.04em] transition"
       >
-        <span aria-hidden>{current.flag}</span>
-        <span className="hidden sm:inline">{lang.toUpperCase()}</span>
+        {lang.toUpperCase()}
       </button>
       {open && (
         <ul
@@ -67,11 +64,21 @@ export default function LanguageSwitcher({ lang, pathname }: Props) {
                   role="option"
                   aria-selected={isActive}
                   className={
-                    'flex items-center gap-2.5 px-3.5 py-2.5 text-sm transition ' +
+                    'flex items-center gap-3 px-3.5 py-2.5 text-sm transition ' +
                     (isActive ? 'bg-accent text-accent-foreground font-semibold' : 'hover:bg-muted')
                   }
                 >
-                  <span aria-hidden>{label.flag}</span>
+                  <span
+                    aria-hidden
+                    className={
+                      'inline-flex items-center justify-center w-7 h-7 rounded-full text-[11px] font-bold tracking-[0.04em] ' +
+                      (isActive
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-foreground/80 border border-clay')
+                    }
+                  >
+                    {l.toUpperCase()}
+                  </span>
                   <span>{label.native}</span>
                 </a>
               </li>
