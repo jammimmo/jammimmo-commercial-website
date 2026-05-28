@@ -37,6 +37,9 @@ export default function HeroSearch({ lang }: Props) {
     params.set('transaction', tab);
     if (type) params.set('type', type);
     if (city) params.set('city', city);
+    // "rooms" select maps to /biens bedsMin filter (e.g. "3+" → 3)
+    const beds = parseInt(rooms.replace(/\D/g, ''), 10);
+    if (Number.isFinite(beds) && beds > 0) params.set('bedsMin', String(beds));
     if (budget !== '0') params.set('priceMax', budget);
     window.location.assign(`${localizedPath('/biens', lang)}?${params.toString()}`);
   }

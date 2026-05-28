@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, X, Maximize } from 'lucide-react';
 
 interface Props {
@@ -172,20 +172,67 @@ function Lightbox({
 }) {
   const [active, setActive] = useState(start);
   const total = images.length;
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const previouslyFocused = useRef<HTMLElement | null>(null);
+
+  // Keyboard: Escape closes, ←/→ navigate. Trap focus inside the dialog,
+  // restore focus to whatever the user came from on close.
+  useEffect(() => {
+    previouslyFocused.current = document.activeElement as HTMLElement | null;
+    closeBtnRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      } else if (e.key === 'ArrowLeft' && total > 1) {
+        e.preventDefault();
+        setActive((i) => (i - 1 + total) % total);
+      } else if (e.key === 'ArrowRight' && total > 1) {
+        e.preventDefault();
+        setActive((i) => (i + 1) % total);
+      } else if (e.key === 'Tab') {
+        // Naive focus trap: only the close + prev/next buttons matter
+        // here, so Tab/Shift+Tab between them cycles within the dialog.
+        const focusable = document.querySelectorAll<HTMLElement>(
+          '[role="dialog"][aria-modal] button',
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0]!;
+        const last = focusable[focusable.length - 1]!;
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    // Lock body scroll while the lightbox is open
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+      previouslyFocused.current?.focus();
+    };
+  }, [total, onClose]);
 
   return (
     <div
       role="dialog"
-      aria-modal
-      aria-label="Lightbox"
+      aria-modal="true"
+      aria-label={`Photos — ${title}`}
       className="fixed inset-0 z-[100] bg-black/[0.97] backdrop-blur-sm grid place-items-center p-4"
       onClick={onClose}
     >
       <button
+        ref={closeBtnRef}
         type="button"
         onClick={onClose}
         aria-label="Fermer"
-        className="absolute top-4 right-4 w-11 h-11 grid place-items-center rounded-full bg-white/10 text-white hover:bg-white/20"
+        className="absolute top-4 right-4 w-11 h-11 grid place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
       >
         <X className="w-5 h-5" />
       </button>

@@ -10,6 +10,7 @@ import { t, type Lang, localizedPath } from '@/lib/i18n';
 import { formatRentalPrice, formatLocation } from '@/lib/format';
 import { formatPublicRef } from '@/lib/reference';
 import { getStatusBadge, getTransactionBadge } from '@/lib/status';
+import { SITE, TEL_URI, MAILTO_URI } from '@/lib/site-config';
 import {
   Bed, Maximize2, MapPin, Tag, Award, FileText, Download,
   Phone, MessageCircle, Mail, Bath, Building2, Sparkles,
@@ -150,7 +151,7 @@ const hasImages = p.images.length > 0;
                   </span>
                   <div>
                     <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">Téléphone</div>
-                    <a href="tel:+221770000000" class="hover:text-secondary transition">+221 77 000 00 00</a>
+                    <a href={TEL_URI} class="hover:text-secondary transition">{SITE.phoneDisplay}</a>
                   </div>
                 </li>
                 <li class="flex items-start gap-3">
@@ -159,7 +160,7 @@ const hasImages = p.images.length > 0;
                   </span>
                   <div>
                     <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">E-mail</div>
-                    <a href="mailto:contact@jammimmo.com" class="hover:text-secondary transition break-all">contact@jammimmo.com</a>
+                    <a href={MAILTO_URI} class="hover:text-secondary transition break-all">{SITE.email}</a>
                   </div>
                 </li>
                 <li class="flex items-start gap-3">
@@ -178,10 +179,10 @@ const hasImages = p.images.length > 0;
                   Je suis intéressé →
                 </a>
                 <div class="grid grid-cols-2 gap-2.5">
-                  <a href="tel:+221770000000" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-white/12 text-primary-foreground font-semibold border border-white/25 hover:bg-white/20 transition">
+                  <a href={TEL_URI} class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-white/12 text-primary-foreground font-semibold border border-white/25 hover:bg-white/20 transition">
                     <Phone className="w-4 h-4" /> Appeler
                   </a>
-                  <a href="https://wa.me/221770000000" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-emerald/85 text-emerald-foreground font-semibold hover:bg-emerald transition">
+                  <a href={SITE.whatsappUrl} class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-emerald/85 text-emerald-foreground font-semibold hover:bg-emerald transition">
                     <MessageCircle className="w-4 h-4" /> WhatsApp
                   </a>
                 </div>
@@ -398,10 +399,10 @@ const hasImages = p.images.length > 0;
       {priceLabel}
     </div>
   </div>
-  <a href="tel:+221770000000" aria-label="Appeler l'agence" class="w-11 h-11 grid place-items-center rounded-full bg-card border border-clay text-primary">
+  <a href={TEL_URI} aria-label="Appeler l'agence" class="w-11 h-11 grid place-items-center rounded-full bg-card border border-clay text-primary">
     <Phone className="w-4 h-4" />
   </a>
-  <a href="https://wa.me/221770000000" aria-label="WhatsApp" class="w-11 h-11 grid place-items-center rounded-full bg-emerald/15 text-emerald border border-emerald/30">
+  <a href={SITE.whatsappUrl} aria-label="WhatsApp" class="w-11 h-11 grid place-items-center rounded-full bg-emerald/15 text-emerald border border-emerald/30">
     <MessageCircle className="w-4 h-4" />
   </a>
   <a href="#contact-bien" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm shadow-md whitespace-nowrap">
