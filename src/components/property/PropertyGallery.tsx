@@ -7,10 +7,21 @@ interface Props {
 }
 
 /**
- * Photo carousel for the property detail page (column 2 of the hero row).
- * Big 16:9 main photo, horizontal thumb strip below, lightbox on click.
- * The video lives in a separate column (see VideoTour) so this component
- * is photos-only — no video integration here.
+ * Photo column for the equal-width hero row on the property detail page.
+ *
+ * Sits inside a CSS grid cell that stretches to the row height (driven by
+ * the 9:16 video next to it). We use a flex column where the two main
+ * photos take `flex-1` (sharing the remaining vertical space) and a tiny
+ * thumb-row sits at the bottom. End result: the photo column visually
+ * fills the same height as the video — no awkward empty space, no overflow.
+ *
+ *   ┌─────────────────┐
+ *   │  Main 4:3-ish   │ flex-1
+ *   ├─────────────────┤
+ *   │  Secondary      │ flex-1
+ *   ├─────────────────┤
+ *   │  t1 │ t2 │ t3   │ ~80 px row
+ *   └─────────────────┘
  */
 export default function PropertyGallery({ images, title }: Props) {
   const [active, setActive] = useState(0);
@@ -19,81 +30,107 @@ export default function PropertyGallery({ images, title }: Props) {
 
   if (total === 0) {
     return (
-      <div className="aspect-[16/9] grid place-items-center bg-muted text-muted-foreground rounded-2xl">
+      <div className="aspect-[4/3] grid place-items-center bg-muted text-muted-foreground rounded-2xl h-full">
         Pas de photos
       </div>
     );
   }
 
+  const main = images[active]!;
+  const secondaryIdx = total > 1 ? (active + 1) % total : null;
+  const secondary = secondaryIdx !== null ? images[secondaryIdx]! : null;
+
+  // Up to 3 thumb tiles. When more photos, last one becomes "+N".
+  const thumbCount = Math.min(3, total);
+  const overflow = Math.max(0, total - thumbCount);
+
   return (
-    <div className="space-y-3 w-full">
-      {/* Main photo: 4:3 — taller than 16:9, fills more of the middle column
-          next to the 9:16 video. Matches typical property listing hero. */}
-      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-ink group">
+    <div className="flex flex-col gap-3 h-full w-full">
+      {/* Main photo — fills remaining height with secondary */}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={`Voir photo ${active + 1}`}
+        className="relative flex-1 min-h-0 rounded-2xl overflow-hidden bg-ink group"
+      >
         <img
-          src={images[active]}
+          src={main}
           alt={`${title} — photo ${active + 1}`}
-          className="absolute inset-0 w-full h-full object-cover cursor-zoom-in transition-transform duration-700 group-hover:scale-[1.02]"
-          onClick={() => setOpen(true)}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
         />
-
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
-
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
+        <div className="absolute bottom-3 left-3 inline-flex items-center gap-2 bg-black/55 text-white text-[12px] font-semibold px-3 py-1.5 rounded-full backdrop-blur">
+          {active + 1} / {total}
+        </div>
+        <div className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 bg-black/55 text-white text-[12px] font-semibold px-3 py-1.5 rounded-full backdrop-blur">
+          <Maximize className="w-3.5 h-3.5" /> Agrandir
+        </div>
         {total > 1 && (
           <>
             <button
               type="button"
-              onClick={() => setActive((i) => (i - 1 + total) % total)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setActive((i) => (i - 1 + total) % total);
+              }}
               aria-label="Image précédente"
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 grid place-items-center rounded-full bg-black/50 text-white backdrop-blur hover:bg-black/70 transition"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 grid place-items-center rounded-full bg-black/50 text-white backdrop-blur hover:bg-black/70 transition"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               type="button"
-              onClick={() => setActive((i) => (i + 1) % total)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setActive((i) => (i + 1) % total);
+              }}
               aria-label="Image suivante"
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 grid place-items-center rounded-full bg-black/50 text-white backdrop-blur hover:bg-black/70 transition"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 grid place-items-center rounded-full bg-black/50 text-white backdrop-blur hover:bg-black/70 transition"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
           </>
         )}
+      </button>
 
-        <div className="absolute bottom-3 left-3 z-[2] inline-flex items-center gap-2 bg-black/55 text-white text-[12px] font-semibold px-3 py-1.5 rounded-full backdrop-blur">
-          {active + 1} / {total}
-        </div>
-
+      {/* Secondary photo (hidden if only one) — also fills remaining height */}
+      {secondary && secondaryIdx !== null && (
         <button
           type="button"
-          onClick={() => setOpen(true)}
-          aria-label="Agrandir"
-          className="absolute bottom-3 right-3 z-[2] inline-flex items-center gap-1.5 bg-black/55 text-white text-[12px] font-semibold px-3 py-1.5 rounded-full backdrop-blur hover:bg-black/75 transition"
+          onClick={() => {
+            setActive(secondaryIdx);
+            setOpen(true);
+          }}
+          aria-label={`Voir photo ${secondaryIdx + 1}`}
+          className="relative flex-1 min-h-0 rounded-2xl overflow-hidden bg-ink group"
         >
-          <Maximize className="w-3.5 h-3.5" /> Agrandir
+          <img
+            src={secondary}
+            alt={`${title} — photo ${secondaryIdx + 1}`}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+          />
         </button>
-      </div>
+      )}
 
+      {/* Bottom thumb strip — fixed height, fills column width */}
       {total > 1 && (
-        // Thumb strip — bigger thumbs so they read as a proper gallery row
-        // rather than a microbar. Auto-fit columns spread evenly to fill the
-        // available column width ("étaler").
         <div
-          className="grid gap-2"
-          style={{ gridTemplateColumns: `repeat(${Math.min(total, 5)}, minmax(0, 1fr))` }}
+          className="grid gap-2 h-20"
+          style={{ gridTemplateColumns: `repeat(${thumbCount}, minmax(0, 1fr))` }}
         >
-          {images.slice(0, 5).map((src, i) => {
-            const isMoreTile = i === 4 && total > 5;
+          {Array.from({ length: thumbCount }).map((_, i) => {
+            const isOverflowTile = i === thumbCount - 1 && overflow > 0;
+            const src = images[i]!;
             return (
               <button
                 key={src + i}
                 type="button"
-                onClick={() => (isMoreTile ? setOpen(true) : setActive(i))}
-                aria-label={isMoreTile ? `Voir les ${total - 4} autres photos` : `Voir photo ${i + 1}`}
-                aria-pressed={!isMoreTile && i === active}
+                onClick={() => (isOverflowTile ? setOpen(true) : setActive(i))}
+                aria-label={isOverflowTile ? `Voir les ${overflow + 1} autres photos` : `Voir photo ${i + 1}`}
+                aria-pressed={!isOverflowTile && i === active}
                 className={
-                  'relative aspect-[4/3] rounded-xl overflow-hidden border-2 transition ' +
-                  (!isMoreTile && i === active
+                  'relative rounded-xl overflow-hidden border-2 transition h-full ' +
+                  (!isOverflowTile && i === active
                     ? 'border-primary shadow-md'
                     : 'border-transparent hover:border-primary/40')
                 }
@@ -104,9 +141,9 @@ export default function PropertyGallery({ images, title }: Props) {
                   className="absolute inset-0 w-full h-full object-cover"
                   loading="lazy"
                 />
-                {isMoreTile && (
+                {isOverflowTile && (
                   <div className="absolute inset-0 bg-primary/85 grid place-items-center text-primary-foreground">
-                    <span className="font-serif text-xl">+{total - 4}</span>
+                    <span className="font-serif text-lg">+{overflow + 1}</span>
                   </div>
                 )}
               </button>

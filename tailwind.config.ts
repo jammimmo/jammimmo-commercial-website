@@ -15,13 +15,13 @@ export default {
   theme: {
     container: {
       center: true,
-      // Generous side padding — more visual breathing room than 32 px.
+      // Generous side padding — centered content, big margins at xl+.
       padding: {
         DEFAULT: '1.5rem',  // 24 px
         sm: '2rem',         // 32 px
         md: '2.5rem',       // 40 px
         lg: '3rem',         // 48 px
-        xl: '4rem',         // 64 px
+        xl: '5rem',         // 80 px  — "bigger margin left & right"
       },
       screens: { '2xl': '1320px' },
     },
