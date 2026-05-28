@@ -26,8 +26,10 @@ export default function PropertyGallery({ images, title }: Props) {
   }
 
   return (
-    <div className="space-y-3">
-      <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-ink group">
+    <div className="space-y-3 w-full">
+      {/* Main photo: 4:3 — taller than 16:9, fills more of the middle column
+          next to the 9:16 video. Matches typical property listing hero. */}
+      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-ink group">
         <img
           src={images[active]}
           alt={`${title} — photo ${active + 1}`}
@@ -73,24 +75,43 @@ export default function PropertyGallery({ images, title }: Props) {
       </div>
 
       {total > 1 && (
-        <div className="flex gap-2 overflow-x-auto scrollbar-thin pb-1 -mx-1 px-1 snap-x">
-          {images.map((src, i) => (
-            <button
-              key={src + i}
-              type="button"
-              onClick={() => setActive(i)}
-              aria-label={`Voir photo ${i + 1}`}
-              aria-pressed={i === active}
-              className={
-                'shrink-0 w-20 h-14 sm:w-24 sm:h-16 rounded-lg overflow-hidden border-2 transition snap-start ' +
-                (i === active
-                  ? 'border-primary shadow-md'
-                  : 'border-transparent opacity-65 hover:opacity-100')
-              }
-            >
-              <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
-            </button>
-          ))}
+        // Thumb strip — bigger thumbs so they read as a proper gallery row
+        // rather than a microbar. Auto-fit columns spread evenly to fill the
+        // available column width ("étaler").
+        <div
+          className="grid gap-2"
+          style={{ gridTemplateColumns: `repeat(${Math.min(total, 5)}, minmax(0, 1fr))` }}
+        >
+          {images.slice(0, 5).map((src, i) => {
+            const isMoreTile = i === 4 && total > 5;
+            return (
+              <button
+                key={src + i}
+                type="button"
+                onClick={() => (isMoreTile ? setOpen(true) : setActive(i))}
+                aria-label={isMoreTile ? `Voir les ${total - 4} autres photos` : `Voir photo ${i + 1}`}
+                aria-pressed={!isMoreTile && i === active}
+                className={
+                  'relative aspect-[4/3] rounded-xl overflow-hidden border-2 transition ' +
+                  (!isMoreTile && i === active
+                    ? 'border-primary shadow-md'
+                    : 'border-transparent hover:border-primary/40')
+                }
+              >
+                <img
+                  src={src}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
+                />
+                {isMoreTile && (
+                  <div className="absolute inset-0 bg-primary/85 grid place-items-center text-primary-foreground">
+                    <span className="font-serif text-xl">+{total - 4}</span>
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
 
