@@ -15,8 +15,15 @@ export default {
   theme: {
     container: {
       center: true,
-      // Match the standalone reference: 32 px gutter at all sizes, 1320 px cap.
-      padding: { DEFAULT: '1.25rem', md: '2rem' },
+      // Container padding — bigger left/right margins at lg+ so the
+      // floating cards inside (max-w-5xl/6xl) sit on a generous gutter.
+      padding: {
+        DEFAULT: '1.25rem', // 20 px
+        sm: '1.5rem',       // 24 px
+        md: '2rem',         // 32 px
+        lg: '3rem',         // 48 px
+        xl: '4rem',         // 64 px
+      },
       screens: { '2xl': '1320px' },
     },
     extend: {

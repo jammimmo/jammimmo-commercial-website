@@ -1,0 +1,25 @@
+---
+import { youtubeIdFromUrl } from '@/lib/youtube';
+
+interface Props {
+  videoLinks: string[];
+  title: string;
+}
+
+const { videoLinks, title } = Astro.props;
+
+const first = videoLinks
+  .map((url) => youtubeIdFromUrl(url))
+  .find((id): id is string => id !== null);
+---
+
+{first && (
+  <iframe
+    src={`https://www.youtube-nocookie.com/embed/${first}?rel=0&modestbranding=1`}
+    title={`Vidéo — ${title}`}
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen
+    loading="lazy"
+    class="w-full h-full block"
+  ></iframe>
+)}

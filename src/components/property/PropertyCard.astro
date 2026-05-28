@@ -5,7 +5,7 @@ import { formatPublicRef } from '@/lib/reference';
 import { getStatusBadge, getTransactionBadge } from '@/lib/status';
 import { localizedPath, t, type Lang } from '@/lib/i18n';
 import CompareToggle from './CompareToggle.tsx';
-import { youtubeThumb } from '@/lib/youtube';
+import { youtubeIdFromUrl, youtubeThumb } from '@/lib/youtube';
 
 interface Props {
   property: PublicProperty;
@@ -20,11 +20,19 @@ const { property: p, lang, hideCompare = false, delay = '' } = Astro.props;
 
 const statusBadge = getStatusBadge(p.status);
 const transactionBadge = getTransactionBadge(p.transaction_type);
-// Hero image cascade: uploaded photo → YouTube thumbnail of the first video
-// → gradient placeholder. Lets us render real visuals for properties that
-// only have a tour video, before someone uploads photos in admin.
-const heroImage: string | null = p.images[0] ?? youtubeThumb(p.video_links[0]);
-const heroImageIsYoutube = !p.images[0] && heroImage !== null;
+
+// Split thumbnail strategy:
+//   • If the property has BOTH a video tour and uploaded photos → split the
+//     4:3 tile: left half = video thumbnail with a play badge; right half =
+//     2×2 mosaic of the first 4 photos.
+//   • If only one of them → single image fills the whole tile (video thumb
+//     as fallback). Aspect ratio is unchanged either way (4:3 outer).
+const videoId = youtubeIdFromUrl(p.video_links[0]);
+const videoThumb = youtubeThumb(p.video_links[0]);
+const split = !!videoId && p.images.length >= 1;
+const mosaicImgs = p.images.slice(0, 4);
+const heroImage: string | null = split ? null : (p.images[0] ?? videoThumb);
+const heroImageIsYoutube = !split && !p.images[0] && heroImage !== null;
 const href = localizedPath(`/biens/${p.reference.toLowerCase()}`, lang);
 
 // Placeholder gradient when no image
@@ -43,7 +51,51 @@ const [phA, phB] = palette[hash]!;
   data-property-ref={p.reference}
 >
   <a href={href} class="block relative aspect-[4/3] overflow-hidden bg-ink" aria-label={p.title}>
-    {heroImage ? (
+    {split ? (
+      <!-- Split thumb: video LEFT, 2×2 photo mosaic RIGHT. Aspect-[4/3]
+           kept on the outer link; inner grid fills it absolutely. -->
+      <div class="absolute inset-0 grid grid-cols-2 gap-1 bg-ink">
+        <!-- LEFT: video — starts as the YouTube thumbnail + play badge; on
+             first scroll-into-view a muted/looped/autoplay iframe replaces
+             the image (see <script> at bottom of file). -->
+        <div
+          class="relative overflow-hidden"
+          data-video-thumb
+          data-yt-id={videoId!}
+        >
+          <img
+            src={videoThumb}
+            alt={`Visite vidéo — ${p.title}`}
+            loading="lazy"
+            decoding="async"
+            class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+          <span class="absolute inset-0 bg-black/25 transition-colors group-hover:bg-black/15 pointer-events-none"></span>
+          <span class="absolute inset-0 grid place-items-center pointer-events-none" aria-hidden="true">
+            <span class="w-12 h-12 grid place-items-center rounded-full bg-white/95 text-primary shadow-md">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </span>
+          </span>
+        </div>
+        <!-- RIGHT: 2×2 photo mosaic (fills with whatever photos exist) -->
+        <div class="grid grid-cols-2 grid-rows-2 gap-1">
+          {Array.from({ length: 4 }).map((_, i) => {
+            const src = mosaicImgs[i] ?? mosaicImgs[mosaicImgs.length - 1];
+            return (
+              <div class="relative overflow-hidden bg-ink">
+                <img
+                  src={src}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    ) : heroImage ? (
       <>
         <img
           src={heroImage}
@@ -91,6 +143,13 @@ const [phA, phB] = palette[hash]!;
         ))}
       </div>
     )}
+
+    {p.images.length > 0 && (
+      <span class="absolute bottom-3.5 right-3.5 z-[2] inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-semibold bg-black/55 text-white backdrop-blur">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="3" y="3" width="14" height="14" rx="2" /><path d="M7 21h12a2 2 0 0 0 2-2V9" /></svg>
+        {p.images.length}
+      </span>
+    )}
   </a>
 
   <div class="flex flex-col gap-2.5 p-6">
@@ -128,3 +187,94 @@ const [phA, phB] = palette[hash]!;
     {!hideCompare && <CompareToggle client:visible reference={p.reference} title={p.title} lang={lang} />}
   </div>
 </article>
+
+<script>
+  // Lazy autoplay for split-thumb video tiles. Astro hoists this once for
+  // the whole bundle even when PropertyCard is rendered N times.
+  //
+  // Mobile autoplay constraints (iOS Safari + Android Chrome) require ALL
+  // of: muted, playsinline=1, and the iframe's `allow` attribute to grant
+  // autoplay. Even with those, some mobile browsers still need a nudge —
+  // we send a postMessage("playVideo") on iframe load as a belt-and-
+  // suspenders, which requires enablejsapi=1.
+  function mount(el: HTMLElement) {
+    if (el.dataset.ytMounted) return;
+    const id = el.dataset.ytId;
+    if (!id) return;
+
+    const params = new URLSearchParams({
+      autoplay: '1',
+      mute: '1',
+      loop: '1',
+      playlist: id,
+      controls: '0',
+      modestbranding: '1',
+      playsinline: '1',
+      rel: '0',
+      iv_load_policy: '3',
+      disablekb: '1',
+      enablejsapi: '1',
+    });
+
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube-nocookie.com/embed/${id}?${params.toString()}`;
+    iframe.title = 'Visite vidéo';
+    iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.setAttribute('playsinline', '');
+    iframe.setAttribute('webkit-playsinline', '');
+    iframe.setAttribute('muted', '');
+    iframe.setAttribute('frameborder', '0');
+    iframe.style.cssText =
+      'position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;';
+
+    iframe.addEventListener('load', () => {
+      // Force play via postMessage in case the URL params alone don't
+      // trigger autoplay on mobile. Sends the IFrame API "playVideo"
+      // command. Wrapped in try/catch because cross-origin restrictions
+      // sometimes throw before the iframe is fully initialised.
+      try {
+        iframe.contentWindow?.postMessage(
+          JSON.stringify({ event: 'command', func: 'playVideo', args: [] }),
+          '*',
+        );
+        iframe.contentWindow?.postMessage(
+          JSON.stringify({ event: 'command', func: 'mute', args: [] }),
+          '*',
+        );
+      } catch {
+        /* swallow */
+      }
+    });
+
+    el.insertBefore(iframe, el.firstChild?.nextSibling ?? null);
+    // Fade the static image + play badge so we don't double-stack visuals.
+    requestAnimationFrame(() => {
+      const img = el.querySelector('img');
+      if (img) img.style.opacity = '0';
+      el.querySelectorAll(':scope > span').forEach((s) => {
+        (s as HTMLElement).style.opacity = '0';
+      });
+    });
+    el.dataset.ytMounted = '1';
+  }
+
+  const thumbs = document.querySelectorAll<HTMLElement>('[data-video-thumb]:not([data-yt-mounted])');
+  if (thumbs.length > 0) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          mount(entry.target as HTMLElement);
+          io.unobserve(entry.target);
+        }
+      },
+      // 400 px margin = iframe is loading before the card hits the
+      // viewport, so on slow mobile networks the video has time to
+      // start playing by the time the user actually sees it.
+      // threshold 0 fires as soon as any pixel intersects.
+      { rootMargin: '400px', threshold: 0 },
+    );
+    thumbs.forEach((el) => io.observe(el));
+  }
+</script>
