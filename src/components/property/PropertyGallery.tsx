@@ -11,16 +11,23 @@ interface Props {
 /**
  * Hero gallery for the property detail page.
  *
- * Layout:
- *   - **Photos**: 16:9 main image + thumbnail strip below. Click → lightbox.
- *   - **Video** (if any) lives in a separate section, see <VideoTourSection/>.
- *     Photos stay the primary surface; the vertical-first phone video is
- *     featured *intentionally* below rather than crammed next to a 16:9
- *     photo (which would force an ugly mismatched-height grid).
+ * **Desktop layout** (when there's at least one video and one photo):
+ *   ┌──────────────┬─────────────────────────────┐
+ *   │              │  main photo  (16:9)         │
+ *   │  vertical    │                             │
+ *   │  9:16 video  ├─────────────────────────────┤
+ *   │              │  thumb-strip (horizontal)   │
+ *   └──────────────┴─────────────────────────────┘
+ * The video column is fixed-narrow (matches a phone-shot aspect) so the
+ * photo column can breathe at 16:9; columns are top-aligned and the photo
+ * column naturally ends below the video for a clean asymmetric look.
  *
- * The single "Photo / Vidéo" tab strip at the top lets the user switch
- * surfaces without scrolling — important on mobile where the video sits a
- * full viewport below the gallery.
+ * **Mobile layout**: video first, full-width-centered; then a horizontal
+ * thumbnail strip below — no big main photo on phone, tapping a thumb
+ * opens the lightbox.
+ *
+ * Edge cases: photos-only or video-only fall back to their respective
+ * sub-components without the split.
  */
 export default function PropertyGallery({ images, videoLinks = [], title }: Props) {
   const hasImages = images.length > 0;
@@ -36,32 +43,94 @@ export default function PropertyGallery({ images, videoLinks = [], title }: Prop
     );
   }
 
+  if (!videos.length) {
+    return <PhotoCarousel images={images} title={title} variant="standalone" />;
+  }
+
+  if (!hasImages) {
+    return <VideoBlock videos={videos} title={title} />;
+  }
+
   return (
-    <div className="space-y-8">
-      {hasImages && <PhotoCarousel images={images} title={title} hasVideo={videos.length > 0} />}
-      {videos.length > 0 && <VideoTourSection videos={videos} title={title} />}
+    <div className="grid gap-4 lg:gap-5 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] items-start">
+      <VideoBlock videos={videos} title={title} />
+      <PhotoCarousel images={images} title={title} variant="paired" />
     </div>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────────────
+   VIDEO BLOCK — vertical 9:16 player, mobile-first
+   ───────────────────────────────────────────────────────────────────── */
+
+function VideoBlock({
+  videos,
+  title,
+}: {
+  videos: Array<{ url: string; id: string }>;
+  title: string;
+}) {
+  return (
+    <div id="visite-video" className="space-y-2 scroll-mt-24">
+      <div className="flex flex-col gap-3 mx-auto lg:mx-0 lg:w-full max-w-[340px]">
+        {videos.map((v) => (
+          <div
+            key={v.id}
+            className="overflow-hidden rounded-2xl border border-clay bg-black w-full shadow-sm"
+            style={{ aspectRatio: youtubeAspect(v.url) }}
+          >
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${v.id}`}
+              title={`Vidéo — ${title}`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              loading="lazy"
+              className="w-full h-full"
+            />
+          </div>
+        ))}
+        <p className="text-[12px] uppercase tracking-[0.14em] font-semibold text-muted-foreground text-center lg:text-left">
+          <span className="inline-flex items-center gap-1.5">
+            <Play className="w-3 h-3" fill="currentColor" />
+            Visite vidéo
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   PHOTO CAROUSEL
+   - variant="standalone" → big 16:9 hero + thumb strip below
+   - variant="paired"     → desktop: big 16:9 + thumbs
+                            mobile : just a horizontal thumb strip
+   ───────────────────────────────────────────────────────────────────── */
 
 function PhotoCarousel({
   images,
   title,
-  hasVideo,
+  variant,
 }: {
   images: string[];
   title: string;
-  hasVideo: boolean;
+  variant: 'standalone' | 'paired';
 }) {
   const [active, setActive] = useState(0);
   const [open, setOpen] = useState(false);
   const total = images.length;
+  const showMainOnMobile = variant === 'standalone';
 
   return (
     <div className="space-y-3">
-      <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-ink group">
+      {/* Main 16:9 photo. Hidden on mobile in paired mode so video takes the
+          visible fold; the thumb strip + lightbox keep photos one tap away. */}
+      <div
+        className={
+          'relative aspect-[16/9] overflow-hidden rounded-2xl bg-ink group ' +
+          (showMainOnMobile ? '' : 'hidden lg:block')
+        }
+      >
         <img
           src={images[active]}
           alt={`${title} — photo ${active + 1}`}
@@ -69,7 +138,6 @@ function PhotoCarousel({
           onClick={() => setOpen(true)}
         />
 
-        {/* Bottom gradient for legibility of badges */}
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
 
         {total > 1 && (
@@ -78,7 +146,7 @@ function PhotoCarousel({
               type="button"
               onClick={() => setActive((i) => (i - 1 + total) % total)}
               aria-label="Image précédente"
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 grid place-items-center rounded-full bg-black/50 text-white backdrop-blur hover:bg-black/70 transition opacity-90 hover:opacity-100"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 grid place-items-center rounded-full bg-black/50 text-white backdrop-blur hover:bg-black/70 transition"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -86,51 +154,49 @@ function PhotoCarousel({
               type="button"
               onClick={() => setActive((i) => (i + 1) % total)}
               aria-label="Image suivante"
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 grid place-items-center rounded-full bg-black/50 text-white backdrop-blur hover:bg-black/70 transition opacity-90 hover:opacity-100"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 grid place-items-center rounded-full bg-black/50 text-white backdrop-blur hover:bg-black/70 transition"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
           </>
         )}
 
-        {/* Counter pill */}
         <div className="absolute bottom-3 left-3 z-[2] inline-flex items-center gap-2 bg-black/55 text-white text-[12px] font-semibold px-3 py-1.5 rounded-full backdrop-blur">
           {active + 1} / {total}
         </div>
 
-        {/* Lightbox CTA + jump-to-video CTA */}
-        <div className="absolute bottom-3 right-3 z-[2] flex gap-2">
-          {hasVideo && (
-            <a
-              href="#visite-video"
-              className="inline-flex items-center gap-1.5 bg-secondary text-secondary-foreground text-[12px] font-semibold px-3 py-1.5 rounded-full shadow hover:translate-y-[-1px] transition"
-            >
-              <Play className="w-3.5 h-3.5" fill="currentColor" /> Vidéo
-            </a>
-          )}
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            aria-label="Agrandir"
-            className="inline-flex items-center gap-1.5 bg-black/55 text-white text-[12px] font-semibold px-3 py-1.5 rounded-full backdrop-blur hover:bg-black/75 transition"
-          >
-            <Maximize className="w-3.5 h-3.5" /> Agrandir
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="Agrandir"
+          className="absolute bottom-3 right-3 z-[2] inline-flex items-center gap-1.5 bg-black/55 text-white text-[12px] font-semibold px-3 py-1.5 rounded-full backdrop-blur hover:bg-black/75 transition"
+        >
+          <Maximize className="w-3.5 h-3.5" /> Agrandir
+        </button>
       </div>
 
-      {total > 1 && (
+      {/* Thumbnail strip — horizontal scroll. Slightly bigger on desktop so
+          the photo column doesn't feel anaemic next to the tall video. */}
+      {total > 0 && (
         <div className="flex gap-2 overflow-x-auto scrollbar-thin pb-1 -mx-1 px-1 snap-x">
           {images.map((src, i) => (
             <button
               key={src + i}
               type="button"
-              onClick={() => setActive(i)}
+              onClick={() => {
+                setActive(i);
+                // On mobile-paired (no main photo), open the lightbox so the
+                // user can actually see the photo at a useful size.
+                if (variant === 'paired' && typeof window !== 'undefined' && window.innerWidth < 1024) {
+                  setOpen(true);
+                }
+              }}
               aria-label={`Voir photo ${i + 1}`}
               aria-pressed={i === active}
               className={
-                'shrink-0 w-24 h-[68px] rounded-lg overflow-hidden border-2 transition snap-start ' +
-                (i === active
+                'shrink-0 rounded-lg overflow-hidden border-2 transition snap-start ' +
+                'w-16 h-12 sm:w-20 sm:h-14 lg:w-24 lg:h-[68px] ' +
+                (i === active && (showMainOnMobile || true)
                   ? 'border-primary shadow-md'
                   : 'border-transparent opacity-65 hover:opacity-100')
               }
@@ -142,70 +208,15 @@ function PhotoCarousel({
       )}
 
       {open && (
-        <Lightbox
-          images={images}
-          start={active}
-          title={title}
-          onClose={() => setOpen(false)}
-        />
+        <Lightbox images={images} start={active} title={title} onClose={() => setOpen(false)} />
       )}
     </div>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────── */
-
-function VideoTourSection({
-  videos,
-  title,
-}: {
-  videos: Array<{ url: string; id: string }>;
-  title: string;
-}) {
-  return (
-    <section id="visite-video" className="scroll-mt-24">
-      {/* Mobile: stacked. Desktop: 9:16 player + copy side-by-side so the tall
-          aspect ratio doesn't blow out the layout. */}
-      <div className="rounded-3xl bg-primary text-primary-foreground overflow-hidden">
-        <div className="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center p-5 sm:p-8">
-          <div className="flex flex-col items-center gap-4 sm:items-stretch">
-            {videos.map((v) => (
-              <div
-                key={v.id}
-                className="overflow-hidden rounded-2xl border border-white/15 bg-black w-full max-w-[280px] sm:w-[280px] mx-auto"
-                style={{ aspectRatio: youtubeAspect(v.url) }}
-              >
-                <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${v.id}`}
-                  title={`Vidéo — ${title}`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  loading="lazy"
-                  className="w-full h-full"
-                />
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center sm:text-left">
-            <div className="inline-flex items-center gap-2 text-[12px] font-semibold tracking-[0.14em] uppercase text-secondary mb-3">
-              <span className="w-6 h-px bg-secondary" /> Visite guidée
-            </div>
-            <h2 className="font-serif font-light text-[clamp(24px,3vw,40px)] leading-tight tracking-tight">
-              Découvrez le bien en vidéo
-            </h2>
-            <p className="mt-3 text-primary-foreground/80 text-[15px] leading-relaxed max-w-[36ch] mx-auto sm:mx-0">
-              Tour filmé sur place par notre agent. Activez le son pour le commentaire et
-              n'hésitez pas à mettre en pause pour observer les détails.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────────────
+   LIGHTBOX — full-screen photo viewer
+   ───────────────────────────────────────────────────────────────────── */
 
 function Lightbox({
   images,
