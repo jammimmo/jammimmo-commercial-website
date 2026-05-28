@@ -1,0 +1,34 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import FavoritesList from '@/components/property/FavoritesList.tsx';
+import { getLang, t } from '@/lib/i18n';
+
+export const prerender = true;
+const lang = getLang(Astro.url);
+---
+
+<BaseLayout
+  title={`${t('page.favorites.title', lang)} — ${t('site.name', lang)}`}
+  description={t('page.favorites.description', lang)}
+  solidNav
+>
+  <section class="py-16 sm:py-20 bg-card border-b border-clay">
+    <div class="container max-w-3xl text-center">
+      <p class="text-[11px] uppercase tracking-[0.18em] font-semibold text-secondary mb-3">
+        {t('page.favorites.eyebrow', lang)}
+      </p>
+      <h1 class="font-serif font-light text-[clamp(36px,5vw,56px)] leading-tight tracking-tight">
+        {t('page.favorites.title', lang)}
+      </h1>
+      <p class="mt-4 text-muted-foreground text-[16px] leading-relaxed">
+        {t('page.favorites.subtitle', lang)}
+      </p>
+    </div>
+  </section>
+
+  <section class="py-12 sm:py-16 bg-background">
+    <div class="container">
+      <FavoritesList client:load lang={lang} />
+    </div>
+  </section>
+</BaseLayout>

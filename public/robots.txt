@@ -5,7 +5,11 @@ Disallow: /api/
 Disallow: /comparer
 Disallow: /en/comparer
 Disallow: /wo/comparer
+Disallow: /favoris
+Disallow: /en/favoris
+Disallow: /wo/favoris
 
-# /comparer is per-user (localStorage state). No SEO value, saves crawl budget.
+# /comparer and /favoris are per-user (localStorage state). No SEO value,
+# saves crawl budget.
 
 Sitemap: https://jammimmo.com/sitemap.xml
