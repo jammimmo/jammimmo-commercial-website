@@ -290,6 +290,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
                       property={p}
                       href={hrefByRef[p.reference] ?? `/biens/${p.reference.toLowerCase()}`}
                       active={activeRef === p.reference}
+                      lang={lang}
                       onEnter={() => setActiveRef(p.reference)}
                       onLeave={() => setActiveRef((curr) => (curr === p.reference ? null : curr))}
                     />

@@ -6,6 +6,7 @@ import PropertyMap from './PropertyMap.tsx';
 import PropertyCard from './PropertyCard.astro';
 import ContactForm from '@/components/forms/ContactForm.tsx';
 import CompareBar from './CompareBar.tsx';
+import FavoriteToggle from './FavoriteToggle.tsx';
 import { t, type Lang, localizedPath } from '@/lib/i18n';
 import { formatRentalPrice, formatLocation } from '@/lib/format';
 import { formatPublicRef } from '@/lib/reference';
@@ -186,6 +187,8 @@ const hasImages = p.images.length > 0;
                     <MessageCircle className="w-4 h-4" /> WhatsApp
                   </a>
                 </div>
+                {/* Favori — placé sous les CTAs principaux, même look pill que les CTAs */}
+                <FavoriteToggle client:visible reference={p.reference} title={p.title} lang={lang} variant="pill" />
               </div>
             </div>
           </aside>

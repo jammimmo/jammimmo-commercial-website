@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import DetailContent from '@/components/property/DetailContent.astro';
 import JsonLdProperty from '@/components/seo/JsonLdProperty.astro';
 import { listAllPublicRefs, getPublicPropertyByRef, findSimilar } from '@/lib/supabase.build';
-import { formatRentalPrice, metaDescription } from '@/lib/format';
+import { metaDescription, propertySeoTitle } from '@/lib/format';
 import { slugToRef } from '@/lib/reference';
 import { getLang } from '@/lib/i18n';
 
@@ -23,7 +23,7 @@ const lang = getLang(Astro.url);
 if (!property) return Astro.redirect('/wo/biens', 307);
 
 const similar = await findSimilar(property, 3);
-const seoTitle = `${property.type} ${property.surface > 0 ? `${property.surface}m² ` : ''}${property.quartier} ${property.city} — ${formatRentalPrice(property.price, property.transaction_type)} | Jamm Immobilier`;
+const seoTitle = propertySeoTitle(property, lang);
 const seoDescription = metaDescription(property.commercial_message, property.description);
 const seoImage = property.images[0];
 const canonical = `${Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com'}${Astro.url.pathname}`;
@@ -31,7 +31,7 @@ const canonical = `${Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammi
 
 <BaseLayout title={seoTitle} description={seoDescription} image={seoImage} type="article" canonical={canonical} solidNav>
   <slot slot="head">
-    <JsonLdProperty property={property} url={canonical} />
+    <JsonLdProperty property={property} url={canonical} lang={lang} />
   </slot>
   <DetailContent property={property} similar={similar} lang={lang} />
 </BaseLayout>

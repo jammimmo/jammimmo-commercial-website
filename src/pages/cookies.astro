@@ -1,0 +1,128 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { SITE, MAILTO_URI } from '@/lib/site-config';
+import { getLang } from '@/lib/i18n';
+
+export const prerender = true;
+
+const lang = getLang(Astro.url);
+const title = 'Cookies & stockage local — Jamm Immobilier';
+const description =
+  "Notre approche cookies : zéro pistage publicitaire, statistiques anonymes via Cloudflare, données 100% locales pour le comparateur et les favoris.";
+
+// FR-only canonical (cf. mentions-legales pour la raison).
+const canonical = 'https://jammimmo.com/cookies/';
+---
+
+<BaseLayout title={title} description={description} canonical={canonical} solidNav>
+  <article class="bg-background py-16 sm:py-20">
+    <div class="container max-w-3xl">
+      <p class="text-[11px] uppercase tracking-[0.18em] font-semibold text-secondary mb-3">
+        Politique cookies
+      </p>
+      <h1 class="font-serif font-light text-[clamp(32px,5vw,56px)] leading-[1.1] tracking-tight mb-8">
+        Cookies &amp; <span class="italic text-primary">stockage local</span>
+      </h1>
+
+      <div class="prose prose-neutral max-w-none space-y-8 text-foreground">
+        <section>
+          <p class="text-muted-foreground leading-relaxed">
+            Notre approche tient en une phrase :
+            <strong>nous n'utilisons aucun cookie publicitaire ni pistage tiers</strong>.
+            Vous n'avez donc pas de bandeau de consentement à valider — uniquement
+            les éléments techniques minimaux décrits ci-dessous.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">1. Cookies strictement nécessaires</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Notre site n'installe <strong>aucun cookie</strong> de session ou de suivi
+            sur votre navigateur. Les cookies techniques éventuels (HTTPS, équilibrage
+            de charge) sont gérés par notre hébergeur Cloudflare pour assurer le bon
+            acheminement des pages — ils n'identifient pas l'utilisateur.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">2. Mesure d'audience sans cookies</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Lorsqu'il est activé, <strong>Cloudflare Web Analytics</strong> mesure
+            anonymement la fréquentation du site (pages vues, type d'appareil, pays).
+            Aucun cookie n'est posé, aucune empreinte de navigateur n'est calculée, et
+            aucune donnée n'est partagée avec un tiers publicitaire.
+          </p>
+          <p class="text-muted-foreground leading-relaxed">
+            Plus d'infos :
+            <a
+              href="https://www.cloudflare.com/web-analytics/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-primary hover:underline"
+            >cloudflare.com/web-analytics</a>.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">3. Stockage local du navigateur</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Pour vous éviter de tout recommencer à chaque visite, nous utilisons le
+            <strong>stockage local</strong> de votre navigateur (technologie
+            <em>localStorage</em>) pour mémoriser :
+          </p>
+          <ul class="text-muted-foreground leading-relaxed list-disc pl-6 space-y-1.5">
+            <li>la <strong>langue d'affichage</strong> choisie (FR, EN ou WO) ;</li>
+            <li>les <strong>biens ajoutés au comparateur</strong> ;</li>
+            <li>les <strong>biens marqués comme favoris</strong> ;</li>
+            <li>vos <strong>filtres de recherche</strong> récents sur la page Annonces.</li>
+          </ul>
+          <p class="text-muted-foreground leading-relaxed">
+            Ces informations <strong>restent uniquement dans votre navigateur</strong>
+            et ne sont jamais transmises à {SITE.agencyName}. Vous pouvez les effacer
+            à tout moment depuis les paramètres de confidentialité de votre navigateur
+            (« Effacer les données de site »).
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">4. Vidéos YouTube intégrées</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Certaines fiches biens contiennent une vidéo de visite hébergée par
+            YouTube. Nous utilisons le mode <strong>youtube-nocookie</strong> qui
+            n'installe pas de cookie de pistage tant que vous ne lancez pas la
+            lecture. Une fois la lecture lancée, YouTube applique sa propre politique
+            cookies, sur laquelle nous n'avons pas la main.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">5. Comment refuser ?</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Étant donné l'absence de cookies de pistage, aucune action de refus n'est
+            requise. Si vous souhaitez tout de même bloquer le stockage local ou la
+            mesure d'audience anonyme, vous pouvez :
+          </p>
+          <ul class="text-muted-foreground leading-relaxed list-disc pl-6 space-y-1.5">
+            <li>activer le <strong>mode navigation privée</strong> de votre navigateur ;</li>
+            <li>activer le signal <strong>Do Not Track</strong> ou <strong>Global Privacy Control</strong>,
+            que nous respectons ;</li>
+            <li>installer une extension de blocage des scripts tiers.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">6. Contact</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Question ou réclamation sur cette politique ?
+            Écrivez-nous à
+            <a href={MAILTO_URI} class="text-primary hover:underline">{SITE.email}</a>.
+          </p>
+        </section>
+
+        <p class="text-xs text-muted-foreground/70 pt-4 border-t border-clay/40">
+          Dernière mise à jour : mai 2026.
+        </p>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

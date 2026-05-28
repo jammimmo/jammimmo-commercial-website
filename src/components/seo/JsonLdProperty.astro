@@ -1,27 +1,56 @@
 ---
 import type { PublicProperty } from '@/types/property';
 import { parseGps } from '@/lib/gps';
+import type { Lang } from '@/lib/i18n';
+import { localizedPath } from '@/lib/i18n';
 
 interface Props {
   property: PublicProperty;
   url: string;
+  lang: Lang;
 }
-const { property: p, url } = Astro.props;
+const { property: p, url, lang } = Astro.props;
 const geo = parseGps(p.gps);
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com';
 
-const data = {
+// Drop image URLs that the Google validator would reject (missing scheme).
+const safeImages = p.images.filter((i) => /^https?:\/\//i.test(i));
+const bathrooms =
+  typeof p.attributes?.toilettes === 'number' ? p.attributes.toilettes : undefined;
+
+// Unit hint for rental listings — Google Rich Results favours this on
+// "for rent" intent so it can render the "per month" suffix in snippets.
+const offerExtras =
+  p.transaction_type === 'Location'
+    ? {
+        priceSpecification: {
+          '@type': 'UnitPriceSpecification',
+          price: p.price,
+          priceCurrency: 'XOF',
+          unitCode: 'MON',
+          unitText: 'MONTH',
+        },
+      }
+    : {};
+
+const listing = {
   '@context': 'https://schema.org',
   '@type': 'RealEstateListing',
+  '@id': `${url}#listing`,
   name: p.title,
   description: p.description || p.commercial_message,
-  image: p.images.length > 0 ? p.images : undefined,
+  image: safeImages.length > 0 ? safeImages : undefined,
   url,
   datePosted: p.published_at ?? undefined,
+  dateModified: p.updated_at ?? undefined,
+  category: p.type,
   offers: {
     '@type': 'Offer',
     price: p.price,
     priceCurrency: 'XOF',
     availability: 'https://schema.org/InStock',
+    seller: { '@id': `${siteUrl}/#organization` },
+    ...offerExtras,
   },
   address: {
     '@type': 'PostalAddress',
@@ -33,7 +62,20 @@ const data = {
   ...(geo ? { geo: { '@type': 'GeoCoordinates', latitude: geo.lat, longitude: geo.lng } } : {}),
   floorSize: p.surface > 0 ? { '@type': 'QuantitativeValue', value: p.surface, unitCode: 'MTK' } : undefined,
   numberOfRooms: p.bedrooms > 0 ? p.bedrooms : undefined,
+  numberOfBathroomsTotal: bathrooms,
+  broker: { '@id': `${siteUrl}/#organization` },
+};
+
+const breadcrumb = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Accueil', item: `${siteUrl}${localizedPath('/', lang)}` },
+    { '@type': 'ListItem', position: 2, name: 'Annonces', item: `${siteUrl}${localizedPath('/biens', lang)}` },
+    { '@type': 'ListItem', position: 3, name: p.title, item: url },
+  ],
 };
 ---
 
-<script type="application/ld+json" set:html={JSON.stringify(data)} />
+<script type="application/ld+json" is:inline set:html={JSON.stringify(listing)}></script>
+<script type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumb)}></script>

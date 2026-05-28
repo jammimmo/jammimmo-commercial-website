@@ -5,6 +5,7 @@ import { formatPublicRef } from '@/lib/reference';
 import { getStatusBadge, getTransactionBadge } from '@/lib/status';
 import { localizedPath, t, type Lang } from '@/lib/i18n';
 import CompareToggle from './CompareToggle.tsx';
+import FavoriteToggle from './FavoriteToggle.tsx';
 import { youtubeIdFromUrl, youtubeThumb } from '@/lib/youtube';
 
 interface Props {
@@ -47,7 +48,7 @@ const [phA, phB] = palette[hash]!;
 ---
 
 <article
-  class:list={['group reveal flex flex-col bg-card rounded-[22px] overflow-hidden border border-clay transition-all duration-500 hover:translate-y-[-6px] hover:shadow-[0_40px_80px_-40px_hsl(var(--ink)/.3)]', delay]}
+  class:list={['group reveal relative flex flex-col bg-card rounded-[22px] overflow-hidden border border-clay transition-all duration-500 hover:translate-y-[-6px] hover:shadow-[0_40px_80px_-40px_hsl(var(--ink)/.3)]', delay]}
   data-property-ref={p.reference}
 >
   <a href={href} class="block relative aspect-[4/3] overflow-hidden bg-ink" aria-label={p.title}>
@@ -122,13 +123,12 @@ const [phA, phB] = palette[hash]!;
       </div>
     )}
 
-    <div class="absolute top-3.5 left-3.5 flex gap-1.5 z-[2]">
+    {/* Top-left stack: transaction (vente/location) + status badges so the
+        top-right corner stays clear for the favorite heart, à la Zillow. */}
+    <div class="absolute top-3.5 left-3.5 flex flex-wrap gap-1.5 z-[2] max-w-[calc(100%-72px)]">
       <span class:list={['px-3 py-1.5 rounded-full text-[11.5px] font-semibold tracking-wide shadow-md backdrop-blur', transactionBadge.badgeClass]}>
         {transactionBadge.label}
       </span>
-    </div>
-
-    <div class="absolute top-3.5 right-3.5 z-[2] flex items-center gap-1.5">
       <span class:list={['inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold tracking-wide uppercase shadow-md backdrop-blur', statusBadge.badgeClass]}>
         <span aria-hidden>{statusBadge.emoji}</span>{statusBadge.label}
       </span>
@@ -151,6 +151,18 @@ const [phA, phB] = palette[hash]!;
       </span>
     )}
   </a>
+
+  {/* Heart toggle — sibling of <a> (NOT inside) to avoid nesting interactive
+      elements. Positioned absolute against the article (which is `relative`)
+      so it lands on the thumbnail's top-right corner. `z-[3]` keeps it above
+      the badges (`z-[2]`). */}
+  <FavoriteToggle
+    client:visible
+    reference={p.reference}
+    title={p.title}
+    lang={lang}
+    variant="icon"
+  />
 
   <div class="flex flex-col gap-2.5 p-6">
     <div class="flex items-center justify-between gap-2">
@@ -225,6 +237,11 @@ const [phA, phB] = palette[hash]!;
     iframe.setAttribute('webkit-playsinline', '');
     iframe.setAttribute('muted', '');
     iframe.setAttribute('frameborder', '0');
+    iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+    iframe.setAttribute(
+      'sandbox',
+      'allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox',
+    );
     iframe.style.cssText =
       'position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;';
 

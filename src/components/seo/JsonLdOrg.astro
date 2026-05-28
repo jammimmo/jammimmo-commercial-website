@@ -1,0 +1,77 @@
+---
+/**
+ * Global Organization + WebSite + RealEstateAgent JSON-LD, emitted only
+ * on homepages. Wins the Knowledge Panel for branded queries
+ * ("Jamm Immobilier", "Jamm Immo") and unlocks the SERP search-box
+ * sitelink for "site:jammimmo.com X" patterns.
+ *
+ * SearchAction template points at /biens?q={query} so Google can deep-link
+ * the search-box directly into the listings page.
+ */
+import { SITE } from '@/lib/site-config';
+import type { Lang } from '@/lib/i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com';
+const inLanguage = lang === 'fr' ? 'fr-SN' : lang === 'en' ? 'en-US' : 'wo-SN';
+
+const graph = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': ['Organization', 'RealEstateAgent'],
+      '@id': `${siteUrl}/#organization`,
+      name: SITE.agencyName,
+      url: siteUrl,
+      logo: `${siteUrl}/og-default.png`,
+      image: `${siteUrl}/og-default.png`,
+      areaServed: [
+        { '@type': 'Country', name: 'Sénégal' },
+        { '@type': 'City', name: 'Dakar' },
+        { '@type': 'City', name: 'Saly' },
+        { '@type': 'City', name: 'Mbour' },
+        { '@type': 'City', name: 'Saint-Louis' },
+        { '@type': 'City', name: 'Thiès' },
+      ],
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: SITE.agencyCity,
+        addressCountry: 'SN',
+      },
+      contactPoint: [
+        {
+          '@type': 'ContactPoint',
+          contactType: 'customer service',
+          telephone: SITE.phoneE164,
+          email: SITE.email,
+          availableLanguage: ['French', 'English', 'Wolof'],
+          areaServed: 'SN',
+        },
+      ],
+      sameAs: Object.values(SITE.socials).filter(Boolean),
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}/#website`,
+      url: siteUrl,
+      name: SITE.agencyName,
+      inLanguage,
+      publisher: { '@id': `${siteUrl}/#organization` },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${siteUrl}/biens?q={search_term_string}`,
+        },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+  ],
+};
+---
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(graph)}></script>
