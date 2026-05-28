@@ -5,7 +5,7 @@ import { formatPublicRef } from '@/lib/reference';
 import { getStatusBadge, getTransactionBadge } from '@/lib/status';
 import { localizedPath, t, type Lang } from '@/lib/i18n';
 import CompareToggle from './CompareToggle.tsx';
-import { youtubeThumb } from '@/lib/youtube';
+import { youtubeIdFromUrl, youtubeThumb } from '@/lib/youtube';
 
 interface Props {
   property: PublicProperty;
@@ -27,8 +27,9 @@ const transactionBadge = getTransactionBadge(p.transaction_type);
 //     2×2 mosaic of the first 4 photos.
 //   • If only one of them → single image fills the whole tile (video thumb
 //     as fallback). Aspect ratio is unchanged either way (4:3 outer).
+const videoId = youtubeIdFromUrl(p.video_links[0]);
 const videoThumb = youtubeThumb(p.video_links[0]);
-const split = !!videoThumb && p.images.length >= 1;
+const split = !!videoId && p.images.length >= 1;
 const mosaicImgs = p.images.slice(0, 4);
 const heroImage: string | null = split ? null : (p.images[0] ?? videoThumb);
 const heroImageIsYoutube = !split && !p.images[0] && heroImage !== null;
@@ -54,8 +55,14 @@ const [phA, phB] = palette[hash]!;
       <!-- Split thumb: video LEFT, 2×2 photo mosaic RIGHT. Aspect-[4/3]
            kept on the outer link; inner grid fills it absolutely. -->
       <div class="absolute inset-0 grid grid-cols-2 gap-1 bg-ink">
-        <!-- LEFT: video thumbnail with play badge -->
-        <div class="relative overflow-hidden">
+        <!-- LEFT: video — starts as the YouTube thumbnail + play badge; on
+             first scroll-into-view a muted/looped/autoplay iframe replaces
+             the image (see <script> at bottom of file). -->
+        <div
+          class="relative overflow-hidden"
+          data-video-thumb
+          data-yt-id={videoId!}
+        >
           <img
             src={videoThumb}
             alt={`Visite vidéo — ${p.title}`}
@@ -63,8 +70,8 @@ const [phA, phB] = palette[hash]!;
             decoding="async"
             class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
-          <span class="absolute inset-0 bg-black/25 transition-colors group-hover:bg-black/15"></span>
-          <span class="absolute inset-0 grid place-items-center" aria-hidden="true">
+          <span class="absolute inset-0 bg-black/25 transition-colors group-hover:bg-black/15 pointer-events-none"></span>
+          <span class="absolute inset-0 grid place-items-center pointer-events-none" aria-hidden="true">
             <span class="w-12 h-12 grid place-items-center rounded-full bg-white/95 text-primary shadow-md">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             </span>
@@ -173,3 +180,61 @@ const [phA, phB] = palette[hash]!;
     {!hideCompare && <CompareToggle client:visible reference={p.reference} title={p.title} lang={lang} />}
   </div>
 </article>
+
+<script>
+  // Lazy autoplay for split-thumb video tiles. Astro hoists this once for
+  // the whole bundle even when PropertyCard is rendered N times.
+  //
+  // First scroll-into-view → replace the YouTube thumbnail image with a
+  // muted/looped/autoplay iframe. Cards leaving and re-entering keep the
+  // already-mounted iframe (no thrashing). pointer-events: none on the
+  // iframe so clicks pass through to the underlying card link.
+  const thumbs = document.querySelectorAll<HTMLElement>('[data-video-thumb]:not([data-yt-mounted])');
+  if (thumbs.length > 0) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          if (el.dataset.ytMounted) continue;
+          const id = el.dataset.ytId;
+          if (!id) continue;
+          const params = new URLSearchParams({
+            autoplay: '1',
+            mute: '1',
+            loop: '1',
+            playlist: id,
+            controls: '0',
+            modestbranding: '1',
+            playsinline: '1',
+            rel: '0',
+            iv_load_policy: '3',
+            disablekb: '1',
+          });
+          const iframe = document.createElement('iframe');
+          iframe.src = `https://www.youtube-nocookie.com/embed/${id}?${params.toString()}`;
+          iframe.title = 'Visite vidéo';
+          iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+          iframe.setAttribute('frameborder', '0');
+          iframe.style.cssText =
+            'position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;';
+          // Insert behind the play-icon overlay so on first frame the user
+          // still sees the badge, then it fades when the iframe is ready.
+          el.insertBefore(iframe, el.firstChild?.nextSibling ?? null);
+          // Hide the static image once the iframe is in the DOM (small
+          // delay so we don't flash a black frame).
+          requestAnimationFrame(() => {
+            const img = el.querySelector('img');
+            if (img) img.style.opacity = '0';
+            const overlay = el.querySelectorAll(':scope > span');
+            overlay.forEach((s) => ((s as HTMLElement).style.opacity = '0'));
+          });
+          el.dataset.ytMounted = '1';
+          io.unobserve(el);
+        }
+      },
+      { rootMargin: '200px', threshold: 0.1 },
+    );
+    thumbs.forEach((el) => io.observe(el));
+  }
+</script>
