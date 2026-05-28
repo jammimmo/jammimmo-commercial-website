@@ -56,6 +56,10 @@ export default function PropertyGallery({ images, title }: Props) {
         <img
           src={main}
           alt={`${title} — photo ${active + 1}`}
+          width={1600}
+          height={1200}
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
         />
         <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
@@ -107,6 +111,10 @@ export default function PropertyGallery({ images, title }: Props) {
           <img
             src={secondary}
             alt={`${title} — photo ${secondaryIdx + 1}`}
+            width={1600}
+            height={1200}
+            loading="lazy"
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
           />
         </button>
@@ -138,8 +146,11 @@ export default function PropertyGallery({ images, title }: Props) {
                 <img
                   src={src}
                   alt=""
-                  className="absolute inset-0 w-full h-full object-cover"
+                  width={400}
+                  height={300}
                   loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
                 {isOverflowTile && (
                   <div className="absolute inset-0 bg-primary/85 grid place-items-center text-primary-foreground">
@@ -265,6 +276,9 @@ function Lightbox({
       <img
         src={images[active]}
         alt={`${title} — photo ${active + 1}`}
+        width={1600}
+        height={1200}
+        decoding="async"
         className="max-w-full max-h-full object-contain"
         onClick={(e) => e.stopPropagation()}
       />

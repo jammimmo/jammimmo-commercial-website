@@ -13,21 +13,20 @@ const p = (path: string) => localizedPath(path, lang);
     <div class="container max-w-2xl text-center">
       <p class="text-[11px] uppercase tracking-[0.18em] font-semibold text-secondary mb-3">Erreur 404</p>
       <h1 class="font-serif font-light text-[clamp(40px,7vw,96px)] leading-none tracking-tight">
-        <span class="italic text-primary">Oups</span>, page introuvable.
+        <span class="italic text-primary">{t('error.oops', lang)}</span>, {t('error.notFound', lang)}
       </h1>
       <p class="mt-5 text-muted-foreground max-w-prose mx-auto text-[16px] leading-relaxed">
-        L'URL que vous avez suivie n'existe pas ou plus. Vérifiez son orthographe,
-        ou retournez à l'accueil pour parcourir nos biens.
+        {t('error.notFoundDescription', lang)}
       </p>
       <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
         <a href={p('/')} class="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-primary text-primary-foreground font-semibold shadow hover:translate-y-[-1px] transition">
-          Retour à l'accueil
+          {t('error.backHome', lang)}
         </a>
         <a href={p('/biens')} class="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-card border border-clay font-semibold hover:border-primary transition">
-          Voir les annonces
+          {t('error.browseListings', lang)}
         </a>
         <a href={p('/contact')} class="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-secondary text-secondary-foreground font-semibold hover:translate-y-[-1px] transition">
-          Nous contacter
+          {t('error.contactUs', lang)}
         </a>
       </div>
     </div>
