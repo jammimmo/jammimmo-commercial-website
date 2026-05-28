@@ -368,7 +368,10 @@ const hasImages = p.images.length > 0;
             <span class="w-6 h-px bg-primary"></span>Annonces similaires
           </div>
           <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mt-2 mb-6">{t('property.detail.similar', lang)}</h2>
-          <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <!-- auto-fit + minmax + justify-center spaces the cards evenly
+               whether there are 1, 2, or 3 matches; each card never
+               shrinks below 280 px wide. -->
+          <div class="grid gap-6 justify-center grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
             {similar.map((sp, i) => (
               <PropertyCard property={sp} lang={lang} delay={(['', 'd1', 'd2'] as const)[i % 3]} hideCompare />
             ))}
