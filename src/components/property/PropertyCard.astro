@@ -20,11 +20,18 @@ const { property: p, lang, hideCompare = false, delay = '' } = Astro.props;
 
 const statusBadge = getStatusBadge(p.status);
 const transactionBadge = getTransactionBadge(p.transaction_type);
-// Hero image cascade: uploaded photo → YouTube thumbnail of the first video
-// → gradient placeholder. Lets us render real visuals for properties that
-// only have a tour video, before someone uploads photos in admin.
-const heroImage: string | null = p.images[0] ?? youtubeThumb(p.video_links[0]);
-const heroImageIsYoutube = !p.images[0] && heroImage !== null;
+
+// Split thumbnail strategy:
+//   • If the property has BOTH a video tour and uploaded photos → split the
+//     4:3 tile: left half = video thumbnail with a play badge; right half =
+//     2×2 mosaic of the first 4 photos.
+//   • If only one of them → single image fills the whole tile (video thumb
+//     as fallback). Aspect ratio is unchanged either way (4:3 outer).
+const videoThumb = youtubeThumb(p.video_links[0]);
+const split = !!videoThumb && p.images.length >= 1;
+const mosaicImgs = p.images.slice(0, 4);
+const heroImage: string | null = split ? null : (p.images[0] ?? videoThumb);
+const heroImageIsYoutube = !split && !p.images[0] && heroImage !== null;
 const href = localizedPath(`/biens/${p.reference.toLowerCase()}`, lang);
 
 // Placeholder gradient when no image
@@ -43,7 +50,45 @@ const [phA, phB] = palette[hash]!;
   data-property-ref={p.reference}
 >
   <a href={href} class="block relative aspect-[4/3] overflow-hidden bg-ink" aria-label={p.title}>
-    {heroImage ? (
+    {split ? (
+      <!-- Split thumb: video LEFT, 2×2 photo mosaic RIGHT. Aspect-[4/3]
+           kept on the outer link; inner grid fills it absolutely. -->
+      <div class="absolute inset-0 grid grid-cols-2 gap-1 bg-ink">
+        <!-- LEFT: video thumbnail with play badge -->
+        <div class="relative overflow-hidden">
+          <img
+            src={videoThumb}
+            alt={`Visite vidéo — ${p.title}`}
+            loading="lazy"
+            decoding="async"
+            class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+          <span class="absolute inset-0 bg-black/25 transition-colors group-hover:bg-black/15"></span>
+          <span class="absolute inset-0 grid place-items-center" aria-hidden="true">
+            <span class="w-12 h-12 grid place-items-center rounded-full bg-white/95 text-primary shadow-md">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </span>
+          </span>
+        </div>
+        <!-- RIGHT: 2×2 photo mosaic (fills with whatever photos exist) -->
+        <div class="grid grid-cols-2 grid-rows-2 gap-1">
+          {Array.from({ length: 4 }).map((_, i) => {
+            const src = mosaicImgs[i] ?? mosaicImgs[mosaicImgs.length - 1];
+            return (
+              <div class="relative overflow-hidden bg-ink">
+                <img
+                  src={src}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    ) : heroImage ? (
       <>
         <img
           src={heroImage}

@@ -15,13 +15,14 @@ export default {
   theme: {
     container: {
       center: true,
-      // Generous side padding — centered content, big margins at xl+.
+      // Tighter side padding — less white space on the property profile,
+      // still consistent gutters across breakpoints.
       padding: {
-        DEFAULT: '1.5rem',  // 24 px
-        sm: '2rem',         // 32 px
-        md: '2.5rem',       // 40 px
-        lg: '3rem',         // 48 px
-        xl: '5rem',         // 80 px  — "bigger margin left & right"
+        DEFAULT: '1.25rem', // 20 px
+        sm: '1.5rem',       // 24 px
+        md: '2rem',         // 32 px
+        lg: '2rem',         // 32 px
+        xl: '2.5rem',       // 40 px
       },
       screens: { '2xl': '1320px' },
     },

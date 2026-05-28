@@ -64,7 +64,7 @@ const hasImages = p.images.length > 0;
 <!-- ─────────────────────────────────────────────────────────────────────
      1. TITLE BAND  (all sections share the same .container = no décalage)
      ───────────────────────────────────────────────────────────────────── -->
-<section class="bg-card pt-6 sm:pt-10 pb-5 sm:pb-7">
+<section class="bg-card pt-5 sm:pt-7 pb-3 sm:pb-5">
   <div class="container">
     <a href={localizedPath('/biens', lang)} class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-5">
       <span aria-hidden>←</span> Toutes les annonces
@@ -102,9 +102,9 @@ const hasImages = p.images.length > 0;
           scrolls past this section, the card naturally unsticks at the
           start of the description below. No JS, just CSS sticky scoping.
      ───────────────────────────────────────────────────────────────────── -->
-<section class="bg-card pb-10 lg:pb-14">
+<section class="bg-card pb-6 lg:pb-10">
   <div class="container">
-    <div class="grid gap-6 lg:gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_340px] items-stretch">
+    <div class="grid gap-4 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_340px] items-stretch">
       <!-- COL 1: VIDEO  (9:16, drives the row height) -->
       {hasVideo && (
         <div class="mx-auto xl:mx-0 w-full max-w-[400px] xl:max-w-none">
@@ -199,9 +199,9 @@ const hasImages = p.images.length > 0;
      3. DESCRIPTION — full container width, magazine card + drop cap
      ───────────────────────────────────────────────────────────────────── -->
 {p.description && (
-  <section class="py-12 lg:py-16 bg-background border-t border-clay">
+  <section class="py-8 lg:py-10 bg-background border-t border-clay">
     <div class="container">
-      <article class="prop-description relative rounded-2xl bg-card border border-clay px-7 sm:px-10 py-9 sm:py-11 shadow-sm">
+      <article class="prop-description relative rounded-2xl bg-card border border-clay px-6 sm:px-8 py-7 sm:py-9 shadow-sm">
         <div class="absolute left-0 top-8 bottom-8 w-1 rounded-r-full bg-gradient-to-b from-secondary via-secondary/60 to-transparent"></div>
         <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
           <span class="w-6 h-px bg-primary"></span>
@@ -227,7 +227,7 @@ const hasImages = p.images.length > 0;
      4. INFORMATIONS DE BASE
      ───────────────────────────────────────────────────────────────────── -->
 {(facts.length > 0 || attrEntries.length > 0 || p.nearby_commerce.length > 0 || documentEntries.length > 0) && (
-  <section class="py-10 lg:py-14 bg-card border-t border-clay">
+  <section class="py-8 lg:py-10 bg-card border-t border-clay">
     <div class="container">
       <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
         <span class="w-6 h-px bg-primary"></span>Informations de base
@@ -320,7 +320,7 @@ const hasImages = p.images.length > 0;
      5. TOUTES LES COMMODITÉS
      ───────────────────────────────────────────────────────────────────── -->
 {p.commodities.length > 0 && (
-  <section class="py-10 lg:py-14 bg-background border-t border-clay">
+  <section class="py-8 lg:py-10 bg-background border-t border-clay">
     <div class="container">
       <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
         <span class="w-6 h-px bg-primary"></span>{t('property.detail.commodities', lang)}
@@ -340,9 +340,9 @@ const hasImages = p.images.length > 0;
 <!-- ─────────────────────────────────────────────────────────────────────
      6. LOCATION
      ───────────────────────────────────────────────────────────────────── -->
-<section class="py-12 lg:py-16 bg-card border-t border-clay">
+<section class="py-10 lg:py-12 bg-card border-t border-clay">
   <div class="container">
-    <div class="mb-6">
+    <div class="mb-5">
       <div class="inline-flex items-center gap-2 text-[12px] font-semibold tracking-[0.14em] uppercase text-primary">
         <span class="w-6 h-px bg-primary" /> {t('property.detail.location', lang)}
       </div>
@@ -356,7 +356,7 @@ const hasImages = p.images.length > 0;
 <!-- ─────────────────────────────────────────────────────────────────────
      7. CONTACT FORM
      ───────────────────────────────────────────────────────────────────── -->
-<section id="contact-bien" class="py-16 lg:py-20 bg-background border-t border-clay scroll-mt-24">
+<section id="contact-bien" class="py-12 lg:py-16 bg-background border-t border-clay scroll-mt-24">
   <div class="container max-w-3xl">
     <h2 class="font-serif text-3xl text-center mb-2">{t('property.detail.contact', lang)}</h2>
     <p class="text-muted-foreground text-center mb-8">{t('property.detail.contactSub', lang)}</p>
@@ -368,9 +368,9 @@ const hasImages = p.images.length > 0;
      8. SIMILAR
      ───────────────────────────────────────────────────────────────────── -->
 {similar.length > 0 && (
-  <section class="py-12 lg:py-16 bg-card border-t border-clay">
+  <section class="py-10 lg:py-12 bg-card border-t border-clay">
     <div class="container">
-      <h2 class="font-serif text-2xl sm:text-3xl mb-8">{t('property.detail.similar', lang)}</h2>
+      <h2 class="font-serif text-2xl sm:text-3xl mb-6">{t('property.detail.similar', lang)}</h2>
       <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {similar.map((sp, i) => (
           <PropertyCard property={sp} lang={lang} delay={(['', 'd1', 'd2'] as const)[i % 3]} hideCompare />
