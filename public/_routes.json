@@ -1,8 +1,0 @@
-{
-  "version": 1,
-  "description": "Hand off only the dynamic API routes to the Pages Function runtime. Everything else is a pre-rendered static asset; unmatched URLs fall to Astro's emitted 404.html instead of the SPA homepage.",
-  "include": [
-    "/api/*"
-  ],
-  "exclude": []
-}
