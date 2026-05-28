@@ -62,152 +62,147 @@ const hasImages = p.images.length > 0;
 ---
 
 <!-- ─────────────────────────────────────────────────────────────────────
-     1. TITLE BAND  (all sections share the same .container = no décalage)
+     The whole page sits on a soft background. Each content block is a
+     floating "card" (rounded, bordered, shadowed) max-w-5xl mx-auto with
+     generous outer gutters provided by the container.
      ───────────────────────────────────────────────────────────────────── -->
+
+<!-- 1. TITLE — left as a flat top header band, no card. -->
 <section class="bg-card pt-5 sm:pt-7 pb-3 sm:pb-5">
   <div class="container">
-    <a href={localizedPath('/biens', lang)} class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-5">
-      <span aria-hidden>←</span> Toutes les annonces
-    </a>
+    <div class="max-w-6xl mx-auto">
+      <a href={localizedPath('/biens', lang)} class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-5">
+        <span aria-hidden>←</span> Toutes les annonces
+      </a>
 
-    <div class="flex flex-wrap items-center gap-2 mb-4">
-      <span class:list={['px-3 py-1.5 rounded-full text-[12px] font-semibold tracking-wide', transaction.badgeClass]}>
-        {transaction.label}
-      </span>
-      <span class:list={['inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold tracking-wide uppercase', status.badgeClass]}>
-        <span aria-hidden>{status.emoji}</span>{status.label}
-      </span>
-      {p.tags.map((tag) => (
-        <span class="px-3 py-1.5 rounded-full text-[12px] font-semibold bg-ochre/10 text-ink border border-ochre/30">{tag}</span>
-      ))}
-      <span class="ml-auto text-[12px] font-mono text-muted-foreground/70">{formatPublicRef(p.reference)}</span>
+      <div class="flex flex-wrap items-center gap-2 mb-4">
+        <span class:list={['px-3 py-1.5 rounded-full text-[12px] font-semibold tracking-wide', transaction.badgeClass]}>
+          {transaction.label}
+        </span>
+        <span class:list={['inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold tracking-wide uppercase', status.badgeClass]}>
+          <span aria-hidden>{status.emoji}</span>{status.label}
+        </span>
+        {p.tags.map((tag) => (
+          <span class="px-3 py-1.5 rounded-full text-[12px] font-semibold bg-ochre/10 text-ink border border-ochre/30">{tag}</span>
+        ))}
+        <span class="ml-auto text-[12px] font-mono text-muted-foreground/70">{formatPublicRef(p.reference)}</span>
+      </div>
+
+      <h1 class="font-serif font-light text-[clamp(28px,4vw,52px)] leading-tight tracking-tight [text-wrap:balance]">
+        {p.title}
+      </h1>
+
+      <p class="mt-2 inline-flex items-center gap-2 text-muted-foreground">
+        <MapPin className="w-4 h-4" />
+        {formatLocation(p.city, p.quartier)}{p.address ? ` · ${p.address}` : ''}
+      </p>
     </div>
-
-    <h1 class="font-serif font-light text-[clamp(28px,4vw,52px)] leading-tight tracking-tight [text-wrap:balance]">
-      {p.title}
-    </h1>
-
-    <p class="mt-2 inline-flex items-center gap-2 text-muted-foreground">
-      <MapPin className="w-4 h-4" />
-      {formatLocation(p.city, p.quartier)}{p.address ? ` · ${p.address}` : ''}
-    </p>
   </div>
 </section>
 
-<!-- ─────────────────────────────────────────────────────────────────────
-     2. HERO ROW — 3 columns: VIDEO | PHOTOS | STICKY PRICE
-        • Video col + Photo col are EQUAL WIDTH (1fr each).
-        • Both columns fill the row height (driven by the 9:16 video).
-        • Sticky price column lives inside the SAME parent — when the user
-          scrolls past this section, the card naturally unsticks at the
-          start of the description below. No JS, just CSS sticky scoping.
-     ───────────────────────────────────────────────────────────────────── -->
-<section class="bg-card pb-6 lg:pb-10">
+<!-- 2. HERO ROW — floating card containing the 3-col grid -->
+<section class="bg-background pt-6 lg:pt-8 pb-6 lg:pb-8">
   <div class="container">
-    <div class="grid gap-4 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_340px] items-stretch">
-      <!-- COL 1: VIDEO  (9:16, drives the row height) -->
-      {hasVideo && (
-        <div class="mx-auto xl:mx-0 w-full max-w-[400px] xl:max-w-none">
-          <div class="aspect-[9/16] overflow-hidden rounded-2xl border border-clay bg-black w-full shadow-sm ring-1 ring-ink/5">
-            <VideoTour videoLinks={p.video_links} title={p.title} />
-          </div>
-        </div>
-      )}
-
-      <!-- COL 2: PHOTOS (flex column, stretches to row height = video height) -->
-      {hasImages && (
-        <div class="h-full">
-          <PropertyGallery client:visible images={p.images} title={p.title} />
-        </div>
-      )}
-
-      <!-- COL 3: STICKY PRICE — bounded by this <section> so sticky stops
-                 at the description below.  -->
-      <aside class="xl:sticky xl:top-24 self-start">
-        <div class="rounded-3xl bg-gradient-to-br from-primary via-primary to-[hsl(var(--primary)/0.85)] text-primary-foreground shadow-xl overflow-hidden">
-          <div class="p-6">
-            <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary-foreground/70">
-              {priceCaption}
+    <div class="max-w-6xl mx-auto rounded-2xl bg-card border border-clay px-5 sm:px-7 py-6 sm:py-7 shadow-sm">
+      <div class="grid gap-4 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_320px] items-stretch">
+        {hasVideo && (
+          <div class="mx-auto xl:mx-0 w-full max-w-[400px] xl:max-w-none">
+            <div class="aspect-[9/16] overflow-hidden rounded-2xl border border-clay bg-black w-full shadow-sm ring-1 ring-ink/5">
+              <VideoTour videoLinks={p.video_links} title={p.title} />
             </div>
-            <div class="flex flex-wrap items-baseline gap-3 mt-2">
-              <div class="font-serif font-light text-[clamp(28px,3vw,40px)] leading-none tracking-tight">
-                {priceLabel}
+          </div>
+        )}
+
+        {hasImages && (
+          <div class="h-full">
+            <PropertyGallery client:visible images={p.images} title={p.title} />
+          </div>
+        )}
+
+        <aside class="xl:sticky xl:top-24 self-start">
+          <div class="rounded-2xl bg-gradient-to-br from-primary via-primary to-[hsl(var(--primary)/0.85)] text-primary-foreground shadow-xl overflow-hidden">
+            <div class="p-5 sm:p-6">
+              <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary-foreground/70">
+                {priceCaption}
               </div>
-              {p.negotiable && (
-                <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-secondary/30 text-secondary-foreground border border-secondary/50">
-                  {t('property.price.negotiable', lang)}
+              <div class="flex flex-wrap items-baseline gap-3 mt-2">
+                <div class="font-serif font-light text-[clamp(26px,2.8vw,38px)] leading-none tracking-tight">
+                  {priceLabel}
+                </div>
+                {p.negotiable && (
+                  <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-secondary/30 text-secondary-foreground border border-secondary/50">
+                    {t('property.price.negotiable', lang)}
+                  </span>
+                )}
+              </div>
+              <p class="mt-3 text-[12.5px] text-primary-foreground/70">
+                Conditions, caution, avance — sur demande.
+              </p>
+            </div>
+
+            <div class="h-px bg-white/15 mx-5 sm:mx-6" />
+
+            <ul class="p-5 sm:p-6 space-y-3 text-[14px]">
+              <li class="flex items-start gap-3">
+                <span class="w-9 h-9 rounded-full bg-white/12 grid place-items-center shrink-0">
+                  <Phone className="w-4 h-4 text-secondary" />
                 </span>
-              )}
-            </div>
-            <p class="mt-3 text-[12.5px] text-primary-foreground/70">
-              Conditions, caution, avance — sur demande.
-            </p>
-          </div>
+                <div>
+                  <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">Téléphone</div>
+                  <a href="tel:+221770000000" class="hover:text-secondary transition">+221 77 000 00 00</a>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="w-9 h-9 rounded-full bg-white/12 grid place-items-center shrink-0">
+                  <Mail className="w-4 h-4 text-secondary" />
+                </span>
+                <div>
+                  <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">E-mail</div>
+                  <a href="mailto:contact@jammimmo.com" class="hover:text-secondary transition break-all">contact@jammimmo.com</a>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="w-9 h-9 rounded-full bg-white/12 grid place-items-center shrink-0">
+                  <MapPin className="w-4 h-4 text-secondary" />
+                </span>
+                <div>
+                  <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">Agence</div>
+                  <span>Jamm Immobilier · Dakar</span>
+                </div>
+              </li>
+            </ul>
 
-          <div class="h-px bg-white/15 mx-6" />
-
-          <ul class="p-6 space-y-3 text-[14px]">
-            <li class="flex items-start gap-3">
-              <span class="w-9 h-9 rounded-full bg-white/12 grid place-items-center shrink-0">
-                <Phone className="w-4 h-4 text-secondary" />
-              </span>
-              <div>
-                <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">Téléphone</div>
-                <a href="tel:+221770000000" class="hover:text-secondary transition">+221 77 000 00 00</a>
-              </div>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="w-9 h-9 rounded-full bg-white/12 grid place-items-center shrink-0">
-                <Mail className="w-4 h-4 text-secondary" />
-              </span>
-              <div>
-                <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">E-mail</div>
-                <a href="mailto:contact@jammimmo.com" class="hover:text-secondary transition break-all">contact@jammimmo.com</a>
-              </div>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="w-9 h-9 rounded-full bg-white/12 grid place-items-center shrink-0">
-                <MapPin className="w-4 h-4 text-secondary" />
-              </span>
-              <div>
-                <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">Agence</div>
-                <span>Jamm Immobilier · Dakar</span>
-              </div>
-            </li>
-          </ul>
-
-          <div class="px-6 pb-6 flex flex-col gap-2.5">
-            <a href="#contact-bien" class="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-full bg-secondary text-secondary-foreground font-semibold shadow-md hover:translate-y-[-1px] transition">
-              Je suis intéressé →
-            </a>
-            <div class="grid grid-cols-2 gap-2.5">
-              <a href="tel:+221770000000" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-white/12 text-primary-foreground font-semibold border border-white/25 hover:bg-white/20 transition">
-                <Phone className="w-4 h-4" /> Appeler
+            <div class="px-5 sm:px-6 pb-5 sm:pb-6 flex flex-col gap-2.5">
+              <a href="#contact-bien" class="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-full bg-secondary text-secondary-foreground font-semibold shadow-md hover:translate-y-[-1px] transition">
+                Je suis intéressé →
               </a>
-              <a href="https://wa.me/221770000000" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-emerald/85 text-emerald-foreground font-semibold hover:bg-emerald transition">
-                <MessageCircle className="w-4 h-4" /> WhatsApp
-              </a>
+              <div class="grid grid-cols-2 gap-2.5">
+                <a href="tel:+221770000000" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-white/12 text-primary-foreground font-semibold border border-white/25 hover:bg-white/20 transition">
+                  <Phone className="w-4 h-4" /> Appeler
+                </a>
+                <a href="https://wa.me/221770000000" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-emerald/85 text-emerald-foreground font-semibold hover:bg-emerald transition">
+                  <MessageCircle className="w-4 h-4" /> WhatsApp
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-      </aside>
+        </aside>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ─────────────────────────────────────────────────────────────────────
-     3. DESCRIPTION — full container width, magazine card + drop cap
-     ───────────────────────────────────────────────────────────────────── -->
+<!-- 3. DESCRIPTION — the canonical floating card -->
 {p.description && (
-  <section class="py-8 lg:py-10 bg-background border-t border-clay">
+  <section class="py-6 lg:py-8 bg-background">
     <div class="container">
-      <article class="prop-description relative rounded-2xl bg-card border border-clay px-6 sm:px-8 py-7 sm:py-9 shadow-sm">
+      <article class="prop-description relative max-w-5xl mx-auto rounded-2xl bg-card border border-clay px-6 sm:px-10 py-7 sm:py-10 shadow-sm">
         <div class="absolute left-0 top-8 bottom-8 w-1 rounded-r-full bg-gradient-to-b from-secondary via-secondary/60 to-transparent"></div>
         <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
           <span class="w-6 h-px bg-primary"></span>
           {t('property.detail.description', lang)}
         </div>
-        <h2 class="font-serif font-light text-[clamp(24px,2.8vw,38px)] tracking-tight mt-2">
+        <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mt-2">
           Le bien en quelques mots
         </h2>
 
@@ -217,164 +212,167 @@ const hasImages = p.images.length > 0;
           </p>
         )}
 
-        <div class="mt-6 description-body text-foreground/85 leading-[1.75] text-[16px] whitespace-pre-line max-w-[70ch]">{p.description}</div>
+        <div class="mt-5 description-body text-foreground/85 leading-[1.75] text-[16px] whitespace-pre-line max-w-[70ch]">{p.description}</div>
       </article>
     </div>
   </section>
 )}
 
-<!-- ─────────────────────────────────────────────────────────────────────
-     4. INFORMATIONS DE BASE
-     ───────────────────────────────────────────────────────────────────── -->
+<!-- 4. INFORMATIONS DE BASE — floating card -->
 {(facts.length > 0 || attrEntries.length > 0 || p.nearby_commerce.length > 0 || documentEntries.length > 0) && (
-  <section class="py-8 lg:py-10 bg-card border-t border-clay">
+  <section class="py-6 lg:py-8 bg-background">
     <div class="container">
-      <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
-        <span class="w-6 h-px bg-primary"></span>Informations de base
-      </div>
-      <h2 class="font-serif font-light text-[clamp(24px,2.8vw,38px)] tracking-tight mt-2 mb-7">
-        L'essentiel du bien
-      </h2>
+      <div class="max-w-5xl mx-auto rounded-2xl bg-card border border-clay px-6 sm:px-10 py-7 sm:py-10 shadow-sm">
+        <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
+          <span class="w-6 h-px bg-primary"></span>Informations de base
+        </div>
+        <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mt-2 mb-6">
+          L'essentiel du bien
+        </h2>
 
-      {facts.length > 0 && (
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
-          {facts.map((f, i) => (
-            <div class:list={[
-              'rounded-2xl p-4 flex items-center gap-3 border transition',
-              i % 3 === 0 && 'bg-accent border-primary/15',
-              i % 3 === 1 && 'bg-secondary/10 border-secondary/25',
-              i % 3 === 2 && 'bg-emerald/10 border-emerald/25',
-            ]}>
+        {facts.length > 0 && (
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-7">
+            {facts.map((f, i) => (
               <div class:list={[
-                'w-10 h-10 rounded-xl grid place-items-center shrink-0',
-                i % 3 === 0 && 'bg-primary/10 text-primary',
-                i % 3 === 1 && 'bg-secondary/20 text-[hsl(20_60%_30%)]',
-                i % 3 === 2 && 'bg-emerald/20 text-emerald',
+                'rounded-2xl p-4 flex items-center gap-3 border transition',
+                i % 3 === 0 && 'bg-accent border-primary/15',
+                i % 3 === 1 && 'bg-secondary/10 border-secondary/25',
+                i % 3 === 2 && 'bg-emerald/10 border-emerald/25',
               ]}>
-                {f.icon === 'bed' && <Bed className="w-5 h-5" />}
-                {f.icon === 'surface' && <Maximize2 className="w-5 h-5" />}
-                {f.icon === 'type' && <Building2 className="w-5 h-5" />}
-                {f.icon === 'bath' && <Bath className="w-5 h-5" />}
-                {f.icon === 'floor' && <Tag className="w-5 h-5" />}
-                {f.icon === 'sparkles' && <Sparkles className="w-5 h-5" />}
+                <div class:list={[
+                  'w-10 h-10 rounded-xl grid place-items-center shrink-0',
+                  i % 3 === 0 && 'bg-primary/10 text-primary',
+                  i % 3 === 1 && 'bg-secondary/20 text-[hsl(20_60%_30%)]',
+                  i % 3 === 2 && 'bg-emerald/20 text-emerald',
+                ]}>
+                  {f.icon === 'bed' && <Bed className="w-5 h-5" />}
+                  {f.icon === 'surface' && <Maximize2 className="w-5 h-5" />}
+                  {f.icon === 'type' && <Building2 className="w-5 h-5" />}
+                  {f.icon === 'bath' && <Bath className="w-5 h-5" />}
+                  {f.icon === 'floor' && <Tag className="w-5 h-5" />}
+                  {f.icon === 'sparkles' && <Sparkles className="w-5 h-5" />}
+                </div>
+                <div class="min-w-0">
+                  <div class="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold leading-none">{f.label}</div>
+                  <div class="text-[16px] font-semibold tracking-tight mt-1 truncate">{f.value}</div>
+                </div>
               </div>
-              <div class="min-w-0">
-                <div class="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold leading-none">{f.label}</div>
-                <div class="text-[16px] font-semibold tracking-tight mt-1 truncate">{f.value}</div>
-              </div>
-            </div>
+            ))}
+          </div>
+        )}
+
+        {attrEntries.length > 0 && (
+          <div class="mb-7">
+            <h3 class="font-serif text-xl tracking-tight mb-3">Caractéristiques</h3>
+            <dl class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {attrEntries.map((a) => (
+                <div class="px-4 py-3 rounded-xl bg-background border border-clay">
+                  <dt class="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{a.label}</dt>
+                  <dd class="text-[15px] mt-0.5">{a.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        )}
+
+        {p.nearby_commerce.length > 0 && (
+          <div class="mb-7">
+            <h3 class="font-serif text-xl tracking-tight mb-3">À proximité</h3>
+            <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {p.nearby_commerce.map((n) => (
+                <li class="flex justify-between items-center px-4 py-3 rounded-xl bg-background border border-clay">
+                  <span class="text-sm">{n.name}</span>
+                  <span class="text-[12px] font-semibold text-secondary">{n.distance}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {documentEntries.length > 0 && (
+          <div>
+            <h3 class="font-serif text-xl tracking-tight mb-3 flex items-center gap-2">
+              <FileText className="w-5 h-5" />Documents
+            </h3>
+            <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {documentEntries.map(([type, url]) => (
+                <li>
+                  <a href={url} download class="flex items-center justify-between p-4 rounded-xl bg-background border border-clay hover:border-primary transition">
+                    <span class="text-sm capitalize">{type.replaceAll('_', ' ')}</span>
+                    <Download className="w-4 h-4 text-primary" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+)}
+
+<!-- 5. COMMODITÉS — floating card -->
+{p.commodities.length > 0 && (
+  <section class="py-6 lg:py-8 bg-background">
+    <div class="container">
+      <div class="max-w-5xl mx-auto rounded-2xl bg-card border border-clay px-6 sm:px-10 py-7 sm:py-10 shadow-sm">
+        <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
+          <span class="w-6 h-px bg-primary"></span>{t('property.detail.commodities', lang)}
+        </div>
+        <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mt-2 mb-6">
+          Équipements et services
+        </h2>
+        <div class="flex flex-wrap gap-2.5">
+          {p.commodities.map((c) => (
+            <span class="px-4 py-2 rounded-full text-[14px] bg-accent text-accent-foreground border border-primary/15">{c}</span>
           ))}
         </div>
-      )}
-
-      {attrEntries.length > 0 && (
-        <div class="mb-8">
-          <h3 class="font-serif text-xl tracking-tight mb-3">Caractéristiques</h3>
-          <dl class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {attrEntries.map((a) => (
-              <div class="px-4 py-3 rounded-xl bg-background border border-clay">
-                <dt class="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{a.label}</dt>
-                <dd class="text-[15px] mt-0.5">{a.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      )}
-
-      {p.nearby_commerce.length > 0 && (
-        <div class="mb-8">
-          <h3 class="font-serif text-xl tracking-tight mb-3">À proximité</h3>
-          <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {p.nearby_commerce.map((n) => (
-              <li class="flex justify-between items-center px-4 py-3 rounded-xl bg-background border border-clay">
-                <span class="text-sm">{n.name}</span>
-                <span class="text-[12px] font-semibold text-secondary">{n.distance}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {documentEntries.length > 0 && (
-        <div>
-          <h3 class="font-serif text-xl tracking-tight mb-3 flex items-center gap-2">
-            <FileText className="w-5 h-5" />Documents
-          </h3>
-          <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {documentEntries.map(([type, url]) => (
-              <li>
-                <a href={url} download class="flex items-center justify-between p-4 rounded-xl bg-background border border-clay hover:border-primary transition">
-                  <span class="text-sm capitalize">{type.replaceAll('_', ' ')}</span>
-                  <Download className="w-4 h-4 text-primary" />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  </section>
-)}
-
-<!-- ─────────────────────────────────────────────────────────────────────
-     5. TOUTES LES COMMODITÉS
-     ───────────────────────────────────────────────────────────────────── -->
-{p.commodities.length > 0 && (
-  <section class="py-8 lg:py-10 bg-background border-t border-clay">
-    <div class="container">
-      <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
-        <span class="w-6 h-px bg-primary"></span>{t('property.detail.commodities', lang)}
-      </div>
-      <h2 class="font-serif font-light text-[clamp(24px,2.8vw,38px)] tracking-tight mt-2 mb-7">
-        Équipements et services
-      </h2>
-      <div class="flex flex-wrap gap-2.5">
-        {p.commodities.map((c) => (
-          <span class="px-4 py-2 rounded-full text-[14px] bg-accent text-accent-foreground border border-primary/15">{c}</span>
-        ))}
       </div>
     </div>
   </section>
 )}
 
-<!-- ─────────────────────────────────────────────────────────────────────
-     6. LOCATION
-     ───────────────────────────────────────────────────────────────────── -->
-<section class="py-10 lg:py-12 bg-card border-t border-clay">
+<!-- 6. LOCATION — floating card -->
+<section class="py-6 lg:py-8 bg-background">
   <div class="container">
-    <div class="mb-5">
-      <div class="inline-flex items-center gap-2 text-[12px] font-semibold tracking-[0.14em] uppercase text-primary">
-        <span class="w-6 h-px bg-primary" /> {t('property.detail.location', lang)}
+    <div class="max-w-5xl mx-auto rounded-2xl bg-card border border-clay px-6 sm:px-10 py-7 sm:py-10 shadow-sm">
+      <div class="mb-5">
+        <div class="inline-flex items-center gap-2 text-[12px] font-semibold tracking-[0.14em] uppercase text-primary">
+          <span class="w-6 h-px bg-primary" /> {t('property.detail.location', lang)}
+        </div>
+        <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mt-2">{formatLocation(p.city, p.quartier)}</h2>
+        {p.address && <p class="mt-1 text-sm text-muted-foreground">{p.address}</p>}
       </div>
-      <h2 class="font-serif text-2xl sm:text-3xl mt-2">{formatLocation(p.city, p.quartier)}</h2>
-      {p.address && <p class="mt-1 text-sm text-muted-foreground">{p.address}</p>}
+      <PropertyMap client:visible gps={p.gps} title={p.title} className="rounded-2xl overflow-hidden h-[320px] sm:h-[420px] border border-clay" />
     </div>
-    <PropertyMap client:visible gps={p.gps} title={p.title} className="rounded-2xl overflow-hidden h-[360px] sm:h-[460px] border border-clay" />
   </div>
 </section>
 
-<!-- ─────────────────────────────────────────────────────────────────────
-     7. CONTACT FORM
-     ───────────────────────────────────────────────────────────────────── -->
-<section id="contact-bien" class="py-12 lg:py-16 bg-background border-t border-clay scroll-mt-24">
-  <div class="container max-w-3xl">
-    <h2 class="font-serif text-3xl text-center mb-2">{t('property.detail.contact', lang)}</h2>
-    <p class="text-muted-foreground text-center mb-8">{t('property.detail.contactSub', lang)}</p>
-    <ContactForm client:visible lang={lang} propertyId={p.id} propertyTitle={p.title} compact />
+<!-- 7. CONTACT FORM — floating card -->
+<section id="contact-bien" class="py-8 lg:py-12 bg-background scroll-mt-24">
+  <div class="container">
+    <div class="max-w-3xl mx-auto rounded-2xl bg-card border border-clay px-6 sm:px-10 py-8 sm:py-11 shadow-sm">
+      <h2 class="font-serif text-2xl sm:text-3xl text-center mb-2">{t('property.detail.contact', lang)}</h2>
+      <p class="text-muted-foreground text-center mb-7">{t('property.detail.contactSub', lang)}</p>
+      <ContactForm client:visible lang={lang} propertyId={p.id} propertyTitle={p.title} compact />
+    </div>
   </div>
 </section>
 
-<!-- ─────────────────────────────────────────────────────────────────────
-     8. SIMILAR
-     ───────────────────────────────────────────────────────────────────── -->
+<!-- 8. SIMILAR — floating card -->
 {similar.length > 0 && (
-  <section class="py-10 lg:py-12 bg-card border-t border-clay">
+  <section class="py-6 lg:py-10 bg-background">
     <div class="container">
-      <h2 class="font-serif text-2xl sm:text-3xl mb-6">{t('property.detail.similar', lang)}</h2>
-      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {similar.map((sp, i) => (
-          <PropertyCard property={sp} lang={lang} delay={(['', 'd1', 'd2'] as const)[i % 3]} hideCompare />
-        ))}
+      <div class="max-w-6xl mx-auto rounded-2xl bg-card border border-clay px-5 sm:px-8 py-7 sm:py-9 shadow-sm">
+        <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
+          <span class="w-6 h-px bg-primary"></span>Annonces similaires
+        </div>
+        <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mt-2 mb-6">{t('property.detail.similar', lang)}</h2>
+        <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {similar.map((sp, i) => (
+            <PropertyCard property={sp} lang={lang} delay={(['', 'd1', 'd2'] as const)[i % 3]} hideCompare />
+          ))}
+        </div>
       </div>
     </div>
   </section>
