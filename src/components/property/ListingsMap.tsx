@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PublicProperty } from '@/types/property';
 import { parseGps } from '@/lib/gps';
+import { STREETS, SATELLITE, MAP_BASE_OPTIONS } from '@/lib/map-tiles';
 
 interface Props {
   properties: PublicProperty[];
@@ -80,7 +81,7 @@ export default function ListingsMap({ properties, activeRef, onPinClick }: Props
     (Math.min(...lngs) + Math.max(...lngs)) / 2,
   ];
 
-  const { MapContainer, TileLayer, Marker, useMap } = RL;
+  const { MapContainer, TileLayer, Marker, useMap, AttributionControl } = RL;
 
   function makeIcon(p: PublicProperty, isActive: boolean) {
     return L!.divIcon({
@@ -182,16 +183,23 @@ export default function ListingsMap({ properties, activeRef, onPinClick }: Props
           zoom={11}
           scrollWheelZoom
           style={{ height: '100%', width: '100%', minHeight: 360 }}
+          {...MAP_BASE_OPTIONS}
         >
+          {/* Custom attribution control — drops the "Leaflet" prefix. The
+              provider + OSM credits inside each <TileLayer attribution>
+              still render, because OSM's ODbL license requires it. */}
+          <AttributionControl position="bottomright" prefix={false} />
           {tileStyle === 'streets' ? (
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              url={STREETS.url}
+              attribution={STREETS.attribution}
+              maxZoom={STREETS.maxZoom}
             />
           ) : (
             <TileLayer
-              attribution='Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics'
-              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              url={SATELLITE.url}
+              attribution={SATELLITE.attribution}
+              maxZoom={SATELLITE.maxZoom}
             />
           )}
           <FitBounds coords={placed.map((x) => [x.coords.lat, x.coords.lng])} />
