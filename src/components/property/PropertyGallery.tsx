@@ -11,23 +11,25 @@ interface Props {
 /**
  * Hero gallery for the property detail page.
  *
- * **Desktop layout** (when there's at least one video and one photo):
- *   ┌──────────────┬─────────────────────────────┐
- *   │              │  main photo  (16:9)         │
- *   │  vertical    │                             │
- *   │  9:16 video  ├─────────────────────────────┤
- *   │              │  thumb-strip (horizontal)   │
- *   └──────────────┴─────────────────────────────┘
- * The video column is fixed-narrow (matches a phone-shot aspect) so the
- * photo column can breathe at 16:9; columns are top-aligned and the photo
- * column naturally ends below the video for a clean asymmetric look.
+ * **Desktop layout (xl: 1280+)**:
+ *   ┌──────────────┬─────────────────────────┐
+ *   │              │  main photo (4:3)       │
+ *   │  vertical    │                         │
+ *   │  9:16 video  ├──────────┬──────────────┤
+ *   │              │  thumb   │  thumb       │
+ *   │              ├──────────┼──────────────┤
+ *   │              │  thumb   │  +N more     │
+ *   └──────────────┴──────────┴──────────────┘
+ *   The video column is narrow (matches phone aspect) so the photo column
+ *   uses a 4:3 main + 2×2 thumb grid to roughly match the video's height.
+ *   The split only activates at xl because at lg the photo column would
+ *   collapse to ~190 px next to a 360 px sticky price card.
  *
- * **Mobile layout**: video first, full-width-centered; then a horizontal
- * thumbnail strip below — no big main photo on phone, tapping a thumb
- * opens the lightbox.
+ * **lg (1024–1279)**: gallery STACKS — video on top, photo carousel below
+ *   full-width, both fitting the left 2/3 column gracefully.
  *
- * Edge cases: photos-only or video-only fall back to their respective
- * sub-components without the split.
+ * **Mobile (<lg)**: video first, then a horizontal thumbnail strip; no big
+ *   main photo, tapping a thumb opens the lightbox.
  */
 export default function PropertyGallery({ images, videoLinks = [], title }: Props) {
   const hasImages = images.length > 0;
@@ -44,23 +46,24 @@ export default function PropertyGallery({ images, videoLinks = [], title }: Prop
   }
 
   if (!videos.length) {
-    return <PhotoCarousel images={images} title={title} variant="standalone" />;
+    return <PhotoArea images={images} title={title} variant="standalone" />;
   }
 
   if (!hasImages) {
     return <VideoBlock videos={videos} title={title} />;
   }
 
+  // Both present: side-by-side at xl, stacked below.
   return (
-    <div className="grid gap-4 lg:gap-5 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] items-start">
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,300px)_minmax(0,1fr)] items-start">
       <VideoBlock videos={videos} title={title} />
-      <PhotoCarousel images={images} title={title} variant="paired" />
+      <PhotoArea images={images} title={title} variant="paired" />
     </div>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────
-   VIDEO BLOCK — vertical 9:16 player, mobile-first
+   VIDEO BLOCK — vertical 9:16, centered when stacked, edge-aligned when paired
    ───────────────────────────────────────────────────────────────────── */
 
 function VideoBlock({
@@ -72,11 +75,11 @@ function VideoBlock({
 }) {
   return (
     <div id="visite-video" className="space-y-2 scroll-mt-24">
-      <div className="flex flex-col gap-3 mx-auto lg:mx-0 lg:w-full max-w-[340px]">
+      <div className="flex flex-col gap-3 mx-auto xl:mx-0 w-full max-w-[300px]">
         {videos.map((v) => (
           <div
             key={v.id}
-            className="overflow-hidden rounded-2xl border border-clay bg-black w-full shadow-sm"
+            className="overflow-hidden rounded-2xl border border-clay bg-black w-full shadow-sm ring-1 ring-ink/5"
             style={{ aspectRatio: youtubeAspect(v.url) }}
           >
             <iframe
@@ -89,11 +92,9 @@ function VideoBlock({
             />
           </div>
         ))}
-        <p className="text-[12px] uppercase tracking-[0.14em] font-semibold text-muted-foreground text-center lg:text-left">
-          <span className="inline-flex items-center gap-1.5">
-            <Play className="w-3 h-3" fill="currentColor" />
-            Visite vidéo
-          </span>
+        <p className="text-[12px] uppercase tracking-[0.14em] font-semibold text-muted-foreground text-center xl:text-left flex items-center justify-center xl:justify-start gap-1.5">
+          <Play className="w-3 h-3" fill="currentColor" />
+          Visite vidéo
         </p>
       </div>
     </div>
@@ -101,13 +102,15 @@ function VideoBlock({
 }
 
 /* ─────────────────────────────────────────────────────────────────────
-   PHOTO CAROUSEL
-   - variant="standalone" → big 16:9 hero + thumb strip below
-   - variant="paired"     → desktop: big 16:9 + thumbs
-                            mobile : just a horizontal thumb strip
+   PHOTO AREA
+   - variant="standalone": big 16:9 hero + horizontal thumb strip below
+   - variant="paired":
+       mobile (< lg): horizontal thumb strip only (no main photo on phone)
+       lg          : big 16:9 + horizontal thumb strip
+       xl+         : 4:3 main + 2×2 thumb grid (to roughly match video height)
    ───────────────────────────────────────────────────────────────────── */
 
-function PhotoCarousel({
+function PhotoArea({
   images,
   title,
   variant,
@@ -122,12 +125,18 @@ function PhotoCarousel({
   const showMainOnMobile = variant === 'standalone';
 
   return (
-    <div className="space-y-3">
-      {/* Main 16:9 photo. Hidden on mobile in paired mode so video takes the
-          visible fold; the thumb strip + lightbox keep photos one tap away. */}
+    <div className="space-y-3 w-full">
+      {/* Main photo */}
       <div
         className={
-          'relative aspect-[16/9] overflow-hidden rounded-2xl bg-ink group ' +
+          'relative overflow-hidden rounded-2xl bg-ink group ' +
+          // Aspect ratio: 16:9 in standalone / lg-paired, 4:3 only at xl-paired
+          // so the photo column extends to roughly match the video height.
+          (variant === 'paired'
+            ? 'aspect-[16/9] xl:aspect-[4/3]'
+            : 'aspect-[16/9]') +
+          ' ' +
+          // Mobile visibility: hide on phone for paired (thumbs are enough).
           (showMainOnMobile ? '' : 'hidden lg:block')
         }
       >
@@ -175,36 +184,29 @@ function PhotoCarousel({
         </button>
       </div>
 
-      {/* Thumbnail strip — horizontal scroll. Slightly bigger on desktop so
-          the photo column doesn't feel anaemic next to the tall video. */}
+      {/* Thumbnail layout. xl-paired uses a 2×2 grid; otherwise a horizontal
+          scrollable strip. The grid layout fills vertical space alongside
+          the tall video. */}
       {total > 0 && (
-        <div className="flex gap-2 overflow-x-auto scrollbar-thin pb-1 -mx-1 px-1 snap-x">
-          {images.map((src, i) => (
-            <button
-              key={src + i}
-              type="button"
-              onClick={() => {
-                setActive(i);
-                // On mobile-paired (no main photo), open the lightbox so the
-                // user can actually see the photo at a useful size.
-                if (variant === 'paired' && typeof window !== 'undefined' && window.innerWidth < 1024) {
-                  setOpen(true);
-                }
-              }}
-              aria-label={`Voir photo ${i + 1}`}
-              aria-pressed={i === active}
-              className={
-                'shrink-0 rounded-lg overflow-hidden border-2 transition snap-start ' +
-                'w-16 h-12 sm:w-20 sm:h-14 lg:w-24 lg:h-[68px] ' +
-                (i === active && (showMainOnMobile || true)
-                  ? 'border-primary shadow-md'
-                  : 'border-transparent opacity-65 hover:opacity-100')
-              }
-            >
-              <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
-            </button>
-          ))}
-        </div>
+        <ThumbDisplay
+          images={images}
+          active={active}
+          title={title}
+          variant={variant}
+          onSelect={(i) => {
+            setActive(i);
+            // On mobile-paired (no main photo visible), tapping a thumb
+            // jumps straight into the lightbox to actually see the photo.
+            if (
+              variant === 'paired' &&
+              typeof window !== 'undefined' &&
+              window.innerWidth < 1024
+            ) {
+              setOpen(true);
+            }
+          }}
+          onOpen={() => setOpen(true)}
+        />
       )}
 
       {open && (
@@ -214,8 +216,100 @@ function PhotoCarousel({
   );
 }
 
+function ThumbDisplay({
+  images,
+  active,
+  title,
+  variant,
+  onSelect,
+  onOpen,
+}: {
+  images: string[];
+  active: number;
+  title: string;
+  variant: 'standalone' | 'paired';
+  onSelect: (i: number) => void;
+  onOpen: () => void;
+}) {
+  const total = images.length;
+
+  // For the xl-paired variant: build a 2×2 grid that shows 4 thumbs max. The
+  // 4th tile becomes a "+N more" tile when there are extra photos beyond.
+  // Render BOTH the strip (default + mobile/lg) and the grid (xl only); CSS
+  // toggles visibility so we don't run two SSR trees.
+  const gridThumbs = images.slice(0, 4);
+  const extraCount = Math.max(0, total - 4);
+
+  return (
+    <>
+      {/* Default: horizontal scroll strip. Hidden at xl when paired. */}
+      <div
+        className={
+          'flex gap-2 overflow-x-auto scrollbar-thin pb-1 -mx-1 px-1 snap-x ' +
+          (variant === 'paired' ? 'xl:hidden' : '')
+        }
+      >
+        {images.map((src, i) => (
+          <button
+            key={src + i}
+            type="button"
+            onClick={() => onSelect(i)}
+            aria-label={`Voir photo ${i + 1} de ${title}`}
+            aria-pressed={i === active}
+            className={
+              'shrink-0 rounded-lg overflow-hidden border-2 transition snap-start ' +
+              'w-16 h-12 sm:w-20 sm:h-14 lg:w-24 lg:h-[68px] ' +
+              (i === active
+                ? 'border-primary shadow-md'
+                : 'border-transparent opacity-65 hover:opacity-100')
+            }
+          >
+            <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+          </button>
+        ))}
+      </div>
+
+      {/* xl-paired only: 2×2 thumb grid */}
+      {variant === 'paired' && total > 0 && (
+        <div className="hidden xl:grid grid-cols-2 gap-3">
+          {gridThumbs.map((src, i) => {
+            const isOverflow = i === 3 && extraCount > 0;
+            return (
+              <button
+                key={src + i}
+                type="button"
+                onClick={() => (isOverflow ? onOpen() : onSelect(i))}
+                aria-label={isOverflow ? `Voir les ${extraCount} autres photos` : `Voir photo ${i + 1} de ${title}`}
+                aria-pressed={!isOverflow && i === active}
+                className={
+                  'relative aspect-[4/3] rounded-xl overflow-hidden border-2 transition ' +
+                  (!isOverflow && i === active
+                    ? 'border-primary shadow-md'
+                    : 'border-transparent hover:border-primary/40')
+                }
+              >
+                <img
+                  src={src}
+                  alt={isOverflow ? '' : `${title} — photo ${i + 1}`}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
+                />
+                {isOverflow && (
+                  <div className="absolute inset-0 bg-black/60 grid place-items-center text-white">
+                    <span className="font-serif text-xl">+{extraCount}</span>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+}
+
 /* ─────────────────────────────────────────────────────────────────────
-   LIGHTBOX — full-screen photo viewer
+   LIGHTBOX — opaque overlay, keyboard friendly, photo cycling
    ───────────────────────────────────────────────────────────────────── */
 
 function Lightbox({
@@ -237,7 +331,7 @@ function Lightbox({
       role="dialog"
       aria-modal
       aria-label="Lightbox"
-      className="fixed inset-0 z-[100] bg-black/92 grid place-items-center p-4"
+      className="fixed inset-0 z-[100] bg-black/[0.97] backdrop-blur-sm grid place-items-center p-4"
       onClick={onClose}
     >
       <button

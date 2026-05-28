@@ -121,18 +121,29 @@ const priceLabel = formatRentalPrice(p.price, p.transaction_type);
           </div>
         </div>
 
-        <!-- 3. Description -->
+        <!-- 3. Description — magazine-style card with eyebrow, drop cap,
+             gold-tinted side border and an in-card divider. -->
         {p.description && (
-          <div>
-            <h2 class="font-serif text-2xl mb-4">{t('property.detail.description', lang)}</h2>
-            <p class="text-foreground/80 leading-relaxed whitespace-pre-line max-w-[68ch]">{p.description}</p>
-          </div>
+          <article class="prop-description relative rounded-2xl bg-background border border-clay px-6 sm:px-8 py-7 sm:py-9 shadow-sm">
+            <div class="absolute left-0 top-6 bottom-6 w-1 rounded-r-full bg-gradient-to-b from-secondary via-secondary/60 to-transparent"></div>
+            <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
+              <span class="w-6 h-px bg-primary"></span>
+              {t('property.detail.description', lang)}
+            </div>
+            <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mt-2">
+              Le bien en quelques mots
+            </h2>
+            <div class="mt-5 description-body text-foreground/85 leading-[1.7] text-[15.5px] whitespace-pre-line max-w-[68ch]">{p.description}</div>
+          </article>
         )}
 
         <!-- 4. Specs grid -->
         {attrEntries.length > 0 && (
           <div>
-            <h2 class="font-serif text-2xl mb-4">{t('property.detail.specs', lang)}</h2>
+            <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2 mb-2">
+              <span class="w-6 h-px bg-primary"></span>{t('property.detail.specs', lang)}
+            </div>
+            <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mb-5">Caractéristiques</h2>
             <dl class="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {attrEntries.map((a) => (
                 <div class="px-4 py-3 rounded-xl bg-background border border-clay">
@@ -147,7 +158,10 @@ const priceLabel = formatRentalPrice(p.price, p.transaction_type);
         <!-- 5. Commodities -->
         {p.commodities.length > 0 && (
           <div>
-            <h2 class="font-serif text-2xl mb-4">{t('property.detail.commodities', lang)}</h2>
+            <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2 mb-2">
+              <span class="w-6 h-px bg-primary"></span>{t('property.detail.commodities', lang)}
+            </div>
+            <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mb-5">Équipements et services</h2>
             <div class="flex flex-wrap gap-2">
               {p.commodities.map((c) => (
                 <span class="px-3 py-1.5 rounded-full text-sm bg-accent text-accent-foreground border border-primary/15">{c}</span>
@@ -159,7 +173,10 @@ const priceLabel = formatRentalPrice(p.price, p.transaction_type);
         <!-- 6. Nearby commerce -->
         {p.nearby_commerce.length > 0 && (
           <div>
-            <h2 class="font-serif text-2xl mb-4">{t('property.detail.nearby', lang)}</h2>
+            <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2 mb-2">
+              <span class="w-6 h-px bg-primary"></span>{t('property.detail.nearby', lang)}
+            </div>
+            <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mb-5">À proximité</h2>
             <ul class="space-y-2">
               {p.nearby_commerce.map((n) => (
                 <li class="flex justify-between items-center px-4 py-3 rounded-xl bg-background border border-clay">
@@ -298,6 +315,20 @@ const priceLabel = formatRentalPrice(p.price, p.transaction_type);
 </div>
 
 <CompareBar client:idle lang={lang} />
+
+<style>
+  /* Magazine-style drop cap on the description's first letter — picks up
+     the Fraunces serif used elsewhere, tinted with the primary indigo. */
+  .prop-description .description-body::first-letter {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 300;
+    font-size: 3.6em;
+    line-height: 0.85;
+    float: left;
+    margin: 0.08em 0.14em 0 0;
+    color: hsl(var(--primary));
+  }
+</style>
 
 <!-- View tracking beacon + mobile-CTA reveal -->
 <script define:vars={{ propertyId: p.id }}>
