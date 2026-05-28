@@ -1,0 +1,185 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { SITE, MAILTO_URI } from '@/lib/site-config';
+import { getLang } from '@/lib/i18n';
+
+export const prerender = true;
+
+const lang = getLang(Astro.url);
+const title = 'Politique de confidentialité — Jamm Immobilier';
+const description =
+  'Comment Jamm Immobilier traite vos données personnelles : finalités, durée de conservation, droits CDP / RGPD.';
+
+// FR-only canonical (cf. mentions-legales pour la raison).
+const canonical = 'https://jammimmo.com/confidentialite/';
+---
+
+<BaseLayout title={title} description={description} canonical={canonical} solidNav>
+  <article class="bg-background py-16 sm:py-20">
+    <div class="container max-w-3xl">
+      <p class="text-[11px] uppercase tracking-[0.18em] font-semibold text-secondary mb-3">
+        Vos données, votre vie privée
+      </p>
+      <h1 class="font-serif font-light text-[clamp(32px,5vw,56px)] leading-[1.1] tracking-tight mb-8">
+        Politique de <span class="italic text-primary">confidentialité</span>
+      </h1>
+
+      <div class="prose prose-neutral max-w-none space-y-8 text-foreground">
+        <section>
+          <p class="text-muted-foreground leading-relaxed">
+            {SITE.agencyName} accorde une importance particulière à la protection de
+            vos données personnelles. Cette politique décrit, en toute transparence,
+            quelles informations nous collectons, pourquoi, et comment vous pouvez
+            exercer vos droits — dans le respect de la loi sénégalaise n° 2008-12 du
+            25 janvier 2008 sur la protection des données à caractère personnel (CDP)
+            et, le cas échéant, du Règlement Général sur la Protection des Données
+            (RGPD) pour nos clients résidant dans l'Union européenne.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">1. Responsable du traitement</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            <strong>{SITE.agencyName}</strong> — {SITE.agencyCity}, Sénégal.<br />
+            Contact :
+            <a href={MAILTO_URI} class="text-primary hover:underline">{SITE.email}</a>
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">2. Données collectées</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Nous ne collectons que les données strictement nécessaires à la fourniture
+            de nos services :
+          </p>
+          <ul class="text-muted-foreground leading-relaxed list-disc pl-6 space-y-1.5">
+            <li>
+              <strong>Formulaire de contact :</strong> nom, prénom, téléphone,
+              e-mail (facultatif), message, et éventuellement la référence du bien
+              consulté.
+            </li>
+            <li>
+              <strong>Préférences techniques :</strong> langue affichée (FR / EN / WO),
+              biens ajoutés à votre comparateur ou à vos favoris.
+              Ces préférences sont stockées <em>localement</em> dans votre navigateur
+              et ne nous sont jamais transmises.
+            </li>
+            <li>
+              <strong>Données de visite anonymisées :</strong> nombre de pages vues,
+              pays, type d'appareil — collectées sans cookies via
+              Cloudflare Web Analytics (cf. politique cookies).
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">3. Finalités</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Vos données sont utilisées exclusivement pour :
+          </p>
+          <ul class="text-muted-foreground leading-relaxed list-disc pl-6 space-y-1.5">
+            <li>Vous recontacter suite à une demande de visite, d'estimation ou d'information.</li>
+            <li>Préparer les rendez-vous et constituer les dossiers liés à votre projet immobilier.</li>
+            <li>Améliorer l'ergonomie du site (statistiques anonymes).</li>
+          </ul>
+          <p class="text-muted-foreground leading-relaxed">
+            Nous ne pratiquons <strong>aucun profilage publicitaire</strong> et ne
+            vendons <strong>jamais</strong> vos données à des tiers.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">4. Durée de conservation</h2>
+          <ul class="text-muted-foreground leading-relaxed list-disc pl-6 space-y-1.5">
+            <li>
+              <strong>Demandes de contact :</strong> 3 ans à compter du dernier
+              échange, sauf transformation en mandat (dans ce cas, durée légale
+              applicable au mandat).
+            </li>
+            <li>
+              <strong>Préférences locales (comparateur, favoris, langue) :</strong>
+              jusqu'à effacement par vos soins ou expiration du stockage local de
+              votre navigateur.
+            </li>
+            <li>
+              <strong>Statistiques anonymes :</strong> 6 mois maximum, sous forme
+              agrégée non ré-identifiable.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">5. Destinataires</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Vos données sont accessibles uniquement aux conseillers de
+            {' '}{SITE.agencyName}. Elles sont stockées sur les serveurs de :
+          </p>
+          <ul class="text-muted-foreground leading-relaxed list-disc pl-6 space-y-1.5">
+            <li>
+              <strong>Cloudflare</strong> (USA / Europe) — pour la base intake et le
+              cache du site, avec chiffrement TLS de bout en bout.
+            </li>
+            <li>
+              <strong>Supabase</strong> (Singapour, région UE-Ouest) — pour la base
+              administrative.
+            </li>
+          </ul>
+          <p class="text-muted-foreground leading-relaxed">
+            Aucune autre tierce partie n'a accès à vos données. Les éventuels transferts
+            hors Sénégal s'appuient sur les clauses contractuelles types et les normes
+            de chiffrement standard du secteur.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">6. Vos droits</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Conformément à la loi n° 2008-12 (et au RGPD si vous êtes résident UE),
+            vous disposez à tout moment des droits suivants :
+          </p>
+          <ul class="text-muted-foreground leading-relaxed list-disc pl-6 space-y-1.5">
+            <li>Accès à vos données et copie de celles-ci.</li>
+            <li>Rectification des données inexactes.</li>
+            <li>Effacement (« droit à l'oubli »).</li>
+            <li>Limitation ou opposition au traitement.</li>
+            <li>Portabilité de vos données dans un format structuré.</li>
+          </ul>
+          <p class="text-muted-foreground leading-relaxed">
+            Pour exercer ces droits, écrivez à
+            <a href={MAILTO_URI} class="text-primary hover:underline">{SITE.email}</a>
+            en précisant votre demande. Nous répondons sous 30 jours maximum.
+          </p>
+          <p class="text-muted-foreground leading-relaxed">
+            Vous pouvez également saisir la <strong>Commission de Protection des
+            Données Personnelles du Sénégal (CDP)</strong>
+            (<a href="https://www.cdp.sn" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">cdp.sn</a>)
+            en cas de désaccord persistant.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">7. Sécurité</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Le site applique les bonnes pratiques de sécurité : chiffrement TLS 1.3,
+            entêtes HSTS, politique de sécurité de contenu (CSP), limitation du débit
+            sur les formulaires, et isolation stricte des secrets côté serveur. Aucun
+            système n'étant infaillible, nous vous invitons à signaler toute anomalie
+            à <a href={MAILTO_URI} class="text-primary hover:underline">{SITE.email}</a>.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">8. Modifications</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Cette politique peut évoluer pour rester conforme à la loi et à nos
+            pratiques. La date de mise à jour ci-dessous fait foi.
+          </p>
+        </section>
+
+        <p class="text-xs text-muted-foreground/70 pt-4 border-t border-clay/40">
+          Dernière mise à jour : mai 2026.
+        </p>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

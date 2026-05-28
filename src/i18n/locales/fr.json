@@ -45,6 +45,8 @@
   "property.compare.bar.title": "{count} bien(s) sélectionné(s)",
   "property.compare.bar.cta": "Comparer",
   "property.compare.bar.clear": "Vider",
+  "property.favorite.add": "Ajouter aux favoris",
+  "property.favorite.remove": "Retirer des favoris",
 
   "property.spec.bedrooms": "ch.",
   "property.spec.surface": "m²",

@@ -1,0 +1,119 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { SITE, MAILTO_URI, TEL_URI } from '@/lib/site-config';
+import { getLang } from '@/lib/i18n';
+
+export const prerender = true;
+
+const lang = getLang(Astro.url);
+const title = 'Mentions légales — Jamm Immobilier';
+const description =
+  "Éditeur du site, hébergement, propriété intellectuelle et contact de l'agence Jamm Immobilier à Dakar.";
+
+// Astro's i18n fallback emits the same FR markup at /mentions-legales,
+// /en/mentions-legales and /wo/mentions-legales. Canonical always points to
+// the FR root to avoid duplicate-content signals to search engines.
+const canonical = 'https://jammimmo.com/mentions-legales/';
+---
+
+<BaseLayout title={title} description={description} canonical={canonical} solidNav>
+  <article class="bg-background py-16 sm:py-20">
+    <div class="container max-w-3xl">
+      <p class="text-[11px] uppercase tracking-[0.18em] font-semibold text-secondary mb-3">
+        Informations légales
+      </p>
+      <h1 class="font-serif font-light text-[clamp(32px,5vw,56px)] leading-[1.1] tracking-tight mb-8">
+        <span class="italic text-primary">Mentions</span> légales
+      </h1>
+
+      <div class="prose prose-neutral max-w-none space-y-8 text-foreground">
+        <section>
+          <h2 class="font-serif text-2xl mb-3">Éditeur du site</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            <strong>{SITE.agencyName}</strong><br />
+            Agence immobilière établie à {SITE.agencyCity}, Sénégal.<br />
+            {/* TODO: à compléter par l'agence */}
+            Adresse postale : <em>à préciser</em><br />
+            NINEA / RC : <em>à préciser</em><br />
+            Téléphone : <a href={TEL_URI} class="text-primary hover:underline">{SITE.phoneDisplay}</a><br />
+            E-mail : <a href={MAILTO_URI} class="text-primary hover:underline">{SITE.email}</a>
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">Directeur de la publication</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            {/* TODO: à compléter par l'agence */}
+            <em>Nom et qualité à préciser</em>.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">Hébergement</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Le site est hébergé par <strong>Cloudflare, Inc.</strong>,
+            101 Townsend Street, San Francisco, CA 94107, USA —
+            <a href="https://www.cloudflare.com" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">
+              cloudflare.com
+            </a>.
+          </p>
+          <p class="text-muted-foreground leading-relaxed">
+            La base de données est hébergée par <strong>Supabase Inc.</strong>,
+            970 Toa Payoh North #07-04, Singapore 318992 —
+            <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">
+              supabase.com
+            </a>.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">Propriété intellectuelle</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            L'ensemble du contenu de ce site (textes, images, vidéos, marques, logo,
+            charte graphique, code source) est la propriété exclusive de
+            {' '}{SITE.agencyName} ou de ses partenaires, sauf mention contraire.
+            Toute reproduction, représentation, modification, publication, transmission
+            ou exploitation de tout ou partie du site, par quelque procédé que ce soit,
+            sans l'autorisation écrite préalable de {SITE.agencyName}, est interdite et
+            constituerait une contrefaçon.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">Photos &amp; descriptifs des biens</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Les photos, plans, vidéos et descriptifs des biens présentés sur ce site
+            sont fournis à titre indicatif. Les surfaces, prix et caractéristiques sont
+            donnés sous réserve d'erreurs et ne sauraient engager contractuellement
+            {' '}{SITE.agencyName}. Seuls les documents officiels remis lors d'une visite
+            ou d'un compromis font foi.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">Responsabilité</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            {SITE.agencyName} met tout en œuvre pour assurer l'exactitude et la mise à
+            jour des informations diffusées sur ce site, mais ne saurait être tenue
+            responsable des erreurs, omissions, ou résultats qui pourraient être
+            obtenus par l'usage de ces informations. L'utilisateur reste seul
+            responsable de l'utilisation qu'il fait des informations diffusées.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="font-serif text-2xl mb-3">Droit applicable</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Le présent site et ses mentions légales sont régis par le droit sénégalais.
+            Tout litige relatif à leur exécution ou à leur interprétation relève des
+            tribunaux compétents de Dakar.
+          </p>
+        </section>
+
+        <p class="text-xs text-muted-foreground/70 pt-4 border-t border-clay/40">
+          Dernière mise à jour : mai 2026.
+        </p>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

@@ -45,6 +45,8 @@
   "property.compare.bar.title": "{count} property selected",
   "property.compare.bar.cta": "Compare",
   "property.compare.bar.clear": "Clear",
+  "property.favorite.add": "Save to favorites",
+  "property.favorite.remove": "Remove from favorites",
 
   "property.spec.bedrooms": "bd.",
   "property.spec.surface": "sqm",

@@ -3,6 +3,7 @@ import '@/styles/globals.css';
 import Header from '@/components/layout/Header.astro';
 import Footer from '@/components/layout/Footer.astro';
 import SeoTags from '@/components/seo/SeoTags.astro';
+import JsonLdOrg from '@/components/seo/JsonLdOrg.astro';
 import { getLang, t } from '@/lib/i18n';
 
 interface Props {
@@ -24,6 +25,18 @@ const {
   canonical,
   solidNav,
 } = Astro.props;
+
+// Search-engine + analytics verification — empty strings disable each.
+// Set these in CF Pages env (production + preview) once the accounts exist:
+//   PUBLIC_GSC_VERIFICATION   — Google Search Console (`google-site-verification` value, NOT the file approach)
+//   PUBLIC_BING_VERIFICATION  — Bing Webmaster (`msvalidate.01`)
+//   PUBLIC_CF_ANALYTICS_TOKEN — Cloudflare Web Analytics beacon token
+const gscVerification = import.meta.env.PUBLIC_GSC_VERIFICATION ?? '';
+const bingVerification = import.meta.env.PUBLIC_BING_VERIFICATION ?? '';
+const cfAnalyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN ?? '';
+
+// Only emit the global Organization+WebSite JSON-LD on root-shaped pages.
+const isHome = ['/', '/en', '/en/', '/wo', '/wo/'].includes(Astro.url.pathname);
 ---
 
 <!doctype html>
@@ -33,36 +46,71 @@ const {
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
+    {/* Self-hosted fonts via @fontsource — see src/styles/globals.css for the
+        full @import list (Fraunces, Plus Jakarta Sans, JetBrains Mono).
+        Loaded same-origin, with `font-display: swap` (default), so no FOIT
+        and no third-party DNS hop. Bundled WOFF2s ship under /_astro/ with
+        content hashes — preloads are intentionally omitted to keep the URLs
+        from going stale across builds. */}
     <link rel="preconnect" href="https://pub-15cb63d8148e4d51807e901562b85914.r2.dev" />
 
     <SeoTags lang={lang} title={title} description={description} image={image} type={type} canonical={canonical} />
+
+    {/* Search-engine ownership verification */}
+    {gscVerification && <meta name="google-site-verification" content={gscVerification} />}
+    {bingVerification && <meta name="msvalidate.01" content={bingVerification} />}
+
+    {/* Global JSON-LD: Organization + WebSite with SearchAction. Only on
+        homepage(s) so we don't repeat it on every property/contact page. */}
+    {isHome && <JsonLdOrg lang={lang} />}
+
     <slot name="head" />
   </head>
-  <body class="min-h-screen bg-background text-foreground font-sans antialiased">
+  <body class="min-h-screen text-foreground font-sans antialiased">
+    {/* Skip-link: first focusable element so keyboard users jump past the
+        nav directly to <main>. Visually hidden until focused. */}
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-full focus:bg-primary focus:text-primary-foreground focus:font-semibold focus:shadow-lg"
+    >
+      Aller au contenu principal
+    </a>
+
     <Header lang={lang} solid={solidNav} />
-    <main class={solidNav ? 'pt-[78px]' : ''}><slot /></main>
+    <main id="main" class={solidNav ? 'pt-[78px]' : ''}><slot /></main>
     <Footer lang={lang} />
+
+    {/* Cloudflare Web Analytics — privacy-friendly, no cookies, no consent
+        banner required. Token is created from CF dashboard → Web Analytics. */}
+    {cfAnalyticsToken && (
+      <script
+        is:inline
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={`{"token":"${cfAnalyticsToken}"}`}
+      ></script>
+    )}
 
     <script>
       // IntersectionObserver-based reveal for elements with .reveal class.
-      const io = new IntersectionObserver(
-        (entries) => {
-          for (const e of entries) {
-            if (e.isIntersecting) {
-              e.target.classList.add('in');
-              io.unobserve(e.target);
+      // Skipped for visitors who prefer reduced motion.
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduceMotion) {
+        document.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
+      } else {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                e.target.classList.add('in');
+                io.unobserve(e.target);
+              }
             }
-          }
-        },
-        { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
-      );
-      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+          },
+          { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+        );
+        document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+      }
     </script>
   </body>
 </html>

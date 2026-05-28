@@ -1,3 +1,31 @@
+/* ============================================================================
+   Self-hosted fonts via @fontsource — replaces the Google Fonts <link> in
+   BaseLayout. Removes the third-party hop (DNS + TLS + style-only ms), gives
+   us full control over caching headers, and eliminates one entry from the
+   external Connect-Src list in CSP.
+
+   We import only the weights actually used on the site to keep the bundle
+   tight:
+     • Fraunces — display / hero italic (300, 400, 500 in italic + roman).
+     • Plus Jakarta Sans — UI workhorse (400, 500, 600, 700, 800).
+     • JetBrains Mono — reference / tabular numerals (400, 500).
+   `latin-ext.css` includes Latin + Latin-extended; that's enough for FR + EN
+   and the diacritics in Wolof. */
+@import '@fontsource/fraunces/latin-ext-300-italic.css';
+@import '@fontsource/fraunces/latin-ext-400-italic.css';
+@import '@fontsource/fraunces/latin-ext-500-italic.css';
+@import '@fontsource/fraunces/latin-ext-300.css';
+@import '@fontsource/fraunces/latin-ext-400.css';
+@import '@fontsource/fraunces/latin-ext-500.css';
+@import '@fontsource/fraunces/latin-ext-600.css';
+@import '@fontsource/plus-jakarta-sans/latin-ext-400.css';
+@import '@fontsource/plus-jakarta-sans/latin-ext-500.css';
+@import '@fontsource/plus-jakarta-sans/latin-ext-600.css';
+@import '@fontsource/plus-jakarta-sans/latin-ext-700.css';
+@import '@fontsource/plus-jakarta-sans/latin-ext-800.css';
+@import '@fontsource/jetbrains-mono/latin-ext-400.css';
+@import '@fontsource/jetbrains-mono/latin-ext-500.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

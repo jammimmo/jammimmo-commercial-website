@@ -2,11 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { Bed, Maximize2, Play, Images } from 'lucide-react';
 import type { PublicProperty } from '@/types/property';
 import { youtubeIdFromUrl, youtubeThumb } from '@/lib/youtube';
+import type { Lang } from '@/lib/i18n';
+import FavoriteToggle from './FavoriteToggle';
 
 interface Props {
   property: PublicProperty;
   href: string;
   active?: boolean;
+  lang?: Lang;
   onEnter?: () => void;
   onLeave?: () => void;
 }
@@ -30,7 +33,7 @@ function formatPrice(p: PublicProperty): string {
  * Active state (card hovered or map pin clicked) highlights with the
  * primary border + lifted shadow.
  */
-export default function MiniCard({ property: p, href, active, onEnter, onLeave }: Props) {
+export default function MiniCard({ property: p, href, active, lang = 'fr', onEnter, onLeave }: Props) {
   const videoId = youtubeIdFromUrl(p.video_links[0]);
   const videoThumb = youtubeThumb(p.video_links[0]);
   const split = !!videoId && p.images.length >= 1;
@@ -92,6 +95,10 @@ export default function MiniCard({ property: p, href, active, onEnter, onLeave }
         >
           {p.transaction_type === 'Location' ? 'À louer' : 'À vendre'}
         </span>
+
+        {/* Heart toggle — nested inside the outer <a> but `preventDefault`s
+            the parent navigation on click (see FavoriteToggle).  */}
+        <FavoriteToggle reference={p.reference} title={p.title} lang={lang} variant="icon" />
 
         {/* Photo-count badge — Zillow-style */}
         {p.images.length > 0 && (
@@ -205,6 +212,8 @@ function VideoThumb({
           // @ts-expect-error iOS Safari uses webkit-playsinline
           playsInline
           loading="lazy"
+          referrerPolicy="strict-origin-when-cross-origin"
+          sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
           className="absolute inset-0 w-full h-full pointer-events-none"
           style={{ border: 0 }}
           onLoad={(e) => {

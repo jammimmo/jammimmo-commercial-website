@@ -76,10 +76,14 @@ const p = (path: string) => localizedPath(path, lang);
     </div>
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-7 border-t border-white/12 text-[13px] text-white/55">
       <span>{t('footer.copy', lang)}</span>
+      {/* Legal pages: French only — they describe a Senegalese agency and
+          reference Senegalese law (loi 2008-12). Linking to the canonical FR
+          path from every language keeps content authoritative and avoids
+          maintaining EN/WO translations of legal text. */}
       <span class="flex gap-5">
-        <a href={p(SITE.legal.mentions)} class="hover:text-white">{t('footer.legal', lang)}</a>
-        <a href={p(SITE.legal.privacy)} class="hover:text-white">{t('footer.privacy', lang)}</a>
-        <a href={p(SITE.legal.cookies)} class="hover:text-white">{t('footer.cookies', lang)}</a>
+        <a href={SITE.legal.mentions} class="hover:text-white" hreflang="fr">{t('footer.legal', lang)}</a>
+        <a href={SITE.legal.privacy} class="hover:text-white" hreflang="fr">{t('footer.privacy', lang)}</a>
+        <a href={SITE.legal.cookies} class="hover:text-white" hreflang="fr">{t('footer.cookies', lang)}</a>
       </span>
     </div>
   </div>

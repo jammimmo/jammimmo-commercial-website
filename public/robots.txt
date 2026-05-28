@@ -1,6 +1,11 @@
+# Jamm Immobilier vitrine — last reviewed 2026-05-28
 User-agent: *
 Allow: /
-
 Disallow: /api/
+Disallow: /comparer
+Disallow: /en/comparer
+Disallow: /wo/comparer
+
+# /comparer is per-user (localStorage state). No SEO value, saves crawl budget.
 
 Sitemap: https://jammimmo.com/sitemap.xml

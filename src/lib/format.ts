@@ -19,6 +19,22 @@ export function formatRentalPrice(price: number, transactionType: string): strin
 }
 
 /**
+ * Localized SEO `<title>` for a property detail page.
+ * FR / EN / WO surface unit + " — " price-as-headline + brand suffix.
+ * Used by all three `[ref].astro` files.
+ */
+export function propertySeoTitle(
+  p: { type: string; surface: number; quartier: string; city: string; price: number; transaction_type: string },
+  lang: 'fr' | 'en' | 'wo',
+): string {
+  const unit = lang === 'en' ? 'sqm' : 'm²';
+  const surfaceFrag = p.surface > 0 ? `${p.surface}${unit} ` : '';
+  const price = formatRentalPrice(p.price, p.transaction_type);
+  const sep = lang === 'en' ? ' — ' : ' — ';
+  return `${p.type} ${surfaceFrag}${p.quartier} ${p.city}${sep}${price} | Jamm Immobilier`;
+}
+
+/**
  * Sanitise a free-text field (commercial_message / description) for use
  * inside `<meta name="description">` and Open Graph descriptions:
  *   - strip emojis and other display-only symbols
