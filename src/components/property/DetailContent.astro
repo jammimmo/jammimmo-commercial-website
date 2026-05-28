@@ -1,5 +1,6 @@
 ---
 import type { PublicProperty } from '@/types/property';
+import VideoTour from './VideoTour.astro';
 import PropertyGallery from './PropertyGallery.tsx';
 import PropertyMap from './PropertyMap.tsx';
 import PropertyCard from './PropertyCard.astro';
@@ -24,7 +25,7 @@ const { property: p, similar, lang } = Astro.props;
 const status = getStatusBadge(p.status);
 const transaction = getTransactionBadge(p.transaction_type);
 
-// Quick-fact icon cards — colourful palette
+// Quick-fact icon cards (colourful palette)
 const facts: Array<{ icon: 'bed' | 'surface' | 'type' | 'bath' | 'floor' | 'sparkles'; label: string; value: string }> = [];
 if (p.bedrooms > 0) facts.push({ icon: 'bed', label: 'Chambres', value: String(p.bedrooms) });
 if (p.surface > 0) facts.push({ icon: 'surface', label: 'Surface', value: `${p.surface} m²` });
@@ -57,10 +58,12 @@ const documentEntries = Object.entries(p.documents || {})
 
 const priceLabel = formatRentalPrice(p.price, p.transaction_type);
 const priceCaption = transaction.label === 'À louer' ? 'Loyer mensuel' : 'Prix de vente';
+const hasVideo = !!p.video_links?.length;
+const hasImages = p.images.length > 0;
 ---
 
 <!-- ─────────────────────────────────────────────────────────────────────
-     1. TITLE BAND — breadcrumb · badges · title · location
+     1. TITLE BAND
      ───────────────────────────────────────────────────────────────────── -->
 <section class="bg-card pt-6 sm:pt-10 pb-5 sm:pb-7">
   <div class="container">
@@ -93,151 +96,36 @@ const priceCaption = transaction.label === 'À louer' ? 'Loyer mensuel' : 'Prix 
 </section>
 
 <!-- ─────────────────────────────────────────────────────────────────────
-     2. HERO GALLERY — full-container 16:9 with thumb strip (Zillow-style)
+     2. THREE-COLUMN HERO  ── video | photos | sticky price+CTA
+        xl: 300 px | 1fr | 320 px
+        lg: video + photos stacked on row 1, price stacked below
+        mobile: all stacked
      ───────────────────────────────────────────────────────────────────── -->
-<section class="bg-card pb-8 lg:pb-12">
+<section class="bg-card pb-10 lg:pb-14">
   <div class="container">
-    <PropertyGallery client:visible images={p.images} videoLinks={p.video_links} title={p.title} />
-  </div>
-</section>
+    <div class="grid gap-6 lg:gap-8 xl:grid-cols-[300px_minmax(0,1fr)_320px] items-start">
+      <!-- COL 1: Video -->
+      {hasVideo ? (
+        <div class="xl:order-1 order-1">
+          <VideoTour videoLinks={p.video_links} title={p.title} />
+        </div>
+      ) : (
+        <div class="xl:order-1 hidden xl:block"></div>
+      )}
 
-<!-- ─────────────────────────────────────────────────────────────────────
-     3. BODY — 2-col grid:  details LEFT, sticky price + contact RIGHT
-     ───────────────────────────────────────────────────────────────────── -->
-<section class="py-10 lg:py-14 bg-background">
-  <div class="container">
-    <div class="grid gap-8 lg:gap-12 lg:grid-cols-[minmax(0,1fr)_360px]">
-      <!-- LEFT: long-form content -->
-      <div class="space-y-10">
-        <!-- 3a. Colourful quick-facts band -->
-        {facts.length > 0 && (
-          <div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {facts.map((f, i) => (
-                <div class:list={[
-                  'rounded-2xl p-4 flex items-center gap-3 border transition',
-                  i % 3 === 0 && 'bg-accent border-primary/15',
-                  i % 3 === 1 && 'bg-secondary/10 border-secondary/25',
-                  i % 3 === 2 && 'bg-emerald/10 border-emerald/25',
-                ]}>
-                  <div class:list={[
-                    'w-10 h-10 rounded-xl grid place-items-center shrink-0',
-                    i % 3 === 0 && 'bg-primary/10 text-primary',
-                    i % 3 === 1 && 'bg-secondary/20 text-[hsl(20_60%_30%)]',
-                    i % 3 === 2 && 'bg-emerald/20 text-emerald',
-                  ]}>
-                    {f.icon === 'bed' && <Bed className="w-5 h-5" />}
-                    {f.icon === 'surface' && <Maximize2 className="w-5 h-5" />}
-                    {f.icon === 'type' && <Building2 className="w-5 h-5" />}
-                    {f.icon === 'bath' && <Bath className="w-5 h-5" />}
-                    {f.icon === 'floor' && <Tag className="w-5 h-5" />}
-                    {f.icon === 'sparkles' && <Sparkles className="w-5 h-5" />}
-                  </div>
-                  <div class="min-w-0">
-                    <div class="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold leading-none">{f.label}</div>
-                    <div class="text-[16px] font-semibold tracking-tight mt-1 truncate">{f.value}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+      <!-- COL 2: Photos -->
+      {hasImages ? (
+        <div class="xl:order-2 order-2">
+          <PropertyGallery client:visible images={p.images} title={p.title} />
+        </div>
+      ) : (
+        <div class="xl:order-2 hidden xl:block"></div>
+      )}
 
-        <!-- 3b. Description — magazine card -->
-        {p.description && (
-          <article class="prop-description relative rounded-2xl bg-card border border-clay px-6 sm:px-8 py-7 sm:py-9 shadow-sm">
-            <div class="absolute left-0 top-6 bottom-6 w-1 rounded-r-full bg-gradient-to-b from-secondary via-secondary/60 to-transparent"></div>
-            <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
-              <span class="w-6 h-px bg-primary"></span>
-              {t('property.detail.description', lang)}
-            </div>
-            <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mt-2">
-              Le bien en quelques mots
-            </h2>
-            {p.commercial_message && (
-              <p class="mt-5 font-serif italic text-[clamp(17px,1.3vw,21px)] text-foreground/85 leading-relaxed max-w-[58ch]">
-                « {p.commercial_message} »
-              </p>
-            )}
-            <div class="mt-6 description-body text-foreground/85 leading-[1.75] text-[16px] whitespace-pre-line max-w-[68ch]">{p.description}</div>
-          </article>
-        )}
-
-        <!-- 3c. Specs grid -->
-        {attrEntries.length > 0 && (
-          <div>
-            <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2 mb-2">
-              <span class="w-6 h-px bg-primary"></span>{t('property.detail.specs', lang)}
-            </div>
-            <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mb-5">Caractéristiques</h2>
-            <dl class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {attrEntries.map((a) => (
-                <div class="px-4 py-3 rounded-xl bg-card border border-clay">
-                  <dt class="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{a.label}</dt>
-                  <dd class="text-[15px] mt-0.5">{a.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        )}
-
-        <!-- 3d. Commodities -->
-        {p.commodities.length > 0 && (
-          <div>
-            <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2 mb-2">
-              <span class="w-6 h-px bg-primary"></span>{t('property.detail.commodities', lang)}
-            </div>
-            <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mb-5">Équipements et services</h2>
-            <div class="flex flex-wrap gap-2">
-              {p.commodities.map((c) => (
-                <span class="px-3 py-1.5 rounded-full text-sm bg-accent text-accent-foreground border border-primary/15">{c}</span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <!-- 3e. Nearby -->
-        {p.nearby_commerce.length > 0 && (
-          <div>
-            <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2 mb-2">
-              <span class="w-6 h-px bg-primary"></span>{t('property.detail.nearby', lang)}
-            </div>
-            <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mb-5">À proximité</h2>
-            <ul class="space-y-2">
-              {p.nearby_commerce.map((n) => (
-                <li class="flex justify-between items-center px-4 py-3 rounded-xl bg-card border border-clay">
-                  <span class="text-sm">{n.name}</span>
-                  <span class="text-[12px] font-semibold text-secondary">{n.distance}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <!-- 3f. Documents -->
-        {documentEntries.length > 0 && (
-          <div>
-            <h2 class="font-serif text-2xl mb-4 flex items-center gap-2">
-              <FileText className="w-5 h-5" />{t('property.detail.documents', lang)}
-            </h2>
-            <ul class="space-y-2">
-              {documentEntries.map(([type, url]) => (
-                <li>
-                  <a href={url} download class="flex items-center justify-between p-4 rounded-xl bg-card border border-clay hover:border-primary transition">
-                    <span class="text-sm capitalize">{type.replaceAll('_', ' ')}</span>
-                    <Download className="w-4 h-4 text-primary" />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-
-      <!-- RIGHT: sticky price + contact card -->
-      <aside class="hidden lg:block lg:sticky lg:top-24 self-start">
+      <!-- COL 3: Sticky price + CTA -->
+      <aside class="xl:order-3 order-3 xl:sticky xl:top-24 self-start">
         <div class="rounded-3xl bg-gradient-to-br from-primary via-primary to-[hsl(var(--primary)/0.85)] text-primary-foreground shadow-xl overflow-hidden">
-          <!-- Price -->
+          <!-- Price block -->
           <div class="p-6">
             <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary-foreground/70">
               {priceCaption}
@@ -259,7 +147,7 @@ const priceCaption = transaction.label === 'À louer' ? 'Loyer mensuel' : 'Prix 
 
           <div class="h-px bg-white/15 mx-6" />
 
-          <!-- Contact -->
+          <!-- Contact info -->
           <ul class="p-6 space-y-3 text-[14px]">
             <li class="flex items-start gap-3">
               <span class="w-9 h-9 rounded-full bg-white/12 grid place-items-center shrink-0">
@@ -311,9 +199,159 @@ const priceCaption = transaction.label === 'À louer' ? 'Loyer mensuel' : 'Prix 
 </section>
 
 <!-- ─────────────────────────────────────────────────────────────────────
-     4. LOCATION — full-width map band
+     3. INFORMATIONS DE BASE (under the 3-col row)
      ───────────────────────────────────────────────────────────────────── -->
-<section class="py-12 lg:py-16 bg-card border-y border-clay">
+{(facts.length > 0 || attrEntries.length > 0 || p.nearby_commerce.length > 0 || documentEntries.length > 0) && (
+  <section class="py-10 lg:py-14 bg-background border-t border-clay">
+    <div class="container">
+      <div class="max-w-5xl mx-auto">
+        <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
+          <span class="w-6 h-px bg-primary"></span>Informations de base
+        </div>
+        <h2 class="font-serif font-light text-[clamp(24px,2.8vw,38px)] tracking-tight mt-2 mb-7">
+          L'essentiel du bien
+        </h2>
+
+        <!-- Colourful quick-fact icon cards -->
+        {facts.length > 0 && (
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+            {facts.map((f, i) => (
+              <div class:list={[
+                'rounded-2xl p-4 flex items-center gap-3 border transition',
+                i % 3 === 0 && 'bg-accent border-primary/15',
+                i % 3 === 1 && 'bg-secondary/10 border-secondary/25',
+                i % 3 === 2 && 'bg-emerald/10 border-emerald/25',
+              ]}>
+                <div class:list={[
+                  'w-10 h-10 rounded-xl grid place-items-center shrink-0',
+                  i % 3 === 0 && 'bg-primary/10 text-primary',
+                  i % 3 === 1 && 'bg-secondary/20 text-[hsl(20_60%_30%)]',
+                  i % 3 === 2 && 'bg-emerald/20 text-emerald',
+                ]}>
+                  {f.icon === 'bed' && <Bed className="w-5 h-5" />}
+                  {f.icon === 'surface' && <Maximize2 className="w-5 h-5" />}
+                  {f.icon === 'type' && <Building2 className="w-5 h-5" />}
+                  {f.icon === 'bath' && <Bath className="w-5 h-5" />}
+                  {f.icon === 'floor' && <Tag className="w-5 h-5" />}
+                  {f.icon === 'sparkles' && <Sparkles className="w-5 h-5" />}
+                </div>
+                <div class="min-w-0">
+                  <div class="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold leading-none">{f.label}</div>
+                  <div class="text-[16px] font-semibold tracking-tight mt-1 truncate">{f.value}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <!-- Detailed attributes grid (more characteristics) -->
+        {attrEntries.length > 0 && (
+          <div class="mb-8">
+            <h3 class="font-serif text-xl tracking-tight mb-3">Caractéristiques</h3>
+            <dl class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {attrEntries.map((a) => (
+                <div class="px-4 py-3 rounded-xl bg-card border border-clay">
+                  <dt class="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{a.label}</dt>
+                  <dd class="text-[15px] mt-0.5">{a.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        )}
+
+        <!-- Nearby commerce -->
+        {p.nearby_commerce.length > 0 && (
+          <div class="mb-8">
+            <h3 class="font-serif text-xl tracking-tight mb-3">À proximité</h3>
+            <ul class="space-y-2">
+              {p.nearby_commerce.map((n) => (
+                <li class="flex justify-between items-center px-4 py-3 rounded-xl bg-card border border-clay">
+                  <span class="text-sm">{n.name}</span>
+                  <span class="text-[12px] font-semibold text-secondary">{n.distance}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <!-- Documents -->
+        {documentEntries.length > 0 && (
+          <div>
+            <h3 class="font-serif text-xl tracking-tight mb-3 flex items-center gap-2">
+              <FileText className="w-5 h-5" />Documents
+            </h3>
+            <ul class="space-y-2">
+              {documentEntries.map(([type, url]) => (
+                <li>
+                  <a href={url} download class="flex items-center justify-between p-4 rounded-xl bg-card border border-clay hover:border-primary transition">
+                    <span class="text-sm capitalize">{type.replaceAll('_', ' ')}</span>
+                    <Download className="w-4 h-4 text-primary" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+)}
+
+<!-- ─────────────────────────────────────────────────────────────────────
+     4. TOUTES LES COMMODITÉS
+     ───────────────────────────────────────────────────────────────────── -->
+{p.commodities.length > 0 && (
+  <section class="py-10 lg:py-14 bg-card border-t border-clay">
+    <div class="container">
+      <div class="max-w-5xl mx-auto">
+        <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
+          <span class="w-6 h-px bg-primary"></span>{t('property.detail.commodities', lang)}
+        </div>
+        <h2 class="font-serif font-light text-[clamp(24px,2.8vw,38px)] tracking-tight mt-2 mb-7">
+          Équipements et services
+        </h2>
+        <div class="flex flex-wrap gap-2.5">
+          {p.commodities.map((c) => (
+            <span class="px-4 py-2 rounded-full text-[14px] bg-accent text-accent-foreground border border-primary/15">{c}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+<!-- ─────────────────────────────────────────────────────────────────────
+     5. DESCRIPTION  ── always last per layout spec
+     ───────────────────────────────────────────────────────────────────── -->
+{p.description && (
+  <section class="py-12 lg:py-16 bg-background border-t border-clay">
+    <div class="container">
+      <article class="prop-description relative max-w-3xl mx-auto rounded-2xl bg-card border border-clay px-7 sm:px-10 py-9 sm:py-11 shadow-sm">
+        <div class="absolute left-0 top-8 bottom-8 w-1 rounded-r-full bg-gradient-to-b from-secondary via-secondary/60 to-transparent"></div>
+        <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
+          <span class="w-6 h-px bg-primary"></span>
+          {t('property.detail.description', lang)}
+        </div>
+        <h2 class="font-serif font-light text-[clamp(24px,2.8vw,38px)] tracking-tight mt-2">
+          Le bien en quelques mots
+        </h2>
+
+        {p.commercial_message && (
+          <p class="mt-5 font-serif italic text-[clamp(17px,1.3vw,21px)] text-foreground/85 leading-relaxed max-w-[58ch]">
+            « {p.commercial_message} »
+          </p>
+        )}
+
+        <div class="mt-6 description-body text-foreground/85 leading-[1.75] text-[16px] whitespace-pre-line max-w-[70ch]">{p.description}</div>
+      </article>
+    </div>
+  </section>
+)}
+
+<!-- ─────────────────────────────────────────────────────────────────────
+     6. LOCATION — full-width map band
+     ───────────────────────────────────────────────────────────────────── -->
+<section class="py-12 lg:py-16 bg-card border-t border-clay">
   <div class="container">
     <div class="mb-6">
       <div class="inline-flex items-center gap-2 text-[12px] font-semibold tracking-[0.14em] uppercase text-primary">
@@ -327,9 +365,9 @@ const priceCaption = transaction.label === 'À louer' ? 'Loyer mensuel' : 'Prix 
 </section>
 
 <!-- ─────────────────────────────────────────────────────────────────────
-     5. CONTACT FORM
+     7. CONTACT FORM
      ───────────────────────────────────────────────────────────────────── -->
-<section id="contact-bien" class="py-16 lg:py-20 bg-background scroll-mt-24">
+<section id="contact-bien" class="py-16 lg:py-20 bg-background border-t border-clay scroll-mt-24">
   <div class="container max-w-3xl">
     <h2 class="font-serif text-3xl text-center mb-2">{t('property.detail.contact', lang)}</h2>
     <p class="text-muted-foreground text-center mb-8">{t('property.detail.contactSub', lang)}</p>
@@ -338,7 +376,7 @@ const priceCaption = transaction.label === 'À louer' ? 'Loyer mensuel' : 'Prix 
 </section>
 
 <!-- ─────────────────────────────────────────────────────────────────────
-     6. SIMILAR
+     8. SIMILAR
      ───────────────────────────────────────────────────────────────────── -->
 {similar.length > 0 && (
   <section class="py-12 lg:py-16 bg-card border-t border-clay">
@@ -358,7 +396,7 @@ const priceCaption = transaction.label === 'À louer' ? 'Loyer mensuel' : 'Prix 
      ───────────────────────────────────────────────────────────────────── -->
 <div
   id="mobile-cta-bar"
-  class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-background/96 backdrop-blur border-t border-clay px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-center gap-3 shadow-[0_-8px_24px_-12px_hsl(var(--ink)/.25)] transform translate-y-full transition-transform duration-300"
+  class="xl:hidden fixed bottom-0 inset-x-0 z-40 bg-background/96 backdrop-blur border-t border-clay px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-center gap-3 shadow-[0_-8px_24px_-12px_hsl(var(--ink)/.25)] transform translate-y-full transition-transform duration-300"
   data-cta-bar
 >
   <div class="flex-1 min-w-0">
