@@ -185,55 +185,88 @@ const [phA, phB] = palette[hash]!;
   // Lazy autoplay for split-thumb video tiles. Astro hoists this once for
   // the whole bundle even when PropertyCard is rendered N times.
   //
-  // First scroll-into-view → replace the YouTube thumbnail image with a
-  // muted/looped/autoplay iframe. Cards leaving and re-entering keep the
-  // already-mounted iframe (no thrashing). pointer-events: none on the
-  // iframe so clicks pass through to the underlying card link.
+  // Mobile autoplay constraints (iOS Safari + Android Chrome) require ALL
+  // of: muted, playsinline=1, and the iframe's `allow` attribute to grant
+  // autoplay. Even with those, some mobile browsers still need a nudge —
+  // we send a postMessage("playVideo") on iframe load as a belt-and-
+  // suspenders, which requires enablejsapi=1.
+  function mount(el: HTMLElement) {
+    if (el.dataset.ytMounted) return;
+    const id = el.dataset.ytId;
+    if (!id) return;
+
+    const params = new URLSearchParams({
+      autoplay: '1',
+      mute: '1',
+      loop: '1',
+      playlist: id,
+      controls: '0',
+      modestbranding: '1',
+      playsinline: '1',
+      rel: '0',
+      iv_load_policy: '3',
+      disablekb: '1',
+      enablejsapi: '1',
+    });
+
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube-nocookie.com/embed/${id}?${params.toString()}`;
+    iframe.title = 'Visite vidéo';
+    iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.setAttribute('playsinline', '');
+    iframe.setAttribute('webkit-playsinline', '');
+    iframe.setAttribute('muted', '');
+    iframe.setAttribute('frameborder', '0');
+    iframe.style.cssText =
+      'position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;';
+
+    iframe.addEventListener('load', () => {
+      // Force play via postMessage in case the URL params alone don't
+      // trigger autoplay on mobile. Sends the IFrame API "playVideo"
+      // command. Wrapped in try/catch because cross-origin restrictions
+      // sometimes throw before the iframe is fully initialised.
+      try {
+        iframe.contentWindow?.postMessage(
+          JSON.stringify({ event: 'command', func: 'playVideo', args: [] }),
+          '*',
+        );
+        iframe.contentWindow?.postMessage(
+          JSON.stringify({ event: 'command', func: 'mute', args: [] }),
+          '*',
+        );
+      } catch {
+        /* swallow */
+      }
+    });
+
+    el.insertBefore(iframe, el.firstChild?.nextSibling ?? null);
+    // Fade the static image + play badge so we don't double-stack visuals.
+    requestAnimationFrame(() => {
+      const img = el.querySelector('img');
+      if (img) img.style.opacity = '0';
+      el.querySelectorAll(':scope > span').forEach((s) => {
+        (s as HTMLElement).style.opacity = '0';
+      });
+    });
+    el.dataset.ytMounted = '1';
+  }
+
   const thumbs = document.querySelectorAll<HTMLElement>('[data-video-thumb]:not([data-yt-mounted])');
   if (thumbs.length > 0) {
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
-          const el = entry.target as HTMLElement;
-          if (el.dataset.ytMounted) continue;
-          const id = el.dataset.ytId;
-          if (!id) continue;
-          const params = new URLSearchParams({
-            autoplay: '1',
-            mute: '1',
-            loop: '1',
-            playlist: id,
-            controls: '0',
-            modestbranding: '1',
-            playsinline: '1',
-            rel: '0',
-            iv_load_policy: '3',
-            disablekb: '1',
-          });
-          const iframe = document.createElement('iframe');
-          iframe.src = `https://www.youtube-nocookie.com/embed/${id}?${params.toString()}`;
-          iframe.title = 'Visite vidéo';
-          iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
-          iframe.setAttribute('frameborder', '0');
-          iframe.style.cssText =
-            'position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;';
-          // Insert behind the play-icon overlay so on first frame the user
-          // still sees the badge, then it fades when the iframe is ready.
-          el.insertBefore(iframe, el.firstChild?.nextSibling ?? null);
-          // Hide the static image once the iframe is in the DOM (small
-          // delay so we don't flash a black frame).
-          requestAnimationFrame(() => {
-            const img = el.querySelector('img');
-            if (img) img.style.opacity = '0';
-            const overlay = el.querySelectorAll(':scope > span');
-            overlay.forEach((s) => ((s as HTMLElement).style.opacity = '0'));
-          });
-          el.dataset.ytMounted = '1';
-          io.unobserve(el);
+          mount(entry.target as HTMLElement);
+          io.unobserve(entry.target);
         }
       },
-      { rootMargin: '200px', threshold: 0.1 },
+      // 400 px margin = iframe is loading before the card hits the
+      // viewport, so on slow mobile networks the video has time to
+      // start playing by the time the user actually sees it.
+      // threshold 0 fires as soon as any pixel intersects.
+      { rootMargin: '400px', threshold: 0 },
     );
     thumbs.forEach((el) => io.observe(el));
   }
