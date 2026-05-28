@@ -108,7 +108,7 @@ const [phA, phB] = palette[hash]!;
         {heroImageIsYoutube && (
           <span class="absolute bottom-3.5 right-3.5 z-[2] inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] font-semibold bg-black/55 text-white backdrop-blur" aria-hidden="true">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-            Visite vidéo
+            {t('common.videoTour', lang)}
           </span>
         )}
       </>
@@ -192,7 +192,7 @@ const [phA, phB] = palette[hash]!;
         )}
       </div>
       <a href={href} class="text-[12.5px] font-semibold text-primary inline-flex items-center gap-1.5">
-        Détails <span aria-hidden>↗</span>
+        {t('common.details', lang)} <span aria-hidden>↗</span>
       </a>
     </div>
 

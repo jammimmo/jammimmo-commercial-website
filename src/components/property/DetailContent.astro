@@ -28,20 +28,20 @@ const status = getStatusBadge(p.status);
 const transaction = getTransactionBadge(p.transaction_type);
 
 const facts: Array<{ icon: 'bed' | 'surface' | 'type' | 'bath' | 'floor' | 'sparkles'; label: string; value: string }> = [];
-if (p.bedrooms > 0) facts.push({ icon: 'bed', label: 'Chambres', value: String(p.bedrooms) });
-if (p.surface > 0) facts.push({ icon: 'surface', label: 'Surface', value: `${p.surface} m²` });
-facts.push({ icon: 'type', label: 'Type', value: p.type });
+if (p.bedrooms > 0) facts.push({ icon: 'bed', label: t('property.facts.bedrooms', lang), value: String(p.bedrooms) });
+if (p.surface > 0) facts.push({ icon: 'surface', label: t('property.facts.surface', lang), value: `${p.surface} m²` });
+facts.push({ icon: 'type', label: t('property.facts.type', lang), value: p.type });
 const attrSdb = p.attributes?.toilettes ?? p.attributes?.salles_de_bain;
 if (typeof attrSdb === 'number' && attrSdb > 0) {
-  facts.push({ icon: 'bath', label: 'Salles d\'eau', value: String(attrSdb) });
+  facts.push({ icon: 'bath', label: t('property.facts.bathrooms', lang), value: String(attrSdb) });
 }
 if (typeof p.attributes?.etage === 'string' && p.attributes.etage) {
-  facts.push({ icon: 'floor', label: 'Étage', value: p.attributes.etage });
+  facts.push({ icon: 'floor', label: t('property.facts.floor', lang), value: p.attributes.etage });
 } else if (typeof p.attributes?.niveaux === 'number' && p.attributes.niveaux > 0) {
-  facts.push({ icon: 'floor', label: 'Niveaux', value: String(p.attributes.niveaux) });
+  facts.push({ icon: 'floor', label: t('property.facts.levels', lang), value: String(p.attributes.niveaux) });
 }
 if (p.flux_passage && (p.type === 'Magasin' || p.type === 'Bureau' || p.type === 'Hangar')) {
-  facts.push({ icon: 'sparkles', label: 'Flux passage', value: String(p.flux_passage) });
+  facts.push({ icon: 'sparkles', label: t('property.facts.footTraffic', lang), value: String(p.flux_passage) });
 }
 
 const ATTR_LABELS: Record<string, string> = {
@@ -58,7 +58,12 @@ const documentEntries = Object.entries(p.documents || {})
   .filter(([, url]) => typeof url === 'string' && url.length > 0);
 
 const priceLabel = formatRentalPrice(p.price, p.transaction_type);
-const priceCaption = transaction.label === 'À louer' ? 'Loyer mensuel' : 'Prix de vente';
+// `transaction.label` comes from the FR-only badge dict in lib/status — we
+// compare against its raw value to choose the i18n key, but display through `t`.
+const priceCaption =
+  transaction.label === 'À louer'
+    ? t('property.detail.rentalPrice', lang)
+    : t('property.detail.salePrice', lang);
 const hasVideo = !!p.video_links?.length;
 const hasImages = p.images.length > 0;
 ---
@@ -75,7 +80,7 @@ const hasImages = p.images.length > 0;
     <div class="container">
       <div class="max-w-5xl mx-auto">
         <a href={localizedPath('/biens', lang)} class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-5">
-          <span aria-hidden>←</span> Toutes les annonces
+          <span aria-hidden>←</span> {t('common.backToListings', lang)}
         </a>
 
         <div class="flex flex-wrap items-center gap-2 mb-4">
@@ -139,7 +144,7 @@ const hasImages = p.images.length > 0;
                   )}
                 </div>
                 <p class="mt-2.5 text-[12.5px] text-primary-foreground/70">
-                  Conditions, caution, avance — sur demande.
+                  {t('property.detail.priceTerms', lang)}
                 </p>
               </div>
 
@@ -151,7 +156,7 @@ const hasImages = p.images.length > 0;
                     <Phone className="w-4 h-4 text-secondary" />
                   </span>
                   <div>
-                    <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">Téléphone</div>
+                    <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">{t('property.detail.phone', lang)}</div>
                     <a href={TEL_URI} class="hover:text-secondary transition">{SITE.phoneDisplay}</a>
                   </div>
                 </li>
@@ -160,7 +165,7 @@ const hasImages = p.images.length > 0;
                     <Mail className="w-4 h-4 text-secondary" />
                   </span>
                   <div>
-                    <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">E-mail</div>
+                    <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">{t('property.detail.email', lang)}</div>
                     <a href={MAILTO_URI} class="hover:text-secondary transition break-all">{SITE.email}</a>
                   </div>
                 </li>
@@ -169,7 +174,7 @@ const hasImages = p.images.length > 0;
                     <MapPin className="w-4 h-4 text-secondary" />
                   </span>
                   <div>
-                    <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">Agence</div>
+                    <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">{t('property.detail.agency', lang)}</div>
                     <span>Jamm Immobilier · Dakar</span>
                   </div>
                 </li>
@@ -177,14 +182,14 @@ const hasImages = p.images.length > 0;
 
               <div class="px-5 pb-5 flex flex-col gap-2.5">
                 <a href="#contact-bien" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-secondary text-secondary-foreground font-semibold shadow-md hover:translate-y-[-1px] transition">
-                  Je suis intéressé →
+                  {t('property.detail.interested', lang)} →
                 </a>
                 <div class="grid grid-cols-2 gap-2.5">
                   <a href={TEL_URI} class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-white/12 text-primary-foreground font-semibold border border-white/25 hover:bg-white/20 transition">
-                    <Phone className="w-4 h-4" /> Appeler
+                    <Phone className="w-4 h-4" /> {t('property.detail.call', lang)}
                   </a>
                   <a href={SITE.whatsappUrl} class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-emerald/85 text-emerald-foreground font-semibold hover:bg-emerald transition">
-                    <MessageCircle className="w-4 h-4" /> WhatsApp
+                    <MessageCircle className="w-4 h-4" /> {t('property.detail.whatsapp', lang)}
                   </a>
                 </div>
                 {/* Favori — placé sous les CTAs principaux, même look pill que les CTAs */}
@@ -275,15 +280,15 @@ const hasImages = p.images.length > 0;
       <div class="container">
         <div class="max-w-5xl mx-auto rounded-2xl bg-card border border-clay px-6 sm:px-9 py-7 sm:py-9 shadow-sm">
           <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
-            <span class="w-6 h-px bg-primary"></span>Informations détaillées
+            <span class="w-6 h-px bg-primary"></span>{t('property.detail.infoSectionLabel', lang)}
           </div>
           <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mt-2 mb-6">
-            Caractéristiques et environnement
+            {t('property.detail.infoSectionTitle', lang)}
           </h2>
 
           {attrEntries.length > 0 && (
             <div class="mb-7">
-              <h3 class="font-serif text-lg tracking-tight mb-3">Caractéristiques</h3>
+              <h3 class="font-serif text-lg tracking-tight mb-3">{t('property.detail.features', lang)}</h3>
               <dl class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 {attrEntries.map((a) => (
                   <div class="px-4 py-3 rounded-xl bg-background border border-clay">
@@ -297,7 +302,7 @@ const hasImages = p.images.length > 0;
 
           {p.nearby_commerce.length > 0 && (
             <div class="mb-7">
-              <h3 class="font-serif text-lg tracking-tight mb-3">À proximité</h3>
+              <h3 class="font-serif text-lg tracking-tight mb-3">{t('property.detail.nearby', lang)}</h3>
               <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {p.nearby_commerce.map((n) => (
                   <li class="flex justify-between items-center px-4 py-3 rounded-xl bg-background border border-clay">
@@ -312,7 +317,7 @@ const hasImages = p.images.length > 0;
           {documentEntries.length > 0 && (
             <div>
               <h3 class="font-serif text-lg tracking-tight mb-3 flex items-center gap-2">
-                <FileText className="w-5 h-5" />Documents
+                <FileText className="w-5 h-5" />{t('property.detail.documents', lang)}
               </h3>
               <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {documentEntries.map(([type, url]) => (
@@ -340,7 +345,7 @@ const hasImages = p.images.length > 0;
             <span class="w-6 h-px bg-primary"></span>{t('property.detail.commodities', lang)}
           </div>
           <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mt-2 mb-6">
-            Équipements et services
+            {t('property.detail.amenities', lang)}
           </h2>
           <div class="flex flex-wrap gap-2.5">
             {p.commodities.map((c) => (
@@ -369,7 +374,7 @@ const hasImages = p.images.length > 0;
       <div class="container">
         <div class="max-w-5xl mx-auto rounded-2xl bg-card border border-clay px-5 sm:px-8 py-7 sm:py-9 shadow-sm">
           <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
-            <span class="w-6 h-px bg-primary"></span>Annonces similaires
+            <span class="w-6 h-px bg-primary"></span>{t('property.detail.similarLabel', lang)}
           </div>
           <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mt-2 mb-6">{t('property.detail.similar', lang)}</h2>
           <!-- auto-fit + minmax + justify-center spaces the cards evenly

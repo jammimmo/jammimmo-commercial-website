@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Bed, Maximize2, Play, Images } from 'lucide-react';
 import type { PublicProperty } from '@/types/property';
 import { youtubeIdFromUrl, youtubeThumb } from '@/lib/youtube';
-import type { Lang } from '@/lib/i18n';
+import { t, type Lang } from '@/lib/i18n';
 import FavoriteToggle from './FavoriteToggle';
 
 interface Props {
@@ -57,7 +57,7 @@ export default function MiniCard({ property: p, href, active, lang = 'fr', onEnt
       <div className="relative aspect-[4/3] overflow-hidden bg-ink">
         {split ? (
           <div className="absolute inset-0 grid grid-cols-2 gap-1 bg-ink">
-            <VideoThumb videoId={videoId!} videoThumb={videoThumb!} title={p.title} />
+            <VideoThumb videoId={videoId!} videoThumb={videoThumb!} title={p.title} lang={lang} />
             <div className="grid grid-cols-2 grid-rows-2 gap-1">
               {Array.from({ length: 4 }).map((_, i) => {
                 const src = mosaicImgs[i] ?? mosaicImgs[mosaicImgs.length - 1];
@@ -93,7 +93,9 @@ export default function MiniCard({ property: p, href, active, lang = 'fr', onEnt
               : 'bg-primary text-primary-foreground')
           }
         >
-          {p.transaction_type === 'Location' ? 'À louer' : 'À vendre'}
+          {p.transaction_type === 'Location'
+            ? t('common.transaction.rental', lang)
+            : t('common.transaction.sale', lang)}
         </span>
 
         {/* Heart toggle — nested inside the outer <a> but `preventDefault`s
@@ -139,10 +141,12 @@ function VideoThumb({
   videoId,
   videoThumb,
   title,
+  lang,
 }: {
   videoId: string;
   videoThumb: string;
   title: string;
+  lang: Lang;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
@@ -183,8 +187,11 @@ function VideoThumb({
     <div ref={ref} className="relative overflow-hidden">
       <img
         src={videoThumb}
-        alt={`Visite vidéo — ${title}`}
+        alt={`${t('common.videoTour', lang)} — ${title}`}
+        width={1280}
+        height={720}
         loading="lazy"
+        decoding="async"
         className={
           'absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ' +
           (mounted ? 'opacity-0' : 'opacity-100')

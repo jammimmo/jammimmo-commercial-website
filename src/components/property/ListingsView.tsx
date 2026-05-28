@@ -3,13 +3,16 @@ import { Search, SlidersHorizontal, Map as MapIcon, List as ListIcon, ArrowUpDow
 import type { PublicProperty } from '@/types/property';
 import MiniCard from './MiniCard';
 import ListingsMap from './ListingsMap';
+import { t, type Lang } from '@/lib/i18n';
 
 type SortKey = 'relevance' | 'price_asc' | 'price_desc' | 'newest';
-const SORTS: Array<{ value: SortKey; label: string }> = [
-  { value: 'relevance', label: 'Pertinence' },
-  { value: 'price_asc', label: 'Prix croissant' },
-  { value: 'price_desc', label: 'Prix décroissant' },
-  { value: 'newest', label: 'Plus récents' },
+/** Sort options — labels are looked up via `t()` at render time so they
+ *  switch language with the page. The keys themselves never change. */
+const SORT_KEYS: Array<{ value: SortKey; labelKey: string }> = [
+  { value: 'relevance', labelKey: 'listings.sort.relevance' },
+  { value: 'price_asc', labelKey: 'listings.sort.priceAsc' },
+  { value: 'price_desc', labelKey: 'listings.sort.priceDesc' },
+  { value: 'newest', labelKey: 'listings.sort.newest' },
 ];
 
 interface Props {
@@ -61,7 +64,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
   const [sort, setSort] = useState<SortKey>(() => {
     if (typeof window === 'undefined') return 'relevance';
     const s = new URLSearchParams(window.location.search).get('sort');
-    return (SORTS.find((x) => x.value === s)?.value ?? 'relevance') as SortKey;
+    return (SORT_KEYS.find((x) => x.value === s)?.value ?? 'relevance') as SortKey;
   });
   const [activeRef, setActiveRef] = useState<string | null>(null);
   const [mobileMapOpen, setMobileMapOpen] = useState(false);
@@ -143,7 +146,8 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
                 type="search"
                 value={filters.q}
                 onChange={(e) => setFilters((f) => ({ ...f, q: e.target.value }))}
-                placeholder="Ville, quartier, mot-clé…"
+                placeholder={t('listings.search.placeholder', lang)}
+                aria-label={t('listings.search.placeholder', lang)}
                 className="w-full pl-10 pr-3 py-2.5 rounded-full bg-background border border-clay text-[14px] outline-none focus:border-primary transition"
               />
             </div>
@@ -153,17 +157,17 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
               <Select
                 value={filters.transaction}
                 onChange={(v) => setFilters((f) => ({ ...f, transaction: v }))}
-                options={[{ value: '', label: 'Vente / Location' }, ...TRANSACTIONS]}
+                options={[{ value: '', label: t('listings.filter.transactionLabel', lang) }, ...TRANSACTIONS]}
               />
               <Select
                 value={filters.type}
                 onChange={(v) => setFilters((f) => ({ ...f, type: v }))}
-                options={[{ value: '', label: 'Tous types' }, ...TYPES.map((t) => ({ value: t, label: t }))]}
+                options={[{ value: '', label: t('listings.filter.typeLabel', lang) }, ...TYPES.map((ty) => ({ value: ty, label: ty }))]}
               />
               <Select
                 value={filters.city}
                 onChange={(v) => setFilters((f) => ({ ...f, city: v }))}
-                options={[{ value: '', label: 'Toutes villes' }, ...cities.map((c) => ({ value: c, label: c }))]}
+                options={[{ value: '', label: t('listings.filter.cityLabel', lang) }, ...cities.map((c) => ({ value: c, label: c }))]}
               />
             </div>
 
@@ -180,7 +184,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
               aria-expanded={filtersOpen}
             >
               <SlidersHorizontal className="w-4 h-4" />
-              Filtres
+              {t('listings.filter.button', lang)}
               {activeFilterCount > 0 && (
                 <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-white/25 text-[11px]">
                   {activeFilterCount}
@@ -194,7 +198,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
                 onClick={() => setFilters(EMPTY)}
                 className="text-[12.5px] text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
               >
-                Réinitialiser
+                {t('listings.filter.reset', lang)}
               </button>
             )}
           </div>
@@ -203,17 +207,17 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
           {filtersOpen && (
             <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-clay">
               <NumberField
-                label="Prix min (FCFA)"
+                label={t('listings.filter.priceMin', lang)}
                 value={filters.priceMin}
                 onChange={(v) => setFilters((f) => ({ ...f, priceMin: v }))}
               />
               <NumberField
-                label="Prix max (FCFA)"
+                label={t('listings.filter.priceMax', lang)}
                 value={filters.priceMax}
                 onChange={(v) => setFilters((f) => ({ ...f, priceMax: v }))}
               />
               <NumberField
-                label="Chambres min."
+                label={t('listings.filter.bedsMin', lang)}
                 value={filters.bedsMin}
                 onChange={(v) => setFilters((f) => ({ ...f, bedsMin: v }))}
               />
@@ -221,17 +225,17 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
                 <Select
                   value={filters.transaction}
                   onChange={(v) => setFilters((f) => ({ ...f, transaction: v }))}
-                  options={[{ value: '', label: 'Vente / Location' }, ...TRANSACTIONS]}
+                  options={[{ value: '', label: t('listings.filter.transactionLabel', lang) }, ...TRANSACTIONS]}
                 />
                 <Select
                   value={filters.type}
                   onChange={(v) => setFilters((f) => ({ ...f, type: v }))}
-                  options={[{ value: '', label: 'Tous types' }, ...TYPES.map((t) => ({ value: t, label: t }))]}
+                  options={[{ value: '', label: t('listings.filter.typeLabel', lang) }, ...TYPES.map((ty) => ({ value: ty, label: ty }))]}
                 />
                 <Select
                   value={filters.city}
                   onChange={(v) => setFilters((f) => ({ ...f, city: v }))}
-                  options={[{ value: '', label: 'Toutes villes' }, ...cities.map((c) => ({ value: c, label: c }))]}
+                  options={[{ value: '', label: t('listings.filter.cityLabel', lang) }, ...cities.map((c) => ({ value: c, label: c }))]}
                 />
               </div>
             </div>
@@ -243,19 +247,23 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
       <div className="container py-6 lg:py-8">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <p className="text-sm text-muted-foreground">
-            <strong className="text-foreground font-semibold">{filtered.length}</strong> bien
-            {filtered.length > 1 ? 's' : ''} affiché{filtered.length > 1 ? 's' : ''}
-            {filtered.length < properties.length && ` sur ${properties.length}`}
+            {/* "{count} bien(s) affiché(s)" template — keep the count strong/bold
+                while the rest of the sentence comes from the dictionary. Total
+                count is appended outside the template only when filters are
+                actually narrowing the list. */}
+            <strong className="text-foreground font-semibold">{filtered.length}</strong>{' '}
+            {t('listings.results.count', lang).replace('{count}', '').trim()}
+            {filtered.length < properties.length && ` / ${properties.length}`}
           </p>
           <label className="inline-flex items-center gap-2 text-[13px] text-muted-foreground">
-            <ArrowUpDown className="w-3.5 h-3.5" /> Trier&nbsp;:
+            <ArrowUpDown className="w-3.5 h-3.5" /> {t('listings.sort.label', lang)}&nbsp;
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
               className="px-3 py-1.5 rounded-full bg-card border border-clay text-[13px] font-semibold text-foreground outline-none focus:border-primary transition"
             >
-              {SORTS.map((s) => (
-                <option key={s.value} value={s.value}>{s.label}</option>
+              {SORT_KEYS.map((s) => (
+                <option key={s.value} value={s.value}>{t(s.labelKey, lang)}</option>
               ))}
             </select>
           </label>
@@ -266,14 +274,14 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
           <div>
             {filtered.length === 0 ? (
               <div className="rounded-2xl border border-clay bg-card p-10 text-center text-muted-foreground">
-                Aucun bien ne correspond à votre recherche.
+                {t('listings.noResults', lang)}
                 <div className="mt-3">
                   <button
                     type="button"
                     onClick={() => setFilters(EMPTY)}
                     className="text-primary font-semibold underline-offset-4 hover:underline"
                   >
-                    Réinitialiser les filtres
+                    {t('listings.filter.resetAll', lang)}
                   </button>
                 </div>
               </div>
@@ -317,19 +325,21 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
         onClick={() => setMobileMapOpen(true)}
         className="lg:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-30 inline-flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold shadow-lg"
       >
-        <MapIcon className="w-4 h-4" /> Carte ({filtered.length})
+        <MapIcon className="w-4 h-4" /> {t('listings.mapToggle', lang)} ({filtered.length})
       </button>
 
       {mobileMapOpen && (
         <div className="lg:hidden fixed inset-0 z-40 bg-background flex flex-col">
           <div className="flex items-center justify-between px-4 py-3 border-b border-clay">
-            <span className="font-semibold">{filtered.length} biens sur la carte</span>
+            <span className="font-semibold">
+              {t('listings.mapOpenCount', lang).replace('{count}', String(filtered.length))}
+            </span>
             <button
               type="button"
               onClick={() => setMobileMapOpen(false)}
               className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-card border border-clay text-[13px] font-semibold"
             >
-              <ListIcon className="w-4 h-4" /> Liste
+              <ListIcon className="w-4 h-4" /> {t('listings.listToggle', lang)}
             </button>
           </div>
           <div className="flex-1">
