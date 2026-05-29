@@ -163,9 +163,14 @@ const navLinks: Array<{ href: string; key: string }> = [
     document.addEventListener('DOMContentLoaded', apply);
     apply();
   })();
+</script>
 
-  // Mobile drawer toggle. Pure DOM toggling — no framework needed; the
-  // drawer markup is always present, JS just flips visibility classes.
+<script>
+  // Mobile drawer toggle — a BUNDLED module (no `is:inline`), so Astro/esbuild
+  // strips the TypeScript below. Keeping this out of the inline script above
+  // is deliberate: an `is:inline` block is emitted verbatim, so TS syntax in
+  // it is a parse error that kills the whole script (this regressed the drawer
+  // once already). Event-driven, so it doesn't need to run during parse.
   const drawer = document.querySelector<HTMLDivElement>('[data-mobile-nav]');
   const trigger = document.querySelector<HTMLButtonElement>('[data-mobile-nav-trigger]');
   const closeBtn = document.querySelector<HTMLButtonElement>('[data-mobile-nav-close]');
