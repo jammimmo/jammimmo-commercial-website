@@ -60,6 +60,7 @@ export default function PropertyMap({ gps, title, className }: Props) {
           url={STREETS.url}
           attribution={STREETS.attribution}
           maxZoom={STREETS.maxZoom}
+          subdomains={STREETS.subdomains ?? 'abc'}
         />
         <Marker position={[coords.lat, coords.lng]}>
           <Popup>{title}</Popup>
