@@ -26,7 +26,7 @@ const navLinks: Array<{ href: string; key: string }> = [
     'fixed top-0 left-0 right-0 z-50 transition-colors duration-300',
     solid ? 'bg-background/95 backdrop-blur shadow-sm text-foreground' : 'text-white',
   ]}
-  data-solid={solid}
+  data-solid={solid ? 'true' : 'false'}
 >
   {!solid && (
     <!-- Legibility scrim for the transparent (over-hero) state. Subtle dark
