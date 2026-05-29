@@ -1,4 +1,4 @@
-# Jamm Immobilier vitrine — last reviewed 2026-05-28
+# Jamm Immobilier vitrine — last reviewed 2026-05-29
 User-agent: *
 Allow: /
 Disallow: /api/
@@ -11,5 +11,34 @@ Disallow: /wo/favoris
 
 # /comparer and /favoris are per-user (localStorage state). No SEO value,
 # saves crawl budget.
+
+# --- AI answer engines (GEO) ---------------------------------------------
+# Explicitly welcome the major generative / AI-search crawlers so the agency
+# can be discovered and cited in ChatGPT, Perplexity, Google AI Overviews,
+# Gemini and Claude. They are already covered by `*`; naming them is an
+# explicit opt-in that future-proofs against any default-deny shift.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
 
 Sitemap: https://jammimmo.com/sitemap.xml

@@ -1,0 +1,23 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import QuartierHub from '@/components/geo/QuartierHub.astro';
+import { QUARTIERS, quartierMatches } from '@/lib/quartiers';
+import { listPublicProperties } from '@/lib/supabase.build';
+import { getLang, t } from '@/lib/i18n';
+
+export const prerender = true;
+
+const lang = getLang(Astro.url);
+const all = await listPublicProperties({ limit: 200 });
+const items = QUARTIERS.map((q) => ({
+  quartier: q,
+  count: all.filter((pr) => quartierMatches(q, pr.quartier)).length,
+}));
+
+const title = `${t('geo.hub.title', lang)} — Jamm Immobilier`;
+const canonical = `${Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com'}${Astro.url.pathname}`;
+---
+
+<BaseLayout title={title} description={t('geo.hub.subtitle', lang)} canonical={canonical} solidNav>
+  <QuartierHub items={items} lang={lang} />
+</BaseLayout>

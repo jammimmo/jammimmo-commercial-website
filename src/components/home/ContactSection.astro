@@ -1,10 +1,12 @@
 ---
 import ContactForm from '@/components/forms/ContactForm.tsx';
+import PropertyMap from '@/components/property/PropertyMap.tsx';
 import { t, type Lang } from '@/lib/i18n';
-import { TEL_URI, MAILTO_URI } from '@/lib/site-config';
-import { MapPin, Phone, Mail } from 'lucide-react';
+import { SITE, TEL_URI, MAILTO_URI, MAPS_DIRECTIONS_URI } from '@/lib/site-config';
+import { MapPin, Phone, Mail, Navigation } from 'lucide-react';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
+const agencyGps = `${SITE.geo.lat}, ${SITE.geo.lng}`;
 ---
 
 <section id="contact" class="py-20 lg:py-[130px] text-white relative overflow-hidden" style="background: radial-gradient(circle at 90% 10%, rgba(240,136,38,.2), transparent 40%), linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.85) 100%);">
@@ -28,7 +30,15 @@ const { lang } = Astro.props;
             </div>
             <div>
               <b class="block text-[11px] tracking-wider uppercase text-white/60 font-semibold mb-1">{t('contact.info.agency', lang)}</b>
-              <span class="text-[15px]">{t('contact.info.agencyValue', lang)}</span>
+              <span class="text-[15px]">{SITE.address.display}</span>
+              <a
+                href={MAPS_DIRECTIONS_URI}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="mt-2 inline-flex items-center gap-1.5 text-[13px] font-semibold text-[hsl(var(--secondary)/.95)] hover:text-secondary"
+              >
+                <Navigation className="w-3.5 h-3.5" />{t('contact.info.directions', lang)}
+              </a>
             </div>
           </div>
           <div class="reveal d2 flex gap-4 items-start p-5 rounded-2xl bg-white/8 border border-white/15">
@@ -37,7 +47,7 @@ const { lang } = Astro.props;
             </div>
             <div>
               <b class="block text-[11px] tracking-wider uppercase text-white/60 font-semibold mb-1">{t('contact.info.phone', lang)}</b>
-              <a href={TEL_URI} class="text-[15px] hover:text-secondary">{t('contact.info.phoneValue', lang)}</a>
+              <a href={TEL_URI} class="text-[15px] hover:text-secondary">{SITE.phoneDisplay}</a>
             </div>
           </div>
           <div class="reveal d3 flex gap-4 items-start p-5 rounded-2xl bg-white/8 border border-white/15">
@@ -46,9 +56,20 @@ const { lang } = Astro.props;
             </div>
             <div>
               <b class="block text-[11px] tracking-wider uppercase text-white/60 font-semibold mb-1">{t('contact.info.email', lang)}</b>
-              <a href={MAILTO_URI} class="text-[15px] hover:text-secondary">{t('contact.info.emailValue', lang)}</a>
+              <a href={MAILTO_URI} class="text-[15px] hover:text-secondary">{SITE.email}</a>
             </div>
           </div>
+        </div>
+
+        {/* Agency location map — lazy (client:visible) so Leaflet only loads
+            when the contact section scrolls into view. */}
+        <div class="reveal d3 mt-5 h-[220px] rounded-2xl overflow-hidden border border-white/15">
+          <PropertyMap
+            client:visible
+            gps={agencyGps}
+            title={SITE.agencyName}
+            className="w-full h-full block"
+          />
         </div>
       </div>
 

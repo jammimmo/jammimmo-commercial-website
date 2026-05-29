@@ -1,0 +1,31 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import QuartierContent from '@/components/geo/QuartierContent.astro';
+import { QUARTIERS, quartierMatches, getQuartier } from '@/lib/quartiers';
+import { listPublicProperties } from '@/lib/supabase.build';
+import { getLang } from '@/lib/i18n';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const all = await listPublicProperties({ limit: 200 });
+  return QUARTIERS.map((q) => ({
+    params: { quartier: q.slug },
+    props: { properties: all.filter((pr) => quartierMatches(q, pr.quartier)) },
+  }));
+}
+
+const { quartier: slug } = Astro.params;
+const { properties } = Astro.props;
+const q = getQuartier(slug!);
+if (!q) return Astro.redirect('/immobilier', 307);
+
+const lang = getLang(Astro.url);
+const meta = q.meta[lang === 'en' ? 'en' : 'fr'];
+const title = `${lang === 'en' ? 'Real estate in' : 'Immobilier à'} ${q.name}, ${q.city} — Jamm Immobilier`;
+const canonical = `${Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com'}${Astro.url.pathname}`;
+---
+
+<BaseLayout title={title} description={meta} canonical={canonical} solidNav>
+  <QuartierContent quartier={q} properties={properties} lang={lang} canonical={canonical} />
+</BaseLayout>

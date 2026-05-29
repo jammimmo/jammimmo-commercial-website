@@ -1,0 +1,51 @@
+---
+import { t, type Lang } from '@/lib/i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+// Six homepage FAQs. Genuinely useful for visitors AND the highest-leverage
+// GEO asset on the site: AI answer engines lift clean Q&A pairs verbatim, and
+// the FAQPage schema can earn Google rich results.
+const items = [1, 2, 3, 4, 5, 6].map((i) => ({
+  q: t(`faq.q${i}`, lang),
+  a: t(`faq.a${i}`, lang),
+}));
+
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items.map((it) => ({
+    '@type': 'Question',
+    name: it.q,
+    acceptedAnswer: { '@type': 'Answer', text: it.a },
+  })),
+};
+---
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(faqLd)}></script>
+
+<section id="faq" class="py-20 lg:py-28 bg-background">
+  <div class="container max-w-3xl">
+    <div class="text-center mb-10">
+      <p class="text-[11px] uppercase tracking-[0.18em] font-semibold text-secondary mb-3">
+        {t('faq.eyebrow', lang)}
+      </p>
+      <h2 class="font-serif font-light text-[clamp(30px,4vw,52px)] leading-tight tracking-tight [text-wrap:balance]">
+        {t('faq.title', lang)}
+      </h2>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      {items.map((it, i) => (
+        <details class="reveal group rounded-2xl border border-clay bg-card px-5 sm:px-6 py-4 sm:py-5" open={i === 0}>
+          <summary class="flex items-center justify-between gap-4 cursor-pointer font-semibold text-[16.5px] list-none [&::-webkit-details-marker]:hidden">
+            {it.q}
+            <span class="shrink-0 text-primary transition-transform duration-300 group-open:rotate-45 text-2xl leading-none">+</span>
+          </summary>
+          <p class="mt-3 text-muted-foreground leading-relaxed text-[15.5px]">{it.a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>

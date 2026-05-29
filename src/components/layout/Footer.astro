@@ -59,6 +59,7 @@ const p = (path: string) => localizedPath(path, lang);
         <h6 class="text-[11px] tracking-[0.14em] uppercase text-white/50 font-semibold mb-4">{t('footer.discover', lang)}</h6>
         <ul class="space-y-2.5 text-[14.5px] text-white/85">
           <li><a href={p('/biens')} class="hover:text-secondary">{t('properties.cta.viewAll', lang)}</a></li>
+          <li><a href={p('/immobilier')} class="hover:text-secondary">{t('geo.hub.eyebrow', lang)}</a></li>
           <li><a href={`${p('/')}#pourquoi`} class="hover:text-secondary">{t('why.title', lang)}</a></li>
           <li><a href={p('/comparer')} class="hover:text-secondary">{t('page.compare.title', lang)}</a></li>
           <li><a href={p('/favoris')} class="hover:text-secondary">{t('page.favorites.title', lang)}</a></li>
@@ -70,8 +71,8 @@ const p = (path: string) => localizedPath(path, lang);
         <ul class="space-y-2.5 text-[14.5px] text-white/85">
           <li><a href={TEL_URI} class="hover:text-secondary">{SITE.phoneDisplay}</a></li>
           <li><a href={MAILTO_URI} class="hover:text-secondary">{SITE.email}</a></li>
-          <li>Fann Résidence, Dakar</li>
-          <li>Lun–Ven · 9h–18h</li>
+          <li>{SITE.address.display}</li>
+          <li>{SITE.hours.display}</li>
         </ul>
       </div>
     </div>

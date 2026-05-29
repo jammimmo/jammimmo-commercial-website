@@ -1,0 +1,195 @@
+---
+import type { PublicProperty } from '@/types/property';
+import type { Quartier } from '@/lib/quartiers';
+import { QUARTIERS } from '@/lib/quartiers';
+import PropertyCard from '@/components/property/PropertyCard.astro';
+import PropertyMap from '@/components/property/PropertyMap.tsx';
+import { t, type Lang, localizedPath } from '@/lib/i18n';
+import { ArrowRight, MapPin } from 'lucide-react';
+
+interface Props {
+  quartier: Quartier;
+  properties: PublicProperty[];
+  lang: Lang;
+  canonical: string;
+}
+const { quartier: q, properties, lang, canonical } = Astro.props;
+
+const tpl = (key: string, vars: Record<string, string>) =>
+  Object.entries(vars).reduce((s, [k, v]) => s.replaceAll(`{${k}}`, v), t(key, lang));
+
+const blurb = q.intro[lang === 'en' ? 'en' : 'fr'];
+const highlights = q.highlights[lang === 'en' ? 'en' : 'fr'];
+const p = (path: string) => localizedPath(path, lang);
+
+// Quartier-specific FAQ + a generic trust FAQ → FAQPage schema.
+const faqs = [
+  { q: q.faq.q[lang === 'en' ? 'en' : 'fr'], a: q.faq.a[lang === 'en' ? 'en' : 'fr'] },
+  { q: t('geo.faq.generic.q', lang), a: t('geo.faq.generic.a', lang) },
+];
+
+const others = QUARTIERS.filter((x) => x.slug !== q.slug).slice(0, 8);
+
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com';
+
+// JSON-LD: BreadcrumbList + CollectionPage(+ItemList of listings) + FAQPage.
+const breadcrumb = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: t('breadcrumb.home', lang), item: `${siteUrl}${p('/')}` },
+    { '@type': 'ListItem', position: 2, name: t('geo.hub.eyebrow', lang), item: `${siteUrl}${p('/immobilier')}` },
+    { '@type': 'ListItem', position: 3, name: q.name, item: canonical },
+  ],
+};
+const collection = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: tpl('geo.quartier.h1', { name: q.name }),
+  url: canonical,
+  about: { '@type': 'Place', name: `${q.name}, ${q.city}`, geo: { '@type': 'GeoCoordinates', latitude: q.geo.lat, longitude: q.geo.lng } },
+  ...(properties.length > 0 && {
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: properties.length,
+      itemListElement: properties.map((prop, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `${siteUrl}${p(`/biens/${prop.reference.toLowerCase()}`)}`,
+        name: prop.title,
+      })),
+    },
+  }),
+};
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+---
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumb)}></script>
+<script type="application/ld+json" is:inline set:html={JSON.stringify(collection)}></script>
+<script type="application/ld+json" is:inline set:html={JSON.stringify(faqLd)}></script>
+
+<div class="property-detail-bg">
+  <!-- HERO BAND -->
+  <section class="bg-card border-b border-clay pt-6 pb-8 sm:pt-8 sm:pb-12">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <nav aria-label="Fil d'Ariane" class="text-[13px] text-muted-foreground mb-5 flex flex-wrap items-center gap-1.5">
+        <a href={p('/')} class="hover:text-primary">{t('breadcrumb.home', lang)}</a>
+        <span aria-hidden>/</span>
+        <a href={p('/immobilier')} class="hover:text-primary">{t('geo.hub.eyebrow', lang)}</a>
+        <span aria-hidden>/</span>
+        <span class="text-foreground font-medium">{q.name}</span>
+      </nav>
+
+      <div class="grid lg:grid-cols-[1.3fr_0.7fr] gap-8 items-start">
+        <div>
+          <p class="text-[11px] uppercase tracking-[0.18em] font-semibold text-secondary mb-3">
+            {tpl('geo.quartier.eyebrow', { city: q.city })}
+          </p>
+          <h1 class="font-serif font-light text-[clamp(32px,5vw,56px)] leading-[1.08] tracking-tight [text-wrap:balance]">
+            {tpl('geo.quartier.h1', { name: q.name })}
+          </h1>
+          <p class="mt-5 text-[16.5px] leading-relaxed text-foreground/80 max-w-[60ch]">{blurb}</p>
+          <ul class="mt-6 flex flex-wrap gap-2.5">
+            {highlights.map((h) => (
+              <li class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium bg-accent text-accent-foreground border border-primary/15">
+                <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>{h}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <!-- Neighbourhood map (approximate area) -->
+        <div class="h-[260px] lg:h-[300px] rounded-2xl overflow-hidden border border-clay">
+          <PropertyMap
+            client:visible
+            gps={null}
+            quartier={q.name}
+            city={q.city}
+            title={q.name}
+            className="w-full h-full block"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LISTINGS -->
+  <section class="py-10 lg:py-14">
+    <div class="container">
+      <h2 class="font-serif font-light text-[clamp(24px,3vw,36px)] tracking-tight mb-7">
+        {tpl('geo.quartier.listingsTitle', { name: q.name })}
+      </h2>
+
+      {properties.length > 0 ? (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {properties.map((prop) => <PropertyCard property={prop} lang={lang} />)}
+        </div>
+      ) : (
+        <div class="text-center py-12 bg-card border border-clay rounded-3xl px-6 max-w-2xl mx-auto">
+          <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-accent grid place-items-center text-primary">
+            <MapPin className="w-5 h-5" />
+          </div>
+          <p class="font-serif text-2xl mb-2">{tpl('geo.quartier.empty.title', { name: q.name })}</p>
+          <p class="text-muted-foreground max-w-md mx-auto mb-6">{tpl('geo.quartier.empty.body', { name: q.name })}</p>
+          <a href={p('/contact')} class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-secondary text-secondary-foreground font-semibold shadow hover:translate-y-[-1px] transition">
+            {t('geo.quartier.empty.cta', lang)}<ArrowRight className="w-4 h-4" />
+          </a>
+        </div>
+      )}
+
+      <div class="mt-8">
+        <a href={p('/biens')} class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:gap-2.5 transition-all">
+          {t('geo.quartier.allListings', lang)}<ArrowRight className="w-4 h-4" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="py-10 lg:py-14 bg-card border-y border-clay">
+    <div class="container max-w-3xl">
+      <h2 class="font-serif font-light text-[clamp(24px,3vw,36px)] tracking-tight mb-7">
+        {tpl('geo.quartier.faqTitle', { name: q.name })}
+      </h2>
+      <div class="flex flex-col gap-3">
+        {faqs.map((f) => (
+          <details class="group rounded-2xl border border-clay bg-background px-5 py-4">
+            <summary class="flex items-center justify-between cursor-pointer font-semibold text-[16px] list-none">
+              {f.q}
+              <span class="text-primary transition-transform group-open:rotate-45 text-xl leading-none">+</span>
+            </summary>
+            <p class="mt-3 text-muted-foreground leading-relaxed">{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- OTHER QUARTIERS -->
+  <section class="py-10 lg:py-14">
+    <div class="container">
+      <h2 class="font-serif font-light text-[clamp(22px,2.6vw,32px)] tracking-tight mb-6">
+        {t('geo.quartier.otherTitle', lang)}
+      </h2>
+      <div class="flex flex-wrap gap-2.5">
+        {others.map((o) => (
+          <a
+            href={p(`/immobilier/${o.slug}`)}
+            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[14px] font-medium bg-card border border-clay hover:border-primary hover:text-primary transition"
+          >
+            <MapPin className="w-3.5 h-3.5 opacity-60" />{o.name}
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</div>
