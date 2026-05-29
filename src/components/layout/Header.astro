@@ -23,11 +23,23 @@ const navLinks: Array<{ href: string; key: string }> = [
 <nav
   id="nav"
   class:list={[
-    'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+    'fixed top-0 left-0 right-0 z-50 transition-colors duration-300',
     solid ? 'bg-background/95 backdrop-blur shadow-sm text-foreground' : 'text-white',
   ]}
   data-solid={solid}
 >
+  {!solid && (
+    <!-- Legibility scrim for the transparent (over-hero) state. Subtle dark
+         vignette so the white logo/links stay readable even in the brief
+         frame where a deep-link (e.g. /#services) lands scrolled into a
+         light section before the scroll script flips the nav to solid.
+         Hidden once the nav goes solid (see apply() below). -->
+    <div
+      data-nav-scrim
+      class="absolute inset-0 -z-[1] bg-gradient-to-b from-black/45 via-black/15 to-transparent pointer-events-none transition-opacity duration-300"
+      aria-hidden="true"
+    ></div>
+  )}
   <div class="container flex items-center justify-between h-[78px]">
     <a href={p('/')} class="flex items-center gap-3 font-extrabold tracking-wide text-[17px]">
       <BrandMark size={40} />
@@ -123,10 +135,15 @@ const navLinks: Array<{ href: string; key: string }> = [
   </aside>
 </div>
 
-<script>
-  // Sticky / solid nav toggle on scroll (unchanged behaviour).
-  const nav = document.getElementById('nav');
-  if (nav && nav.dataset.solid !== 'true') {
+<script is:inline>
+  // Sticky / solid nav toggle. `is:inline` (not a bundled module) so it runs
+  // during parse instead of after the deferred module graph loads — this is
+  // what closes the white-text-on-light flash when the page loads already
+  // scrolled (e.g. deep-linking to /#services from another page's nav).
+  (function () {
+    const nav = document.getElementById('nav');
+    if (!nav || nav.dataset.solid === 'true') return;
+    const scrim = nav.querySelector('[data-nav-scrim]');
     const apply = () => {
       const scrolled = window.scrollY > 40;
       nav.classList.toggle('bg-background/95', scrolled);
@@ -134,10 +151,18 @@ const navLinks: Array<{ href: string; key: string }> = [
       nav.classList.toggle('shadow-sm', scrolled);
       nav.classList.toggle('text-foreground', scrolled);
       nav.classList.toggle('text-white', !scrolled);
+      if (scrim) scrim.style.opacity = scrolled ? '0' : '1';
     };
     window.addEventListener('scroll', apply, { passive: true });
+    // Hash deep-links scroll AFTER parse, so re-apply on the events that fire
+    // once the browser has jumped to the anchor. pageshow covers bfcache
+    // restores (back/forward) where scroll position is recreated.
+    window.addEventListener('load', apply);
+    window.addEventListener('hashchange', apply);
+    window.addEventListener('pageshow', apply);
+    document.addEventListener('DOMContentLoaded', apply);
     apply();
-  }
+  })();
 
   // Mobile drawer toggle. Pure DOM toggling — no framework needed; the
   // drawer markup is always present, JS just flips visibility classes.
