@@ -194,12 +194,14 @@ export default function ListingsMap({ properties, activeRef, onPinClick }: Props
               url={STREETS.url}
               attribution={STREETS.attribution}
               maxZoom={STREETS.maxZoom}
+              subdomains={STREETS.subdomains ?? 'abc'}
             />
           ) : (
             <TileLayer
               url={SATELLITE.url}
               attribution={SATELLITE.attribution}
               maxZoom={SATELLITE.maxZoom}
+              subdomains={SATELLITE.subdomains ?? 'abc'}
             />
           )}
           <FitBounds coords={placed.map((x) => [x.coords.lat, x.coords.lng])} />
