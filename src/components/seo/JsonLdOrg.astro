@@ -29,6 +29,11 @@ const graph = {
       url: siteUrl,
       logo: `${siteUrl}/og-default.png`,
       image: `${siteUrl}/og-default.png`,
+      telephone: SITE.phoneE164,
+      email: SITE.email,
+      priceRange: '$$',
+      currenciesAccepted: 'XOF',
+      knowsLanguage: ['fr', 'en', 'wo'],
       areaServed: [
         { '@type': 'Country', name: 'Sénégal' },
         { '@type': 'City', name: 'Dakar' },
@@ -39,9 +44,25 @@ const graph = {
       ],
       address: {
         '@type': 'PostalAddress',
-        addressLocality: SITE.agencyCity,
-        addressCountry: 'SN',
+        streetAddress: SITE.address.street,
+        addressLocality: SITE.address.locality,
+        addressRegion: SITE.address.region,
+        addressCountry: SITE.address.country,
       },
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: SITE.geo.lat,
+        longitude: SITE.geo.lng,
+      },
+      hasMap: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        `${SITE.agencyName}, ${SITE.address.street}, ${SITE.address.locality}, Sénégal`,
+      )}`,
+      openingHoursSpecification: SITE.hours.spec.map((s) => ({
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: s.days,
+        opens: s.opens,
+        closes: s.closes,
+      })),
       contactPoint: [
         {
           '@type': 'ContactPoint',

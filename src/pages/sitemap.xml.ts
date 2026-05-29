@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
 import { listAllPublicRefs } from '@/lib/supabase.build';
+import { QUARTIERS } from '@/lib/quartiers';
 
 export const prerender = true;
 
-const STATIC_PATHS = ['/', '/biens/', '/contact/', '/comparer/'];
+const STATIC_PATHS = ['/', '/biens/', '/immobilier/', '/contact/', '/comparer/'];
 /**
  * Legal pages — French canonical only. Astro's i18n fallback serves the same
  * FR markup at /en/* and /wo/*, but those alias URLs carry a canonical to
@@ -76,6 +77,22 @@ export const GET: APIRoute = async ({ site }) => {
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>`);
+  }
+
+  // Geo landing pages (quartier hubs) × each language.
+  for (const q of QUARTIERS) {
+    for (const l of LANGS) {
+      blocks.push(
+        urlBlock(
+          origin,
+          (prefix) => `${prefix}/immobilier/${q.slug}/`,
+          l.prefix,
+          now,
+          '0.8',
+          'weekly',
+        ),
+      );
+    }
   }
 
   // Property detail pages × each language.

@@ -8,6 +8,7 @@ import ParallaxBand from './ParallaxBand.astro';
 import Why from './Why.astro';
 import Process from './Process.astro';
 import Testimonials from './Testimonials.astro';
+import Faq from './Faq.astro';
 import ContactSection from './ContactSection.astro';
 import CompareBar from '@/components/property/CompareBar.tsx';
 import { getLang } from '@/lib/i18n';
@@ -24,5 +25,6 @@ const lang = getLang(Astro.url);
 <Why lang={lang} />
 <Process lang={lang} />
 <Testimonials lang={lang} />
+<Faq lang={lang} />
 <ContactSection lang={lang} />
 <CompareBar client:idle lang={lang} />

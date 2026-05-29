@@ -1,0 +1,41 @@
+# Jamm Immobilier
+
+> Agence immobilière sénégalaise basée à Dakar (Sacré-Cœur 3). Vente, location, gestion locative et accompagnement de projet immobilier — de Dakar à Saly, Mbour, Thiès et Saint-Louis. Chaque annonce est vérifiée par l'agence avant publication. Site trilingue : français, anglais, wolof.
+
+## À propos
+- Nom : Jamm Immobilier
+- Localisation : RC 24, Sacré-Cœur 3 (près de chez Omar Pène), Dakar, Sénégal
+- Téléphone / WhatsApp : +221 76 944 48 49
+- E-mail : contact@jammimmo.com
+- Zones couvertes : Dakar (Almadies, Ngor, Ouakam, Mermoz, Point E, Fann, Plateau, Sacré-Cœur, Yoff, Grand Yoff, Liberté, Parcelles Assainies), Saly, Mbour, Thiès, Saint-Louis
+- Services : vente, location, gestion locative, conseil et accompagnement (y compris pour la diaspora)
+
+## Pages principales
+- [Accueil](https://jammimmo.com/) : présentation de l'agence et biens en vedette
+- [Toutes les annonces](https://jammimmo.com/biens/) : catalogue filtrable (vente/location, type, ville, budget) avec carte
+- [Immobilier par quartier](https://jammimmo.com/immobilier/) : pages dédiées par quartier de Dakar
+- [Contact](https://jammimmo.com/contact/) : formulaire, téléphone, adresse et itinéraire
+
+## Quartiers (Dakar)
+- [Sacré-Cœur](https://jammimmo.com/immobilier/sacre-coeur/)
+- [Almadies](https://jammimmo.com/immobilier/almadies/)
+- [Ngor](https://jammimmo.com/immobilier/ngor/)
+- [Ouakam](https://jammimmo.com/immobilier/ouakam/)
+- [Mermoz](https://jammimmo.com/immobilier/mermoz/)
+- [Point E](https://jammimmo.com/immobilier/point-e/)
+- [Fann](https://jammimmo.com/immobilier/fann/)
+- [Plateau](https://jammimmo.com/immobilier/plateau/)
+- [Yoff](https://jammimmo.com/immobilier/yoff/)
+- [Grand Yoff](https://jammimmo.com/immobilier/grand-yoff/)
+- [Liberté](https://jammimmo.com/immobilier/liberte/)
+- [Parcelles Assainies](https://jammimmo.com/immobilier/parcelles-assainies/)
+
+## Légal
+- [Mentions légales](https://jammimmo.com/mentions-legales/)
+- [Politique de confidentialité](https://jammimmo.com/confidentialite/)
+- [Cookies](https://jammimmo.com/cookies/)
+
+## Notes
+- Plan du site : https://jammimmo.com/sitemap.xml
+- Langues : FR (par défaut), EN (/en/), WO (/wo/)
+- Les annonces sont vérifiées par l'agence ; les prix sont en FCFA (XOF).
