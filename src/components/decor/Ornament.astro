@@ -1,0 +1,31 @@
+---
+/**
+ * Tiny brand ornament — a serif diamond ✦ flanked by two thin gradient rules.
+ * Used as a tasteful divider between hero copy and body content (geo pages,
+ * favoris, FAQ, etc.). Sahel-sun palette: secondary in the center fading to
+ * transparent at the rule tips. Decorative, so `aria-hidden`.
+ */
+interface Props {
+  /** Horizontal alignment of the ornament block. */
+  align?: 'center' | 'start';
+  /** Width of each rule in px (Tailwind purges dynamic classes, hence inline). */
+  ruleW?: number;
+  /** Optional class to append on the outer wrapper. */
+  class?: string;
+}
+const { align = 'center', ruleW = 56, class: extraClass = '' } = Astro.props;
+const ruleStyle = `width:${ruleW}px;`;
+---
+
+<div
+  aria-hidden="true"
+  class:list={[
+    'inline-flex items-center gap-3 text-secondary-strong/90',
+    align === 'center' ? 'mx-auto' : '',
+    extraClass,
+  ]}
+>
+  <span class="block h-px bg-gradient-to-r from-transparent via-secondary-strong/40 to-secondary-strong/70" style={ruleStyle}></span>
+  <span class="font-serif italic text-[18px] leading-none translate-y-[-1px]">✦</span>
+  <span class="block h-px bg-gradient-to-l from-transparent via-secondary-strong/40 to-secondary-strong/70" style={ruleStyle}></span>
+</div>

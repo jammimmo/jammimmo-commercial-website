@@ -6,6 +6,7 @@ import PropertyCard from '@/components/property/PropertyCard.astro';
 import PropertyMap from '@/components/property/PropertyMap.tsx';
 import { t, type Lang, localizedPath } from '@/lib/i18n';
 import { ArrowRight, MapPin } from 'lucide-react';
+import Ornament from '@/components/decor/Ornament.astro';
 
 interface Props {
   quartier: Quartier;
@@ -78,8 +79,19 @@ const faqLd = {
 
 <div class="property-detail-bg">
   <!-- HERO BAND -->
-  <section class="bg-card border-b border-clay pt-6 pb-8 sm:pt-8 sm:pb-12">
-    <div class="container">
+  <section class="relative bg-card border-b border-clay pt-6 pb-8 sm:pt-8 sm:pb-12 overflow-hidden">
+    {/* Fioriture: soft Sahel sun-glow + woven dot texture behind the hero */}
+    <div class="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
+      <div
+        class="absolute -top-32 right-[-15%] w-[420px] h-[420px] rounded-full opacity-[0.13]"
+        style="background: radial-gradient(circle at 35% 35%, hsl(var(--secondary)), hsl(var(--ochre)) 45%, transparent 70%); filter: blur(6px);"
+      ></div>
+      <div
+        class="absolute inset-0 opacity-50"
+        style="background-image: var(--sahel-weave-bg); background-size: var(--sahel-weave-size); background-position: var(--sahel-weave-pos);"
+      ></div>
+    </div>
+    <div class="container relative z-10">
       <!-- Breadcrumb -->
       <nav aria-label="Fil d'Ariane" class="text-[13px] text-muted-foreground mb-5 flex flex-wrap items-center gap-1.5">
         <a href={p('/')} class="hover:text-primary">{t('breadcrumb.home', lang)}</a>

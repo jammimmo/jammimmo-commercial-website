@@ -1,5 +1,6 @@
 ---
 import { t, type Lang } from '@/lib/i18n';
+import Ornament from '@/components/decor/Ornament.astro';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
@@ -34,6 +35,7 @@ const faqLd = {
       <h2 class="font-serif font-light text-[clamp(30px,4vw,52px)] leading-tight tracking-tight [text-wrap:balance]">
         {t('faq.title', lang)}
       </h2>
+      <div class="flex justify-center mt-6"><Ornament /></div>
     </div>
 
     <div class="flex flex-col gap-3">
