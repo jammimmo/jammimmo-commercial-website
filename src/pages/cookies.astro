@@ -12,6 +12,10 @@ const description =
 
 // FR-only canonical (cf. mentions-legales pour la raison).
 const canonical = 'https://jammimmo.com/cookies/';
+
+// Disclose Clarity's first-party cookie ONLY when the tracker is actually
+// enabled — keeps the page honest in both states.
+const clarityEnabled = !!import.meta.env.PUBLIC_CLARITY_PROJECT_ID;
 ---
 
 <BaseLayout title={title} description={description} canonical={canonical} solidNav>
@@ -61,7 +65,46 @@ const canonical = 'https://jammimmo.com/cookies/';
               class="text-primary hover:underline"
             >cloudflare.com/web-analytics</a>.
           </p>
+          <p class="text-muted-foreground leading-relaxed">
+            Un second outil interne, <strong>Umami</strong> (auto-hébergé,
+            open-source), peut être utilisé pour mesurer les interactions
+            techniques agrégées (boutons cliqués, parcours de pages). Umami
+            <strong>n'utilise aucun cookie</strong> et ne stocke aucune donnée
+            personnelle identifiable.
+          </p>
         </section>
+
+        {clarityEnabled && (
+          <section>
+            <h2 class="font-serif text-2xl mb-3">2 bis. Cartes de chaleur (Microsoft Clarity)</h2>
+            <p class="text-muted-foreground leading-relaxed">
+              Pour comprendre comment améliorer l'ergonomie du site, nous
+              utilisons <strong>Microsoft Clarity</strong>, un outil gratuit
+              qui produit des cartes de chaleur agrégées et, occasionnellement,
+              des enregistrements de session anonymisés (mouvements de souris,
+              clics — aucun champ de formulaire n'est jamais enregistré). Les
+              données sont anonymisées par Microsoft et conservées 13 mois
+              maximum.
+            </p>
+            <p class="text-muted-foreground leading-relaxed">
+              Clarity dépose <strong>un cookie de première partie</strong>
+              (<code>_clck</code>, durée 1 an) pour identifier les sessions
+              distinctes — aucun cookie publicitaire ni de partage avec des
+              tiers. Politique de confidentialité Microsoft :
+              <a
+                href="https://privacy.microsoft.com/privacystatement"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-primary hover:underline"
+              >privacy.microsoft.com</a>.
+            </p>
+            <p class="text-muted-foreground leading-relaxed">
+              Vous pouvez vous opposer à ce traitement en activant le signal
+              <strong>Global Privacy Control</strong> de votre navigateur ou en
+              bloquant les scripts de <code>clarity.ms</code>.
+            </p>
+          </section>
+        )}
 
         <section>
           <h2 class="font-serif text-2xl mb-3">3. Stockage local du navigateur</h2>

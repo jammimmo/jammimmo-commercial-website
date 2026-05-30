@@ -185,10 +185,22 @@ const hasImages = p.images.length > 0;
                   {t('property.detail.interested', lang)} →
                 </a>
                 <div class="grid grid-cols-2 gap-2.5">
-                  <a href={TEL_URI} class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-white/12 text-primary-foreground font-semibold border border-white/25 hover:bg-white/20 transition">
+                  <a
+                    href={TEL_URI}
+                    data-track="phone.tapped"
+                    data-track-prop-source="detail"
+                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-white/12 text-primary-foreground font-semibold border border-white/25 hover:bg-white/20 transition"
+                  >
                     <Phone className="w-4 h-4" /> {t('property.detail.call', lang)}
                   </a>
-                  <a href={SITE.whatsappUrl} class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-emerald/85 text-emerald-foreground font-semibold hover:bg-emerald transition">
+                  <a
+                    href={SITE.whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-track="whatsapp.tapped"
+                    data-track-prop-source="detail"
+                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-emerald/85 text-emerald-foreground font-semibold hover:bg-emerald transition"
+                  >
                     <MessageCircle className="w-4 h-4" /> {t('property.detail.whatsapp', lang)}
                   </a>
                 </div>
@@ -409,10 +421,10 @@ const hasImages = p.images.length > 0;
       {priceLabel}
     </div>
   </div>
-  <a href={TEL_URI} aria-label="Appeler l'agence" class="w-11 h-11 grid place-items-center rounded-full bg-card border border-clay text-primary">
+  <a href={TEL_URI} data-track="phone.tapped" data-track-prop-source="sticky" aria-label="Appeler l'agence" class="w-11 h-11 grid place-items-center rounded-full bg-card border border-clay text-primary">
     <Phone className="w-4 h-4" />
   </a>
-  <a href={SITE.whatsappUrl} aria-label="WhatsApp" class="w-11 h-11 grid place-items-center rounded-full bg-emerald/15 text-emerald border border-emerald/30">
+  <a href={SITE.whatsappUrl} target="_blank" rel="noopener noreferrer" data-track="whatsapp.tapped" data-track-prop-source="sticky" aria-label="WhatsApp" class="w-11 h-11 grid place-items-center rounded-full bg-emerald/15 text-emerald border border-emerald/30">
     <MessageCircle className="w-4 h-4" />
   </a>
   <a href="#contact-bien" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm shadow-md whitespace-nowrap">
