@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 import { t, type Lang } from '@/lib/i18n';
 import { FAVORITES_KEY, readFavorites, writeFavorites } from '@/lib/favorites';
+import { track } from '@/lib/analytics';
 
 interface Props {
   reference: string;
@@ -41,8 +42,10 @@ export default function FavoriteToggle({ reference, title, lang, variant = 'pill
     const list = readFavorites();
     if (active) {
       writeFavorites(list.filter((p) => p.reference !== reference));
+      track({ name: 'favorite.removed', props: { ref: reference } });
     } else {
       writeFavorites([...list, { reference, title, addedAt: new Date().toISOString() }]);
+      track({ name: 'favorite.added', props: { ref: reference } });
     }
   }
 

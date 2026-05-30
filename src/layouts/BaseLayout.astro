@@ -28,12 +28,21 @@ const {
 
 // Search-engine + analytics verification — empty strings disable each.
 // Set these in CF Pages env (production + preview) once the accounts exist:
-//   PUBLIC_GSC_VERIFICATION   — Google Search Console (`google-site-verification` value, NOT the file approach)
-//   PUBLIC_BING_VERIFICATION  — Bing Webmaster (`msvalidate.01`)
-//   PUBLIC_CF_ANALYTICS_TOKEN — Cloudflare Web Analytics beacon token
+//   PUBLIC_GSC_VERIFICATION    — Google Search Console (`google-site-verification` value, NOT the file approach)
+//   PUBLIC_BING_VERIFICATION   — Bing Webmaster (`msvalidate.01`)
+//   PUBLIC_CF_ANALYTICS_TOKEN  — Cloudflare Web Analytics beacon token (cookieless)
+//   PUBLIC_UMAMI_SRC           — Fully-qualified URL to the Umami `script.js`
+//                                e.g. https://analytics.jammimmo.com/script.js
+//   PUBLIC_UMAMI_WEBSITE_ID    — UUID of this site in your Umami install
+//   PUBLIC_CLARITY_PROJECT_ID  — Microsoft Clarity project ID (heatmaps + replay)
 const gscVerification = import.meta.env.PUBLIC_GSC_VERIFICATION ?? '';
 const bingVerification = import.meta.env.PUBLIC_BING_VERIFICATION ?? '';
 const cfAnalyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN ?? '';
+const umamiSrc = import.meta.env.PUBLIC_UMAMI_SRC ?? '';
+const umamiWebsiteId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID ?? '';
+const clarityProjectId = import.meta.env.PUBLIC_CLARITY_PROJECT_ID ?? '';
+const umamiEnabled = !!(umamiSrc && umamiWebsiteId);
+const clarityEnabled = !!clarityProjectId;
 
 // Only emit the global Organization+WebSite JSON-LD on root-shaped pages.
 const isHome = ['/', '/en', '/en/', '/wo', '/wo/'].includes(Astro.url.pathname);
@@ -94,6 +103,36 @@ const isHome = ['/', '/en', '/en/', '/wo', '/wo/'].includes(Astro.url.pathname);
       ></script>
     )}
 
+    {/* Umami — self-hosted, cookieless, MIT. The script is served from
+        whatever origin PUBLIC_UMAMI_SRC points at (typically
+        analytics.jammimmo.com). `data-website-id` ties events to your site.
+        Custom events fire via window.umami.track(name, props) — see
+        src/lib/analytics.ts. */}
+    {umamiEnabled && (
+      <script
+        is:inline
+        defer
+        src={umamiSrc}
+        data-website-id={umamiWebsiteId}
+        data-do-not-track="true"
+      ></script>
+    )}
+
+    {/* Microsoft Clarity — heatmaps + session replay. Uses one first-party
+        cookie (_clck/_clsk) for session continuity; disclosed on /cookies.
+        Custom events fire via window.clarity('event', name). Inline `(c,l,a,r,i,t,y)`
+        is Clarity's official snippet — adapted here as a templated string so
+        the project ID is build-time-bound. */}
+    {clarityEnabled && (
+      <script is:inline set:html={`
+        (function(c,l,a,r,i,t,y){
+          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "${clarityProjectId}");
+      `}></script>
+    )}
+
     <script>
       // IntersectionObserver-based reveal for elements with .reveal class.
       // Skipped for visitors who prefer reduced motion.
@@ -114,6 +153,34 @@ const isHome = ['/', '/en', '/en/', '/wo', '/wo/'].includes(Astro.url.pathname);
         );
         document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
       }
+    </script>
+
+    <script is:inline>
+      // Delegated click tracker — any element with `data-track="event.name"`
+      // fires the named event via the global trackers (Umami + Clarity, when
+      // loaded). Optional `data-track-prop-<key>="value"` attributes become
+      // event properties. Lets static Astro markup (anchors in DetailContent,
+      // Footer, drawer) emit events without React boilerplate.
+      document.addEventListener('click', function (e) {
+        var el = e.target;
+        while (el && el !== document) {
+          if (el.dataset && el.dataset.track) {
+            var name = el.dataset.track;
+            var props = {};
+            for (var k in el.dataset) {
+              if (k.indexOf('trackProp') === 0 && k.length > 9) {
+                // trackPropSource → source
+                var propKey = k.charAt(9).toLowerCase() + k.slice(10);
+                props[propKey] = el.dataset[k];
+              }
+            }
+            try { if (window.umami) window.umami.track(name, props); } catch (_) {}
+            try { if (typeof window.clarity === 'function') window.clarity('event', name); } catch (_) {}
+            break;
+          }
+          el = el.parentNode;
+        }
+      }, { passive: true });
     </script>
   </body>
 </html>

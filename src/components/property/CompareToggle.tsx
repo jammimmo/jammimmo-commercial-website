@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Check, Plus } from 'lucide-react';
 import { t, type Lang } from '@/lib/i18n';
 import { COMPARE_KEY, MAX_COMPARE, readCompare, writeCompare } from '@/lib/compare';
+import { track } from '@/lib/analytics';
 
 interface Props {
   reference: string;
@@ -23,9 +24,11 @@ export default function CompareToggle({ reference, title, lang }: Props) {
     const list = readCompare();
     if (active) {
       writeCompare(list.filter((p) => p.reference !== reference));
+      track({ name: 'compare.removed', props: { ref: reference } });
     } else {
       if (list.length >= MAX_COMPARE) return;
       writeCompare([...list, { reference, title }]);
+      track({ name: 'compare.added', props: { ref: reference } });
     }
   }
 

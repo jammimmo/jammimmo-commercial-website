@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2, ArrowRight, Check } from 'lucide-react';
 import { t, type Lang } from '@/lib/i18n';
+import { track } from '@/lib/analytics';
 
 interface Props {
   lang: Lang;
@@ -65,6 +66,14 @@ export default function ContactForm({ lang, propertyId, propertyTitle, compact =
         throw new Error(err.error || `HTTP ${res.status}`);
       }
       setSubmitState('ok');
+      track({
+        name: 'lead.form.submitted',
+        props: {
+          subject: values.subject || undefined,
+          hasMessage: !!values.message,
+          fromProperty: !!propertyId,
+        },
+      });
     } catch (e: any) {
       setSubmitState('error');
       setErrorMsg(e?.message ?? 'Unknown error');
