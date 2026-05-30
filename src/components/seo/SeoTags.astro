@@ -22,9 +22,23 @@ const {
 } = Astro.props;
 
 const siteOrigin = Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com';
-const fullCanonical = canonical ?? `${siteOrigin}${Astro.url.pathname}`;
+
+/**
+ * Normalize a URL to a trailing slash on its path. Cloudflare Pages serves
+ * every route with a trailing slash (308-redirecting the slash-less form), and
+ * the sitemap uses trailing slashes — so canonical + hreflang + og:url must
+ * match that final 200 URL, not the 308 source. Skip URLs carrying a query or
+ * fragment (e.g. the SearchAction target).
+ */
+const withSlash = (u: string): string =>
+  /[?#]/.test(u) || u.endsWith('/') ? u : `${u}/`;
+
+const fullCanonical = withSlash(canonical ?? `${siteOrigin}${Astro.url.pathname}`);
 const fullImage = image.startsWith('http') ? image : `${siteOrigin}${image}`;
-const hreflangs = buildHreflangLinks(Astro.url.pathname, siteOrigin);
+const hreflangs = buildHreflangLinks(Astro.url.pathname, siteOrigin).map((h) => ({
+  ...h,
+  href: withSlash(h.href),
+}));
 ---
 
 <title>{title}</title>
@@ -49,6 +63,7 @@ const hreflangs = buildHreflangLinks(Astro.url.pathname, siteOrigin);
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={fullImage} />
+<meta name="twitter:image:alt" content={imageAlt} />
 
 <meta name="theme-color" content="#2632A0" />
 <meta name="robots" content="index, follow" />

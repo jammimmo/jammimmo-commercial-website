@@ -24,7 +24,7 @@ const { lang } = Astro.props;
           <div class="font-serif text-[96px] font-light leading-[0.85] tracking-tighter text-primary opacity-20">
             {String(n).padStart(2, '0')}
           </div>
-          <h4 class="font-serif text-[22px] mt-3.5 mb-2">{t(`process.${n}.title`, lang)}</h4>
+          <h3 class="font-serif text-[22px] mt-3.5 mb-2">{t(`process.${n}.title`, lang)}</h3>
           <p class="text-muted-foreground text-[14.5px] leading-relaxed">{t(`process.${n}.desc`, lang)}</p>
         </div>
       ))}

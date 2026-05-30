@@ -16,7 +16,7 @@ const tpl = (key: string, vars: Record<string, string>) =>
 
 <section class="bg-card border-b border-clay py-12 sm:py-16">
   <div class="container max-w-3xl">
-    <p class="text-[11px] uppercase tracking-[0.18em] font-semibold text-secondary mb-3">
+    <p class="text-[11px] uppercase tracking-[0.18em] font-semibold text-secondary-strong mb-3">
       {t('geo.hub.eyebrow', lang)}
     </p>
     <h1 class="font-serif font-light text-[clamp(34px,5vw,60px)] leading-tight tracking-tight">
@@ -35,7 +35,7 @@ const tpl = (key: string, vars: Record<string, string>) =>
           class="group flex flex-col justify-between rounded-2xl bg-card border border-clay p-6 hover:border-primary hover:shadow-[0_30px_60px_-40px_hsl(var(--ink)/.35)] hover:translate-y-[-3px] transition-all"
         >
           <div>
-            <div class="flex items-center gap-2 text-secondary">
+            <div class="flex items-center gap-2 text-secondary-strong">
               <MapPin className="w-4 h-4" />
               <span class="text-[11px] uppercase tracking-[0.14em] font-semibold">{q.city}</span>
             </div>

@@ -45,7 +45,7 @@ export default function LanguageSwitcher({ lang, pathname }: Props) {
         aria-expanded={open}
         aria-label="Change language"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-[12.5px] font-bold tracking-[0.04em] transition"
+        className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-[12.5px] font-bold tracking-[0.04em] transition"
       >
         {lang.toUpperCase()}
       </button>

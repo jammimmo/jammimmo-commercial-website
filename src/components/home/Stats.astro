@@ -15,7 +15,7 @@ const stats = [
     {stats.map((s, i) => (
       <div class={`reveal ${s.delay} ${i > 0 ? 'lg:pl-8 lg:border-l border-clay' : ''}`}>
         <div class="font-serif font-light text-[60px] leading-none tracking-tight">
-          <span class="text-secondary">{t(`${s.key}.value`, lang)}</span>
+          <span class="text-secondary-strong">{t(`${s.key}.value`, lang)}</span>
         </div>
         <p class="mt-2.5 text-sm text-muted-foreground max-w-[180px] leading-relaxed">
           {t(`${s.key}.label`, lang)}

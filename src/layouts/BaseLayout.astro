@@ -60,9 +60,12 @@ const isHome = ['/', '/en', '/en/', '/wo', '/wo/'].includes(Astro.url.pathname);
     {gscVerification && <meta name="google-site-verification" content={gscVerification} />}
     {bingVerification && <meta name="msvalidate.01" content={bingVerification} />}
 
-    {/* Global JSON-LD: Organization + WebSite with SearchAction. Only on
-        homepage(s) so we don't repeat it on every property/contact page. */}
-    {isHome && <JsonLdOrg lang={lang} />}
+    {/* Global JSON-LD. The Organization/RealEstateAgent node is emitted on
+        EVERY page so the `#organization` @id that property + geo pages
+        reference (broker/seller/publisher) always resolves and the entity is
+        reinforced site-wide. The WebSite + SearchAction node is homepage-only
+        (the search-box sitelink is a homepage feature). */}
+    <JsonLdOrg lang={lang} includeWebsite={isHome} />
 
     <slot name="head" />
   </head>

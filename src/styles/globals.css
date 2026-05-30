@@ -41,6 +41,12 @@
     --primary-foreground: 0 0% 100%;
     --secondary: 32 95% 56%;
     --secondary-foreground: 20 35% 12%;
+    /* Darker orange for SECONDARY USED AS TEXT on light backgrounds. The bright
+       --secondary (56% L) only reaches ~2.1:1 on white/card (fails WCAG AA);
+       this 36% L variant clears 4.5:1 while staying the same Sahel-sun hue.
+       Use `text-secondary-strong` for eyebrows/labels/links on light; keep
+       `bg-secondary`/`text-secondary` for buttons and text on dark. */
+    --secondary-strong: 32 92% 34%;
 
     /* Sahel weave — repeating SVG pattern reused via background-image
        on body or any container. Tuned dot+chevron so it reads as
@@ -95,6 +101,8 @@
     --primary-foreground: 15 22% 8%;
     --secondary: 32 95% 66%;
     --secondary-foreground: 15 22% 8%;
+    /* On dark surfaces, text-on-light isn't a concern — keep it bright. */
+    --secondary-strong: 32 95% 66%;
     --muted: 15 18% 18%;
     --muted-foreground: 38 15% 70%;
     --accent: 234 60% 20%;
@@ -187,4 +195,15 @@
 /* Hide focus ring on mouse, keep for keyboard */
 :focus:not(:focus-visible) {
   outline: none;
+}
+
+/* Consistent, on-brand keyboard-focus ring for every focusable control
+   (links, buttons, <summary>, gallery arrows, language switcher, etc.).
+   Controls that set their own focus ring — form inputs use
+   focus:ring-2 ring-ring — override this via higher specificity, so this
+   is purely a floor that guarantees visible keyboard focus everywhere. */
+:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: 3px;
 }

@@ -40,6 +40,7 @@ export default {
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
           foreground: 'hsl(var(--secondary-foreground))',
+          strong: 'hsl(var(--secondary-strong))',
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',

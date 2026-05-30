@@ -41,6 +41,7 @@ export default function MiniCard({ property: p, href, active, lang = 'fr', onEnt
   const heroImage = split ? null : p.images[0] ?? videoThumb;
 
   return (
+    <div className="relative">
     <a
       href={href}
       onMouseEnter={onEnter}
@@ -98,10 +99,6 @@ export default function MiniCard({ property: p, href, active, lang = 'fr', onEnt
             : t('common.transaction.sale', lang)}
         </span>
 
-        {/* Heart toggle — nested inside the outer <a> but `preventDefault`s
-            the parent navigation on click (see FavoriteToggle).  */}
-        <FavoriteToggle reference={p.reference} title={p.title} lang={lang} variant="icon" />
-
         {/* Photo-count badge — Zillow-style */}
         {p.images.length > 0 && (
           <span className="absolute bottom-3 right-3 z-[2] inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-semibold bg-black/55 text-white backdrop-blur">
@@ -130,6 +127,11 @@ export default function MiniCard({ property: p, href, active, lang = 'fr', onEnt
         </div>
       </div>
     </a>
+      {/* Heart toggle — sibling of the card <a> (not nested) to avoid an
+          interactive element inside a link. Absolute against this relative
+          wrapper → lands on the thumbnail's top-right corner. */}
+      <FavoriteToggle reference={p.reference} title={p.title} lang={lang} variant="icon" />
+    </div>
   );
 }
 

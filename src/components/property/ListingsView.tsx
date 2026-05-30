@@ -260,7 +260,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
-              className="px-3 py-1.5 rounded-full bg-card border border-clay text-[13px] font-semibold text-foreground outline-none focus:border-primary transition"
+              className="px-3.5 py-2.5 rounded-full bg-card border border-clay text-[13px] font-semibold text-foreground outline-none focus:border-primary transition"
             >
               {SORT_KEYS.map((s) => (
                 <option key={s.value} value={s.value}>{t(s.labelKey, lang)}</option>
@@ -286,7 +286,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pb-24 lg:pb-0">
                 {filtered.map((p) => (
                   <div
                     key={p.reference}
