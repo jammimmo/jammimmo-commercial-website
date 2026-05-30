@@ -47,7 +47,7 @@ export default function HeroSearch({ lang }: Props) {
   return (
     <form
       onSubmit={submit}
-      className="bg-card/95 text-foreground rounded-3xl p-6 sm:p-7 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.35)] backdrop-blur self-end -translate-y-10"
+      className="bg-card/95 text-foreground rounded-3xl p-6 sm:p-7 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.35)] backdrop-blur self-end"
     >
       <div className="flex gap-1.5 bg-muted p-1.5 rounded-2xl mb-5">
         {TABS.map(([key, tk]) => (

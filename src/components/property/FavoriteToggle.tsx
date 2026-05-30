@@ -59,7 +59,7 @@ export default function FavoriteToggle({ reference, title, lang, variant = 'pill
         aria-label={label}
         title={label}
         className={
-          'absolute top-2.5 right-2.5 z-10 grid place-items-center w-9 h-9 rounded-full shadow-md backdrop-blur-sm transition ' +
+          'absolute top-2.5 right-2.5 z-10 grid place-items-center w-11 h-11 rounded-full shadow-md backdrop-blur-sm transition ' +
           (active
             ? 'bg-terra/95 text-white'
             : 'bg-white/90 text-foreground hover:bg-white')

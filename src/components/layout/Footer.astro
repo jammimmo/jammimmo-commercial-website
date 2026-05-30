@@ -47,7 +47,7 @@ const p = (path: string) => localizedPath(path, lang);
       </div>
 
       <div>
-        <h6 class="text-[11px] tracking-[0.14em] uppercase text-white/50 font-semibold mb-4">{t('footer.services', lang)}</h6>
+        <h3 class="text-[11px] tracking-[0.14em] uppercase text-white/70 font-semibold mb-4">{t('footer.services', lang)}</h3>
         <ul class="space-y-2.5 text-[14.5px] text-white/85">
           <li><a href={p('/biens?transaction=Vente')} class="hover:text-secondary">{t('service.sale.title', lang)}</a></li>
           <li><a href={p('/biens?transaction=Location')} class="hover:text-secondary">{t('service.rent.title', lang)}</a></li>
@@ -56,7 +56,7 @@ const p = (path: string) => localizedPath(path, lang);
         </ul>
       </div>
       <div>
-        <h6 class="text-[11px] tracking-[0.14em] uppercase text-white/50 font-semibold mb-4">{t('footer.discover', lang)}</h6>
+        <h3 class="text-[11px] tracking-[0.14em] uppercase text-white/70 font-semibold mb-4">{t('footer.discover', lang)}</h3>
         <ul class="space-y-2.5 text-[14.5px] text-white/85">
           <li><a href={p('/biens')} class="hover:text-secondary">{t('properties.cta.viewAll', lang)}</a></li>
           <li><a href={p('/immobilier')} class="hover:text-secondary">{t('geo.hub.eyebrow', lang)}</a></li>
@@ -67,7 +67,7 @@ const p = (path: string) => localizedPath(path, lang);
         </ul>
       </div>
       <div>
-        <h6 class="text-[11px] tracking-[0.14em] uppercase text-white/50 font-semibold mb-4">{t('footer.contact', lang)}</h6>
+        <h3 class="text-[11px] tracking-[0.14em] uppercase text-white/70 font-semibold mb-4">{t('footer.contact', lang)}</h3>
         <ul class="space-y-2.5 text-[14.5px] text-white/85">
           <li><a href={TEL_URI} class="hover:text-secondary">{SITE.phoneDisplay}</a></li>
           <li><a href={MAILTO_URI} class="hover:text-secondary">{SITE.email}</a></li>
@@ -76,7 +76,7 @@ const p = (path: string) => localizedPath(path, lang);
         </ul>
       </div>
     </div>
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-7 border-t border-white/12 text-[13px] text-white/55">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-7 border-t border-white/12 text-[13px] text-white/70">
       <span>{t('footer.copy', lang)}</span>
       {/* Legal pages: French only — they describe a Senegalese agency and
           reference Senegalese law (loi 2008-12). Linking to the canonical FR

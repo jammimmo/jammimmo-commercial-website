@@ -33,7 +33,7 @@ const services = [
       {services.map((s, i) => (
         <div class={`reveal ${i > 0 ? `d${Math.min(i, 3)}` : ''} bg-card rounded-[22px] p-7 border border-clay min-h-[280px] flex flex-col justify-between hover:translate-y-[-6px] hover:shadow-[0_30px_60px_-30px_hsl(var(--ink)/.2)] hover:border-transparent transition group relative overflow-hidden`}>
           <div>
-            <div class={`w-14 h-14 rounded-2xl grid place-items-center ${s.tone === 'primary' ? 'bg-accent text-primary' : 'bg-secondary/15 text-secondary'}`}>
+            <div class={`w-14 h-14 rounded-2xl grid place-items-center ${s.tone === 'primary' ? 'bg-accent text-primary' : 'bg-secondary/15 text-secondary-strong'}`}>
               {s.icon === 'home' && <Home className="w-6 h-6" strokeWidth={1.6} />}
               {s.icon === 'key' && <Key className="w-6 h-6" strokeWidth={1.6} />}
               {s.icon === 'building' && <Building2 className="w-6 h-6" strokeWidth={1.6} />}

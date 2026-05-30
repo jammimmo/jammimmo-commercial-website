@@ -27,7 +27,7 @@ const items = [
             <li class={`reveal ${item.delay} flex gap-5 py-5 border-t border-white/12 ${i === items.length - 1 ? 'border-b' : ''}`}>
               <div class="font-serif text-[32px] font-light text-[hsl(var(--secondary)/.85)] min-w-[48px]">{item.num}</div>
               <div>
-                <h4 class="m-0 mb-1.5 text-[18px] font-semibold">{t(`${item.key}.title`, lang)}</h4>
+                <h3 class="m-0 mb-1.5 text-[18px] font-semibold">{t(`${item.key}.title`, lang)}</h3>
                 <p class="m-0 text-white/70 leading-relaxed text-[14.5px] max-w-[48ch]">{t(`${item.key}.desc`, lang)}</p>
               </div>
             </li>
@@ -36,7 +36,7 @@ const items = [
       </div>
 
       <div class="reveal d2 bg-white/8 border border-white/15 rounded-3xl p-7 backdrop-blur">
-        <h5 class="font-serif font-normal text-[24px] tracking-tight m-0">{t('why.map.title', lang)}</h5>
+        <h3 class="font-serif font-normal text-[24px] tracking-tight m-0">{t('why.map.title', lang)}</h3>
         <div class="mt-5 aspect-square rounded-2xl overflow-hidden bg-gradient-to-b from-primary to-[hsl(var(--primary)/.4)] relative">
           <svg viewBox="0 0 400 300" class="absolute inset-0 w-full h-full" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.2">
             <path d="M40 120 L80 80 L160 70 L240 60 L320 90 L360 130 L350 200 L280 230 L200 240 L160 220 L120 240 L80 220 L60 180 Z" />

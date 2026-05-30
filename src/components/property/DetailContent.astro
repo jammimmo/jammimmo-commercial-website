@@ -73,7 +73,7 @@ const hasImages = p.images.length > 0;
      content. Each section is transparent so the pattern shows through
      the gutter between floating cards.
      ───────────────────────────────────────────────────────────────────── -->
-<div class="property-detail-bg">
+<div class="property-detail-bg pb-24 xl:pb-0">
 
   <!-- 1. TITLE BAND — flat header, no card, stays on bg-card -->
   <section class="bg-card pt-5 sm:pt-7 pb-3 sm:pb-5">
@@ -309,7 +309,7 @@ const hasImages = p.images.length > 0;
                 {p.nearby_commerce.map((n) => (
                   <li class="flex justify-between items-center px-4 py-3 rounded-xl bg-background border border-clay">
                     <span class="text-sm">{n.name}</span>
-                    <span class="text-[12px] font-semibold text-secondary">{n.distance}</span>
+                    <span class="text-[12px] font-semibold text-secondary-strong">{n.distance}</span>
                   </li>
                 ))}
               </ul>

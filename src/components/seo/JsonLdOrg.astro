@@ -13,8 +13,15 @@ import type { Lang } from '@/lib/i18n';
 
 interface Props {
   lang: Lang;
+  /**
+   * Whether to include the WebSite + SearchAction node. Only the homepage
+   * should (the search-box sitelink is a homepage feature). The Organization
+   * node is emitted on EVERY page so the `#organization` @id referenced by
+   * property/geo pages (broker/seller/publisher) always resolves.
+   */
+  includeWebsite?: boolean;
 }
-const { lang } = Astro.props;
+const { lang, includeWebsite = false } = Astro.props;
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com';
 const inLanguage = lang === 'fr' ? 'fr-SN' : lang === 'en' ? 'en-US' : 'wo-SN';
@@ -75,7 +82,7 @@ const graph = {
       ],
       sameAs: Object.values(SITE.socials).filter(Boolean),
     },
-    {
+    ...(includeWebsite ? [{
       '@type': 'WebSite',
       '@id': `${siteUrl}/#website`,
       url: siteUrl,
@@ -90,7 +97,7 @@ const graph = {
         },
         'query-input': 'required name=search_term_string',
       },
-    },
+    }] : []),
   ],
 };
 ---

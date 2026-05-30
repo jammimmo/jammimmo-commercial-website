@@ -33,6 +33,22 @@ const offerExtras =
       }
     : {};
 
+// Only emit an Offer when we have a real positive price. A price of 0 / null
+// ("prix sur demande") makes the Offer invalid in Google's Rich Results Test,
+// so for those we drop `offers` entirely — the RealEstateListing still
+// validates without it.
+const offers =
+  p.price > 0
+    ? {
+        '@type': 'Offer',
+        price: p.price,
+        priceCurrency: 'XOF',
+        availability: 'https://schema.org/InStock',
+        seller: { '@id': `${siteUrl}/#organization` },
+        ...offerExtras,
+      }
+    : undefined;
+
 const listing = {
   '@context': 'https://schema.org',
   '@type': 'RealEstateListing',
@@ -44,14 +60,7 @@ const listing = {
   datePosted: p.published_at ?? undefined,
   dateModified: p.updated_at ?? undefined,
   category: p.type,
-  offers: {
-    '@type': 'Offer',
-    price: p.price,
-    priceCurrency: 'XOF',
-    availability: 'https://schema.org/InStock',
-    seller: { '@id': `${siteUrl}/#organization` },
-    ...offerExtras,
-  },
+  offers,
   address: {
     '@type': 'PostalAddress',
     streetAddress: p.address ?? undefined,
