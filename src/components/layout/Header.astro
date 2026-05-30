@@ -70,7 +70,10 @@ const langItems = LANGS.map((code) => ({
 
     <div class="hidden md:flex items-center gap-7 text-[14.5px] font-medium">
       {navLinks.map((l) => (
-        <a href={l.href} class="relative py-1.5 hover:opacity-80">{t(l.key, lang)}</a>
+        <a
+          href={l.href}
+          class="relative py-1.5 after:absolute after:left-0 after:-bottom-0.5 after:h-px after:w-0 after:bg-current after:transition-[width] after:duration-300 hover:after:w-full"
+        >{t(l.key, lang)}</a>
       ))}
     </div>
 
@@ -78,8 +81,9 @@ const langItems = LANGS.map((code) => ({
       <LanguageSwitcher client:idle lang={lang} pathname={Astro.url.pathname} />
       <a
         href={p('/contact')}
-        class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm shadow-[0_6px_22px_-6px_hsl(var(--secondary)/.5)] hover:translate-y-[-1px] transition-transform"
+        class="group/cta relative overflow-hidden hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm shadow-[0_6px_22px_-6px_hsl(var(--secondary)/.5)] hover:translate-y-[-1px] transition-transform"
       >
+        <span class="pointer-events-none absolute inset-0 -translate-x-full group-hover/cta:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/25 to-transparent" aria-hidden="true"></span>
         {t('nav.cta', lang)}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" class="hidden sm:block">
           <path d="M5 12h14M13 5l7 7-7 7" />
@@ -115,11 +119,27 @@ const langItems = LANGS.map((code) => ({
     role="dialog"
     aria-modal="true"
     aria-label={t('nav.openMenu', lang)}
-    class="absolute top-0 right-0 bottom-0 w-[min(90vw,390px)] bg-card text-foreground shadow-2xl translate-x-full transition-transform duration-300 flex flex-col"
+    class="absolute top-0 right-0 bottom-0 w-[min(90vw,390px)] bg-card text-foreground shadow-2xl translate-x-full transition-transform duration-300 flex flex-col overflow-hidden"
     data-mobile-nav-panel
   >
+    {/* ── Fioriture: soft Sahel sun-glow + woven dot texture behind content ── */}
+    <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
+      <div
+        class="absolute -top-20 -right-16 w-60 h-60 rounded-full opacity-[0.16]"
+        style="background: radial-gradient(circle at 38% 38%, hsl(var(--secondary)), hsl(var(--ochre)) 45%, transparent 72%); filter: blur(6px);"
+      ></div>
+      <div
+        class="absolute -bottom-24 -left-20 w-64 h-64 rounded-full opacity-[0.10]"
+        style="background: radial-gradient(circle, hsl(var(--primary)), transparent 70%); filter: blur(10px);"
+      ></div>
+      <div
+        class="absolute inset-0 opacity-60"
+        style="background-image: var(--sahel-weave-bg); background-size: var(--sahel-weave-size); background-position: var(--sahel-weave-pos);"
+      ></div>
+    </div>
+
     {/* Brand header */}
-    <div class="flex items-center justify-between px-5 h-[78px] border-b border-clay shrink-0">
+    <div class="relative z-10 flex items-center justify-between px-5 h-[78px] shrink-0 after:absolute after:left-5 after:right-5 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-secondary/60 after:via-clay after:to-transparent">
       <a href={p('/')} class="flex items-center gap-2.5">
         <BrandMark size={34} />
         <span class="leading-none">
@@ -140,7 +160,7 @@ const langItems = LANGS.map((code) => ({
     </div>
 
     {/* Scrollable content */}
-    <div class="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-7">
+    <div class="relative z-10 flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-7">
       {/* Primary nav */}
       <nav aria-label="Navigation principale">
         <ul class="flex flex-col gap-0.5 text-[16.5px] font-medium">
@@ -157,7 +177,10 @@ const langItems = LANGS.map((code) => ({
 
       {/* Discover (secondary) */}
       <div>
-        <p class="px-1 mb-2.5 text-[11px] uppercase tracking-[0.14em] font-semibold text-secondary-strong">{t('footer.discover', lang)}</p>
+        <p class="flex items-center gap-2 px-1 mb-2.5 text-[11px] uppercase tracking-[0.14em] font-semibold text-secondary-strong">
+          <span class="w-5 h-px bg-gradient-to-r from-secondary-strong to-transparent" aria-hidden="true"></span>
+          {t('footer.discover', lang)}
+        </p>
         <div class="flex flex-wrap gap-2">
           {quickLinks.map((l) => (
             <a href={l.href} class="px-3.5 py-2 rounded-full text-[13px] font-medium bg-muted border border-clay hover:bg-accent hover:text-accent-foreground hover:border-primary transition">
@@ -169,7 +192,10 @@ const langItems = LANGS.map((code) => ({
 
       {/* Direct contact actions */}
       <div>
-        <p class="px-1 mb-2.5 text-[11px] uppercase tracking-[0.14em] font-semibold text-secondary-strong">{t('contact.tag', lang)}</p>
+        <p class="flex items-center gap-2 px-1 mb-2.5 text-[11px] uppercase tracking-[0.14em] font-semibold text-secondary-strong">
+          <span class="w-5 h-px bg-gradient-to-r from-secondary-strong to-transparent" aria-hidden="true"></span>
+          {t('contact.tag', lang)}
+        </p>
         <div class="grid grid-cols-3 gap-2">
           <a href={TEL_URI} class="flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-primary/5 border border-clay hover:border-primary text-primary transition">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
@@ -199,7 +225,7 @@ const langItems = LANGS.map((code) => ({
               class:list={[
                 'w-10 h-10 grid place-items-center rounded-full text-[12.5px] font-bold tracking-[0.04em] border transition',
                 l.code === lang
-                  ? 'bg-primary text-primary-foreground border-primary'
+                  ? 'bg-primary text-primary-foreground border-primary shadow-[0_0_0_4px_hsl(var(--primary)/.14)]'
                   : 'bg-muted border-clay hover:border-primary text-foreground',
               ]}
             >{l.label}</a>
@@ -226,11 +252,13 @@ const langItems = LANGS.map((code) => ({
     </div>
 
     {/* CTA footer */}
-    <div class="p-5 border-t border-clay shrink-0">
+    <div class="relative z-10 p-5 shrink-0 after:absolute after:left-5 after:right-5 after:top-0 after:h-px after:bg-gradient-to-r after:from-secondary/60 after:via-clay after:to-transparent">
       <a
         href={p('/contact')}
-        class="flex items-center justify-center gap-2 px-4 py-3.5 rounded-full bg-secondary text-secondary-foreground font-semibold text-[15px] shadow-md hover:translate-y-[-1px] transition"
+        class="group/cta relative flex items-center justify-center gap-2 px-4 py-3.5 rounded-full bg-secondary text-secondary-foreground font-semibold text-[15px] shadow-[0_10px_28px_-10px_hsl(var(--secondary)/.7)] hover:translate-y-[-1px] hover:shadow-[0_16px_34px_-10px_hsl(var(--secondary)/.8)] transition overflow-hidden"
       >
+        {/* subtle sheen sweep on hover */}
+        <span class="pointer-events-none absolute inset-0 -translate-x-full group-hover/cta:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/25 to-transparent" aria-hidden="true"></span>
         {t('nav.cta', lang)}
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
       </a>
