@@ -74,6 +74,8 @@ export default function ContactForm({ lang, propertyId, propertyTitle, compact =
           fromProperty: !!propertyId,
         },
       });
+      // Force-record this session's replay (every conversion is worth watching).
+      void import('@/lib/replay-recorder').then((m) => m.forceReplay()).catch(() => {});
     } catch (e: any) {
       setSubmitState('error');
       setErrorMsg(e?.message ?? 'Unknown error');
