@@ -31,17 +31,14 @@ const {
 //   PUBLIC_GSC_VERIFICATION    — Google Search Console (`google-site-verification` value, NOT the file approach)
 //   PUBLIC_BING_VERIFICATION   — Bing Webmaster (`msvalidate.01`)
 //   PUBLIC_CF_ANALYTICS_TOKEN  — Cloudflare Web Analytics beacon token (cookieless)
-//   PUBLIC_UMAMI_SRC           — Fully-qualified URL to the Umami `script.js`
-//                                e.g. https://analytics.jammimmo.com/script.js
-//   PUBLIC_UMAMI_WEBSITE_ID    — UUID of this site in your Umami install
-//   PUBLIC_CLARITY_PROJECT_ID  — Microsoft Clarity project ID (heatmaps + replay)
+//   PUBLIC_ANALYTICS_ENDPOINT  — Origin of the estate-flow Worker (custom OSS backend)
+//                                e.g. https://jammimmo-estate-flow.jammimmo221admin.workers.dev
+//   PUBLIC_CLARITY_PROJECT_ID  — Microsoft Clarity project ID (heatmaps + replay, parallel)
 const gscVerification = import.meta.env.PUBLIC_GSC_VERIFICATION ?? '';
 const bingVerification = import.meta.env.PUBLIC_BING_VERIFICATION ?? '';
 const cfAnalyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN ?? '';
-const umamiSrc = import.meta.env.PUBLIC_UMAMI_SRC ?? '';
-const umamiWebsiteId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID ?? '';
+const analyticsEndpoint = (import.meta.env.PUBLIC_ANALYTICS_ENDPOINT ?? '').replace(/\/$/, '');
 const clarityProjectId = import.meta.env.PUBLIC_CLARITY_PROJECT_ID ?? '';
-const umamiEnabled = !!(umamiSrc && umamiWebsiteId);
 const clarityEnabled = !!clarityProjectId;
 
 // Only emit the global Organization+WebSite JSON-LD on root-shaped pages.
@@ -103,26 +100,12 @@ const isHome = ['/', '/en', '/en/', '/wo', '/wo/'].includes(Astro.url.pathname);
       ></script>
     )}
 
-    {/* Umami — self-hosted, cookieless, MIT. The script is served from
-        whatever origin PUBLIC_UMAMI_SRC points at (typically
-        analytics.jammimmo.com). `data-website-id` ties events to your site.
-        Custom events fire via window.umami.track(name, props) — see
-        src/lib/analytics.ts. */}
-    {umamiEnabled && (
-      <script
-        is:inline
-        defer
-        src={umamiSrc}
-        data-website-id={umamiWebsiteId}
-        data-do-not-track="true"
-      ></script>
-    )}
-
     {/* Microsoft Clarity — heatmaps + session replay. Uses one first-party
         cookie (_clck/_clsk) for session continuity; disclosed on /cookies.
         Custom events fire via window.clarity('event', name). Inline `(c,l,a,r,i,t,y)`
         is Clarity's official snippet — adapted here as a templated string so
-        the project ID is build-time-bound. */}
+        the project ID is build-time-bound. Runs in PARALLEL with our custom
+        backend below — the goal is side-by-side accuracy comparison. */}
     {clarityEnabled && (
       <script is:inline set:html={`
         (function(c,l,a,r,i,t,y){
@@ -131,6 +114,48 @@ const isHome = ['/', '/en', '/en/', '/wo', '/wo/'].includes(Astro.url.pathname);
           y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window, document, "clarity", "script", "${clarityProjectId}");
       `}></script>
+    )}
+
+    {/* Custom OSS analytics — posts events to the estate-flow worker so
+        leads, conversions, and custom events live in our own Supabase
+        (queryable in estate-flow /analytics). Auto-fires a pageview on first
+        idle frame; user-action events fire via track() in src/lib/analytics.ts.
+        Skipped silently when PUBLIC_ANALYTICS_ENDPOINT is unset. */}
+    {analyticsEndpoint && (
+      <script is:inline define:vars={{ endpoint: analyticsEndpoint }}>{`
+        (function () {
+          var fire = function () {
+            try {
+              var sidKey = 'jamm.analytics.sid';
+              var sid = sessionStorage.getItem(sidKey);
+              if (!sid) {
+                sid = (crypto && crypto.randomUUID) ? crypto.randomUUID() : 's_' + Math.random().toString(36).slice(2);
+                sessionStorage.setItem(sidKey, sid);
+              }
+              var p = new URLSearchParams(location.search);
+              var body = {
+                type: 'pageview',
+                session_id: sid,
+                page_path: location.pathname,
+                page_title: document.title,
+                referrer: document.referrer || undefined,
+                language: navigator.language,
+                utm_source: p.get('utm_source') || undefined,
+                utm_medium: p.get('utm_medium') || undefined,
+                utm_campaign: p.get('utm_campaign') || undefined,
+              };
+              var json = JSON.stringify(body);
+              var url = endpoint.replace(/\\/$/, '') + '/api/analytics/track';
+              if (navigator.sendBeacon) {
+                if (navigator.sendBeacon(url, new Blob([json], { type: 'application/json' }))) return;
+              }
+              fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: json, keepalive: true, mode: 'cors', credentials: 'omit' }).catch(function () {});
+            } catch (_) { /* swallow */ }
+          };
+          if ('requestIdleCallback' in window) requestIdleCallback(fire);
+          else setTimeout(fire, 0);
+        })();
+      `}</script>
     )}
 
     <script>
