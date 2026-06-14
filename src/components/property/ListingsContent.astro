@@ -25,6 +25,17 @@ const hrefByRef = Object.fromEntries(
         {t('page.listings.title', lang)}
       </h1>
       <p class="mt-3 text-muted-foreground">{t('page.listings.subtitle', lang)}</p>
+      {/* Contextual, non-intrusive entry to the buyer budget tool: the visitor
+          is already browsing listings, so « not sure of your budget? » is on-
+          point. Discreet inline link, not a banner. */}
+      <a
+        href={localizedPath('/budget', lang)}
+        data-track="budget.fromListings"
+        class="mt-4 inline-flex items-center gap-1.5 text-[14px] font-semibold text-primary hover:text-secondary-strong transition"
+      >
+        {t('budget.listings.cta', lang)}
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+      </a>
     </div>
   </div>
 </section>

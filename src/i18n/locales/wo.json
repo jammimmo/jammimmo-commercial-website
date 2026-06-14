@@ -11,6 +11,7 @@
   "nav.owners": "Boroom kër yi",
   "nav.partners": "Partenaire yi",
   "nav.estimate": "Saytu bu gaaw",
+  "nav.budget": "Sama budget",
   "nav.contact": "Jokkoo",
   "nav.cta": "Saytu sa kër",
   "nav.openMenu": "Ubbi menu bi",
@@ -305,5 +306,88 @@
 
   "estimate.recap.header": "Saytu bu gaaw — détails yu kër bi:",
   "estimate.wa.intro": "Salaam Jamm Immobilier, bëgg naa saytu ngir sama kër.",
-  "estimate.lead.anonName": "Saytu bu gaaw"
+  "estimate.lead.anonName": "Saytu bu gaaw",
+
+  "_NOTE.budget": "Traduit + relu par agent expert wolof (2026-06-14). Miroir de l'outil budget acheteurs/locataires. Validation par un locuteur natif recommandée, surtout pour les chaînes à faible confiance.",
+
+  "budget.meta.title": "Sama budget — gis lan nga mën a jënd walla luwe",
+  "budget.meta.description": "Waxal sa budget ak sa gox: dinañu la won kër yu dëggu yu dugg ci, te kilifa Jamm dina la defaral ay kër yu la jëm te yónnee la xibaar ci WhatsApp. Amul njariñ, amul ngànnaay.",
+  "budget.page.eyebrow": "Jaaykat yeek luwekat yi",
+  "budget.page.title": "Lan laa mën ak sama budget?",
+  "budget.page.subtitle": "Waxal nu sa budget ak sa gox, ci dara te du soxla nga bind sa tur. Dinañu la won kër yu dëggu yu dugg ci, su mujje kilifa dina la defaral ay kër yu la jëm.",
+
+  "budget.eyebrow": "Sama budget",
+  "budget.title": "Sa mébét, ak ay kalip rekk",
+  "budget.subtitle": "Amul njariñ, amul ngànnaay. Du soxla benn coordonnées laata nga gis résultat bi.",
+  "budget.step": "Tànk",
+  "budget.next": "Toppal",
+  "budget.back": "Dellu",
+  "budget.seeResult": "Gis résultat bi",
+
+  "budget.q.transaction": "Bëgg ngaa jënd walla luwe?",
+  "budget.q.budget.acheter": "Ñaata la sa budget bépp?",
+  "budget.q.budget.louer": "Ñaata loyer ci weer la nga mën a fay?",
+  "budget.q.zone": "Ci ban gox?",
+  "budget.q.type": "Am nga xeeti kër bu la neex?",
+
+  "budget.transaction.acheter": "Jënd",
+  "budget.transaction.louer": "Luwe",
+  "budget.transaction.noun.acheter": "Njënd",
+  "budget.transaction.noun.louer": "Luwe",
+  "budget.transaction.inline.acheter": "njënd",
+  "budget.transaction.inline.louer": "luwe",
+
+  "budget.amount.perMonth": "/ weer",
+
+  "budget.type.any": "Lépp a baax",
+  "budget.type.appartement": "Appartement",
+  "budget.type.villa": "Villa",
+  "budget.type.maison": "Kër",
+  "budget.type.terrain": "Tool",
+  "budget.type.bureau": "Biro",
+  "budget.type.commerce": "Butik",
+
+  "budget.placeholder.zone": "Ci misaal Almadies, Saly, Mermoz, Thiès…",
+  "budget.hint.budget.acheter": "Budget bi nga mën a teg ci njënd bi. Du nu def benn kàttanu xaalis (crédit): noo ngi tàmbalee ci li nga wax.",
+  "budget.hint.budget.louer": "Loyer bu gën a réy bi nga mën a fay weer wu nekk.",
+  "budget.hint.zone": "Tàmbalil bind: komin ak gox yu Senegaal gépp dañu lay won. Mën nga it bind ci sa bopp.",
+  "budget.hint.type": "Su soobee. Bàyyil ci «Lépp a baax» ngir gis xeeti kër yépp.",
+
+  "budget.label.transaction": "Mébét",
+  "budget.label.budget": "Budget",
+  "budget.label.zone": "Gox",
+  "budget.label.type": "Xeeti kër",
+
+  "budget.result.eyebrow": "Sa lëkkaloo",
+  "budget.result.recapPrefix": "Ak",
+  "budget.result.recapIn": "ci",
+  "budget.result.recapAt": "ci",
+  "budget.result.recapSuffix": ", lii la nga mën a jëm.",
+  "budget.result.pointsTitle": "Lu war a nekk ci sa xel",
+  "budget.result.point.1": "Sa budget benn fourchette liggéey la: aju ci gox bi ak anam kër bi, dinañu ko yokk walla wàññi ngir mu dëggu.",
+  "budget.result.point.2": "Kër yu gaaw a jeex du ñu leen yóbbu ci internet ñépp: kilifa dina la xamal opportunités yi su ñu ñëwee, laata ñu jeex.",
+  "budget.result.point.3": "Amul kàttanu xaalis (crédit) bu automatique: ci Senegaal financement bi ci bés bu nekk lañu koy waxtaane. Dinañu la jox yoon bu dëggu ci li la jot.",
+  "budget.result.seeListings": "Gis kër yi ci sama budget",
+  "budget.result.offerTitle": "Ay kër yu la jëm + ay xibaar ci WhatsApp",
+  "budget.result.offerBody": "Bàyyil sa WhatsApp: kilifa Jamm dina la defaral ay kër yu la jëm ci sa budget te dina la xamal ci njëkk bés bu am kër bu la neex. Amul njariñ te amul ngànnaay.",
+  "budget.result.cta": "Jot sama kër yi ci WhatsApp",
+  "budget.result.edit": "Soppi",
+
+  "budget.capture.title": "Benn tànk rekk a des",
+  "budget.capture.body": "Bàyyil sa WhatsApp: kilifa dina la yónnee ay kër yu la jëm ci sa budget ak ay xibaar bés bu am kër bu la neex. Du la laaj dara dëgg.",
+  "budget.capture.firstName": "Tur (su soobee)",
+  "budget.capture.whatsapp": "Sa numéro WhatsApp",
+  "budget.capture.submit": "Jot sama kër yi",
+  "budget.capture.or": "walla",
+  "budget.capture.wa": "Yónnee sama mébét ci WhatsApp",
+  "budget.capture.back": "Dellu ci résultat bi",
+
+  "budget.done.title": "Bind nañ ko, jërëjëf!",
+  "budget.done.body": "Kilifa Jamm Immobilier mungiy defar ay kër yu la jëm te dina la jokkoo ci WhatsApp. Dinañu la xamal ci njëkk bés bu am kër bu jëm sa budget.",
+  "budget.done.wa": "Waxtaan léegi ci WhatsApp",
+
+  "budget.recap.header": "Sama budget — détails yu mébét mi:",
+  "budget.wa.intro": "Salaam Jamm Immobilier, lii la sama budget ak sama wut.",
+  "budget.lead.anonName": "Wut budget",
+  "budget.listings.cta": "Xamuloo sa budget? Gis lan nga mën a jëm"
 }
