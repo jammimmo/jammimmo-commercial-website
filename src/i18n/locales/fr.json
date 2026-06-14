@@ -9,6 +9,7 @@
   "nav.process": "Accompagnement",
   "nav.owners": "Propriétaires",
   "nav.partners": "Partenaires",
+  "nav.estimate": "Estimation express",
   "nav.contact": "Contact",
   "nav.cta": "Estimer un bien",
   "nav.openMenu": "Ouvrir le menu",
@@ -195,6 +196,7 @@
   "owner.subtitle": "Vous possédez un appartement, une villa, un terrain ou un local à Dakar, Saly ou ailleurs au Sénégal ? Confiez-le à une agence qui sécurise chaque étape, met votre bien en valeur et ne vous présente que des acquéreurs et locataires déjà qualifiés.",
   "owner.cta.primary": "Demander une estimation gratuite",
   "owner.cta.call": "Nous appeler",
+  "owner.cta.estimate": "Estimer mon bien en 1 min",
 
   "owner.benefits.tag": "Ce que vous y gagnez",
   "owner.benefits.title": "Tout pour valoriser votre bien.",
@@ -360,5 +362,80 @@
   "faq.q5": "Comment se déroule une mise en location ou une vente ?",
   "faq.a5": "Premier échange gratuit pour cerner votre besoin, puis estimation et mise en valeur du bien, diffusion ciblée, organisation des visites, négociation, et accompagnement jusqu'à la signature et la remise des clés.",
   "faq.q6": "Quels sont vos frais d'agence ?",
-  "faq.a6": "Nos honoraires sont conformes aux usages du marché sénégalais et vous sont communiqués en toute transparence avant tout engagement, sans frais cachés. Contactez-nous pour une estimation adaptée à votre projet."
+  "faq.a6": "Nos honoraires sont conformes aux usages du marché sénégalais et vous sont communiqués en toute transparence avant tout engagement, sans frais cachés. Contactez-nous pour une estimation adaptée à votre projet.",
+
+  "estimate.meta.title": "Estimation express — estimez votre bien en 1 minute",
+  "estimate.meta.description": "Décrivez votre bien en 1 minute et recevez gratuitement une estimation chiffrée par un expert Jamm Immobilier sous 24h. Sans engagement.",
+  "estimate.page.eyebrow": "Propriétaires vendeurs & bailleurs",
+  "estimate.page.title": "Estimez votre bien en 1 minute",
+  "estimate.page.subtitle": "Composez votre bien étape par étape, gratuitement et sans inscription. À la fin, un expert Jamm vous remet une estimation chiffrée sous 24h.",
+
+  "estimate.eyebrow": "Estimation express",
+  "estimate.title": "Votre bien, en quelques clics",
+  "estimate.subtitle": "Gratuit, sans engagement. Aucune coordonnée demandée avant le résultat.",
+  "estimate.step": "Étape",
+  "estimate.next": "Continuer",
+  "estimate.back": "Retour",
+  "estimate.seeResult": "Voir mon estimation",
+
+  "estimate.q.type": "Quel type de bien ?",
+  "estimate.q.transaction": "Vous souhaitez vendre ou louer ?",
+  "estimate.q.quartier": "Dans quel quartier ?",
+  "estimate.q.surface": "Quelle surface, en m² ?",
+  "estimate.q.rooms": "Combien de chambres ?",
+  "estimate.q.condition": "Quel état / standing ?",
+
+  "estimate.type.appartement": "Appartement",
+  "estimate.type.maison": "Maison",
+  "estimate.type.villa": "Villa",
+  "estimate.type.terrain": "Terrain",
+  "estimate.type.bureau": "Bureau",
+  "estimate.type.commerce": "Commerce",
+  "estimate.type.immeuble": "Immeuble",
+
+  "estimate.transaction.vente": "Vendre",
+  "estimate.transaction.location": "Louer",
+
+  "estimate.condition.neuf": "Neuf / récent",
+  "estimate.condition.bon": "Bon état",
+  "estimate.condition.renover": "À rénover",
+
+  "estimate.placeholder.quartier": "Ex. Almadies, Mermoz, Sacré-Cœur…",
+  "estimate.hint.quartier": "Commencez à taper : les quartiers de Dakar vous sont proposés.",
+
+  "estimate.label.type": "Type de bien",
+  "estimate.label.transaction": "Projet",
+  "estimate.label.quartier": "Quartier",
+  "estimate.label.surface": "Surface",
+  "estimate.label.rooms": "Chambres",
+  "estimate.label.condition": "État",
+
+  "estimate.result.eyebrow": "Votre récapitulatif",
+  "estimate.result.recapPrefix": "Votre",
+  "estimate.result.recapAt": "à",
+  "estimate.result.factorsTitle": "3 facteurs qui valorisent votre bien",
+  "estimate.result.factor.1": "L'emplacement et la demande locative du quartier — un secteur recherché tire la valeur vers le haut.",
+  "estimate.result.factor.2": "La surface et l'agencement — une distribution optimisée et des volumes clairs séduisent acheteurs et locataires.",
+  "estimate.result.factor.3": "L'état et le standing — un bien prêt à vivre ou rénové avec goût se valorise mieux et se concrétise plus vite.",
+  "estimate.result.offerTitle": "Estimation chiffrée gratuite sous 24h",
+  "estimate.result.offerBody": "Pas de prix automatique approximatif : un expert Jamm Immobilier analyse votre bien et vous envoie une estimation précise et personnalisée sous 24h. C'est gratuit et sans engagement.",
+  "estimate.result.cta": "Recevoir mon estimation chiffrée",
+  "estimate.result.edit": "Modifier",
+
+  "estimate.capture.title": "Plus qu'une étape",
+  "estimate.capture.body": "Laissez votre WhatsApp : un expert vous envoie votre estimation chiffrée sous 24h. Rien d'autre ne vous sera demandé.",
+  "estimate.capture.firstName": "Prénom (facultatif)",
+  "estimate.capture.whatsapp": "Votre numéro WhatsApp",
+  "estimate.capture.submit": "Recevoir mon estimation",
+  "estimate.capture.or": "ou",
+  "estimate.capture.wa": "Envoyer mon bien sur WhatsApp",
+  "estimate.capture.back": "Revenir au résultat",
+
+  "estimate.done.title": "C'est noté, merci !",
+  "estimate.done.body": "Un expert Jamm Immobilier prépare votre estimation chiffrée et vous contacte sur WhatsApp sous 24h.",
+  "estimate.done.wa": "Discuter dès maintenant sur WhatsApp",
+
+  "estimate.recap.header": "Estimation express — détails du bien :",
+  "estimate.wa.intro": "Bonjour Jamm Immobilier, je souhaite une estimation pour mon bien.",
+  "estimate.lead.anonName": "Estimation express"
 }
