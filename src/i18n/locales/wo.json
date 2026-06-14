@@ -10,6 +10,7 @@
   "nav.process": "Tànk yi",
   "nav.owners": "Boroom kër yi",
   "nav.partners": "Partenaire yi",
+  "nav.estimate": "Saytu bu gaaw",
   "nav.contact": "Jokkoo",
   "nav.cta": "Saytu sa kër",
   "nav.openMenu": "Ubbi menu bi",
@@ -83,6 +84,7 @@
   "owner.subtitle": "Ndax am ngeen appartement, villa, suuf walla biir liggéey ci Dakar, Saly walla feneen ci Senegaal ? Batale-leen ko ci ag agence gu wóoral tànk wu nekk, def sa kër mu rafet, te du leen won lu dul jëndkat ak luwekat yu wér ba noppi.",
   "owner.cta.primary": "Laaj estimation bu amul fey",
   "owner.cta.call": "Woo nu",
+  "owner.cta.estimate": "Saytul sama kër ci 1 min",
 
   "owner.benefits.tag": "Li ngeen ciy jot",
   "owner.benefits.title": "Lépp ngir def sa kër mu am njariñ.",
@@ -216,5 +218,82 @@
   "error.notFoundDescription": "URL bi nga jëfandikoo dunu am walla mungi jeex. Ñaaw ko, walla dellu ci accueil bi ngir gis kër yi.",
   "error.backHome": "Dellu accueil",
   "error.browseListings": "Gis kër yi",
-  "error.contactUs": "Jokkoo ak ñun"
+  "error.contactUs": "Jokkoo ak ñun",
+
+  "_NOTE.estimate": "Traduit + relu par agent expert wolof (2026-06-14). Validation par un locuteur natif recommandée, surtout pour les chaînes à faible confiance.",
+
+  "estimate.meta.title": "Saytu bu gaaw — saytul sa kër ci benn minit",
+  "estimate.meta.description": "Waxal sa kër ci benn minit, te am, ci njëkk, saytu bu wér bu kenn ku xam Jamm Immobilier defar ci 24h. Amul njariñ.",
+  "estimate.page.eyebrow": "Boroom kër yi di jaay walla di luwe",
+  "estimate.page.title": "Saytul sa kër ci benn minit",
+  "estimate.page.subtitle": "Defaral sa kër tànk ci tànk, ci dara te du soxla nga bind sa tur. Su mujje, kenn ku xam Jamm dina la yónnee saytu bu wér ci 24h.",
+
+  "estimate.eyebrow": "Saytu bu gaaw",
+  "estimate.title": "Sa kër, ak ay kalip rekk",
+  "estimate.subtitle": "Amul njariñ, amul ngànnaay. Du soxla benn coordonnées laata nga gis résultat bi.",
+  "estimate.step": "Tànk",
+  "estimate.next": "Toppal",
+  "estimate.back": "Dellu",
+  "estimate.seeResult": "Gis sama saytu",
+
+  "estimate.q.type": "Ban xeeti kër?",
+  "estimate.q.transaction": "Bëgg ngaa jaay walla luwe?",
+  "estimate.q.quartier": "Ci ban gox?",
+  "estimate.q.surface": "Ñaata m² la?",
+  "estimate.q.rooms": "Ñaata néeg la?",
+  "estimate.q.condition": "Ci ban anam / standing?",
+
+  "estimate.type.appartement": "Appartement",
+  "estimate.type.maison": "Kër",
+  "estimate.type.villa": "Villa",
+  "estimate.type.terrain": "Tool",
+  "estimate.type.bureau": "Biro",
+  "estimate.type.commerce": "Butik",
+  "estimate.type.immeuble": "Immeuble",
+
+  "estimate.transaction.vente": "Jaay",
+  "estimate.transaction.location": "Luwe",
+
+  "estimate.condition.neuf": "Bu bees / bu yees",
+  "estimate.condition.bon": "Anam bu baax",
+  "estimate.condition.renover": "War nañ koo defaraat",
+
+  "estimate.placeholder.quartier": "Ci misaal Almadies, Mermoz, Sacré-Cœur…",
+  "estimate.hint.quartier": "Tàmbalil bind: gox yu Dakar dañu lay won.",
+
+  "estimate.label.type": "Xeeti kër",
+  "estimate.label.transaction": "Mébét",
+  "estimate.label.quartier": "Gox",
+  "estimate.label.surface": "Surface",
+  "estimate.label.rooms": "Néeg yi",
+  "estimate.label.condition": "Anam",
+
+  "estimate.result.eyebrow": "Sa lëkkaloo",
+  "estimate.result.recapPrefix": "Sa",
+  "estimate.result.recapAt": "ci",
+  "estimate.result.factorsTitle": "3 mbir yu di yokk njëg sa kër",
+  "estimate.result.factor.1": "Bérab bi ak soxla luwe ci gox bi — gox bu ñu bëgg dafay yokk njëg gi.",
+  "estimate.result.factor.2": "Surface bi ak séddaleek bi — séddale bu baax ak néeg yu leer dañuy neex jaaykat yeek luwekat yi.",
+  "estimate.result.factor.3": "Anam bi ak standing — kër gu paré walla gu ñu defaraat bu baax dafay am njëg bu gën te gaaw a jeex.",
+  "estimate.result.offerTitle": "Saytu bu wér ci dara ci 24h",
+  "estimate.result.offerBody": "Amul njëg automatique bu wéradiku: kenn ku xam Jamm Immobilier dina seet sa kër te yónnee la saytu bu wér te ñeel la ci 24h. Amul njariñ te amul ngànnaay.",
+  "estimate.result.cta": "Jot sama saytu bu wér",
+  "estimate.result.edit": "Soppi",
+
+  "estimate.capture.title": "Benn tànk rekk a des",
+  "estimate.capture.body": "Bàyyil sa WhatsApp: kenn ku xam dina la yónnee sa saytu bu wér ci 24h. Du la laaj dara dëgg.",
+  "estimate.capture.firstName": "Tur (su soobee)",
+  "estimate.capture.whatsapp": "Sa numéro WhatsApp",
+  "estimate.capture.submit": "Jot sama saytu",
+  "estimate.capture.or": "walla",
+  "estimate.capture.wa": "Yónnee sama kër ci WhatsApp",
+  "estimate.capture.back": "Dellu ci résultat bi",
+
+  "estimate.done.title": "Bind nañ ko, jërëjëf!",
+  "estimate.done.body": "Kenn ku xam Jamm Immobilier mungiy defar sa saytu bu wér te dina la jokkoo ci WhatsApp ci 24h.",
+  "estimate.done.wa": "Waxtaan léegi ci WhatsApp",
+
+  "estimate.recap.header": "Saytu bu gaaw — détails yu kër bi:",
+  "estimate.wa.intro": "Salaam Jamm Immobilier, bëgg naa saytu ngir sama kër.",
+  "estimate.lead.anonName": "Saytu bu gaaw"
 }

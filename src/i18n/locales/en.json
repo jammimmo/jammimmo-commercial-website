@@ -9,6 +9,7 @@
   "nav.process": "Process",
   "nav.owners": "Owners",
   "nav.partners": "Partners",
+  "nav.estimate": "Quick estimate",
   "nav.contact": "Contact",
   "nav.cta": "Get an estimate",
   "nav.openMenu": "Open menu",
@@ -195,6 +196,7 @@
   "owner.subtitle": "Own an apartment, a villa, land or commercial premises in Dakar, Saly or elsewhere in Senegal? Entrust it to an agency that secures every step, showcases your property and only brings you buyers and tenants who are already qualified.",
   "owner.cta.primary": "Request a free estimate",
   "owner.cta.call": "Call us",
+  "owner.cta.estimate": "Value my property in 1 min",
 
   "owner.benefits.tag": "What you get",
   "owner.benefits.title": "Everything to showcase your property.",
@@ -360,5 +362,80 @@
   "faq.q5": "How does a rental or sale process work?",
   "faq.a5": "A free first conversation to scope your need, then valuation and staging, targeted marketing, organised viewings, negotiation, and support through to signing and handover of the keys.",
   "faq.q6": "What are your agency fees?",
-  "faq.a6": "Our fees follow standard Senegalese market practice and are disclosed transparently before any commitment, with no hidden costs. Contact us for an estimate tailored to your project."
+  "faq.a6": "Our fees follow standard Senegalese market practice and are disclosed transparently before any commitment, with no hidden costs. Contact us for an estimate tailored to your project.",
+
+  "estimate.meta.title": "Quick estimate — value your property in 1 minute",
+  "estimate.meta.description": "Describe your property in 1 minute and get a free, expert-prepared valuation from Jamm Immobilier within 24h. No commitment.",
+  "estimate.page.eyebrow": "Selling & letting owners",
+  "estimate.page.title": "Value your property in 1 minute",
+  "estimate.page.subtitle": "Build your property step by step, free and without signing up. At the end, a Jamm expert sends you a priced valuation within 24h.",
+
+  "estimate.eyebrow": "Quick estimate",
+  "estimate.title": "Your property, in a few clicks",
+  "estimate.subtitle": "Free, no commitment. No contact details required before you see the result.",
+  "estimate.step": "Step",
+  "estimate.next": "Continue",
+  "estimate.back": "Back",
+  "estimate.seeResult": "See my estimate",
+
+  "estimate.q.type": "What type of property?",
+  "estimate.q.transaction": "Do you want to sell or let?",
+  "estimate.q.quartier": "Which neighbourhood?",
+  "estimate.q.surface": "What surface area, in m²?",
+  "estimate.q.rooms": "How many bedrooms?",
+  "estimate.q.condition": "What condition / standing?",
+
+  "estimate.type.appartement": "Apartment",
+  "estimate.type.maison": "House",
+  "estimate.type.villa": "Villa",
+  "estimate.type.terrain": "Land",
+  "estimate.type.bureau": "Office",
+  "estimate.type.commerce": "Shop",
+  "estimate.type.immeuble": "Building",
+
+  "estimate.transaction.vente": "Sell",
+  "estimate.transaction.location": "Let",
+
+  "estimate.condition.neuf": "New / recent",
+  "estimate.condition.bon": "Good condition",
+  "estimate.condition.renover": "Needs renovation",
+
+  "estimate.placeholder.quartier": "e.g. Almadies, Mermoz, Sacré-Cœur…",
+  "estimate.hint.quartier": "Start typing: Dakar neighbourhoods are suggested.",
+
+  "estimate.label.type": "Property type",
+  "estimate.label.transaction": "Project",
+  "estimate.label.quartier": "Neighbourhood",
+  "estimate.label.surface": "Surface",
+  "estimate.label.rooms": "Bedrooms",
+  "estimate.label.condition": "Condition",
+
+  "estimate.result.eyebrow": "Your summary",
+  "estimate.result.recapPrefix": "Your",
+  "estimate.result.recapAt": "in",
+  "estimate.result.factorsTitle": "3 factors that add value to your property",
+  "estimate.result.factor.1": "Location and the neighbourhood's rental demand — a sought-after area pulls value up.",
+  "estimate.result.factor.2": "Surface area and layout — an optimised floor plan and clear volumes appeal to buyers and tenants.",
+  "estimate.result.factor.3": "Condition and standing — a move-in-ready or tastefully renovated property is worth more and sells faster.",
+  "estimate.result.offerTitle": "Free priced valuation within 24h",
+  "estimate.result.offerBody": "No rough automatic number: a Jamm Immobilier expert reviews your property and sends you a precise, personalised valuation within 24h. It's free and with no commitment.",
+  "estimate.result.cta": "Get my priced valuation",
+  "estimate.result.edit": "Edit",
+
+  "estimate.capture.title": "Just one more step",
+  "estimate.capture.body": "Leave your WhatsApp number: an expert sends you your priced valuation within 24h. Nothing else will be asked.",
+  "estimate.capture.firstName": "First name (optional)",
+  "estimate.capture.whatsapp": "Your WhatsApp number",
+  "estimate.capture.submit": "Get my estimate",
+  "estimate.capture.or": "or",
+  "estimate.capture.wa": "Send my property on WhatsApp",
+  "estimate.capture.back": "Back to the result",
+
+  "estimate.done.title": "Got it, thank you!",
+  "estimate.done.body": "A Jamm Immobilier expert is preparing your priced valuation and will contact you on WhatsApp within 24h.",
+  "estimate.done.wa": "Chat now on WhatsApp",
+
+  "estimate.recap.header": "Quick estimate — property details:",
+  "estimate.wa.intro": "Hello Jamm Immobilier, I'd like an estimate for my property.",
+  "estimate.lead.anonName": "Quick estimate"
 }
