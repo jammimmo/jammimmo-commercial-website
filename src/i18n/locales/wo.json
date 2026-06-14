@@ -60,7 +60,14 @@
   "form.email": "Email",
   "form.subject": "Sa projet",
   "form.message": "Bataaxal",
+  "form.messagePlaceholder": "Waxal sa projet ci ay baat yu néew...",
   "form.submit": "Yónnee",
+  "form.success": "Jërëjëf — dinanu la woo ci 24h.",
+  "form.error": "Am na njuumte ci yónnee bi. Jéematal walla woo nu.",
+  "form.validation.fullName": "Tur wu mat laa soxla (2 ba 200 araf).",
+  "form.validation.phone": "Numéro Senegaal laa soxla (+221 …).",
+  "form.validation.email": "Email bu baaxul.",
+  "form.validation.message": "Bataaxal bi dafa gudd lool (2000 araf rekk).",
 
   "footer.copy": "© 2026 Jamm Immobilier — Yépp ñu mu am.",
 
@@ -240,6 +247,7 @@
   "estimate.q.transaction": "Bëgg ngaa jaay walla luwe?",
   "estimate.q.quartier": "Ci ban gox?",
   "estimate.q.surface": "Ñaata m² la?",
+  "estimate.q.surface.terrain": "Ñaata m² la tool bi?",
   "estimate.q.rooms": "Ñaata néeg la?",
   "estimate.q.condition": "Ci ban anam / standing?",
 
@@ -253,13 +261,15 @@
 
   "estimate.transaction.vente": "Jaay",
   "estimate.transaction.location": "Luwe",
+  "estimate.transaction.noun.vente": "Njaay",
+  "estimate.transaction.noun.location": "Luwe",
 
   "estimate.condition.neuf": "Bu bees / bu yees",
   "estimate.condition.bon": "Anam bu baax",
   "estimate.condition.renover": "War nañ koo defaraat",
 
   "estimate.placeholder.quartier": "Ci misaal Almadies, Mermoz, Sacré-Cœur…",
-  "estimate.hint.quartier": "Tàmbalil bind: gox yu Dakar dañu lay won.",
+  "estimate.hint.quartier": "Tàmbalil bind: komin ak gox yu Senegaal gépp dañu lay won. Mën nga it bind ci sa bopp.",
 
   "estimate.label.type": "Xeeti kër",
   "estimate.label.transaction": "Mébét",

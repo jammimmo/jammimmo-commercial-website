@@ -44,21 +44,26 @@ import {
 import { t, type Lang } from '@/lib/i18n';
 import { track } from '@/lib/analytics';
 import { SITE } from '@/lib/site-config';
-import { QUARTIERS } from '@/lib/quartiers';
+import { filterPlaces, placeContext } from '@/lib/places';
 
 interface Props {
   lang: Lang;
 }
 
-/** Property types — i18n via estate.type.<key>. `rooms` gates the bedrooms step. */
+/**
+ * Property types — i18n via estate.type.<key>.
+ *   • `rooms`     gates the bedrooms step (residential only).
+ *   • `condition` gates the condition/standing step — bare LAND has no
+ *     "new / good / to renovate", so it's skipped there.
+ */
 const PROPERTY_TYPES = [
-  { key: 'appartement', rooms: true },
-  { key: 'maison', rooms: true },
-  { key: 'villa', rooms: true },
-  { key: 'terrain', rooms: false },
-  { key: 'bureau', rooms: false },
-  { key: 'commerce', rooms: false },
-  { key: 'immeuble', rooms: false },
+  { key: 'appartement', rooms: true, condition: true },
+  { key: 'maison', rooms: true, condition: true },
+  { key: 'villa', rooms: true, condition: true },
+  { key: 'terrain', rooms: false, condition: false },
+  { key: 'bureau', rooms: false, condition: true },
+  { key: 'commerce', rooms: false, condition: true },
+  { key: 'immeuble', rooms: false, condition: true },
 ] as const;
 type PropertyTypeKey = (typeof PROPERTY_TYPES)[number]['key'];
 
@@ -68,10 +73,19 @@ type Transaction = (typeof TRANSACTIONS)[number];
 const CONDITIONS = ['neuf', 'bon', 'renover'] as const;
 type Condition = (typeof CONDITIONS)[number];
 
-/** Phone regexes — IDENTICAL to ContactForm.tsx / the /api/leads server schema. */
+/**
+ * Phone validation — accepts the Senegalese pattern (shared with ContactForm /
+ * the /api/leads server schema) OR a loose international format, but in BOTH
+ * branches we additionally require ≥7 ACTUAL digits so junk like "-------" or
+ * "((((((((" (which the loose regex alone would accept) is rejected.
+ */
 const phoneSn = /^(\+?221|00221)?\s*7[05678]\s*\d{3}\s*\d{2}\s*\d{2}\s*\d{0,2}$/;
 const phoneLoose = /^\+?[\d\s().-]{7,20}$/;
-const isValidPhone = (v: string) => phoneSn.test(v) || phoneLoose.test(v);
+const isValidPhone = (v: string) => {
+  const digits = v.replace(/\D/g, '');
+  if (digits.length < 7) return false;
+  return phoneSn.test(v) || phoneLoose.test(v);
+};
 
 type StepId = 'type' | 'transaction' | 'quartier' | 'surface' | 'rooms' | 'condition';
 
@@ -93,18 +107,6 @@ const INITIAL: FormState = {
   condition: '',
 };
 
-/** Quartier autocomplete source — display names from the curated catalogue. */
-const QUARTIER_OPTIONS = QUARTIERS.map((q) => ({ name: q.name, city: q.city }));
-
-/** Accent/case-insensitive normalization for the autocomplete filter. */
-function norm(s: string): string {
-  return s
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .trim();
-}
-
 export default function EstimateTool({ lang }: Props) {
   // `phase` drives the whole experience: the property wizard, then the honest
   // result, then the (single-field) contact capture, then the success panel.
@@ -119,18 +121,26 @@ export default function EstimateTool({ lang }: Props) {
   const [submitState, setSubmitState] = useState<'idle' | 'sending' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Steps depend on the chosen type (bedrooms only when relevant).
+  // Steps depend on the chosen type: bedrooms only for residential, and the
+  // condition/standing step only for built property (skipped for bare land).
   const typeMeta = PROPERTY_TYPES.find((p) => p.key === form.type);
   const steps = useMemo<StepId[]>(() => {
     const base: StepId[] = ['type', 'transaction', 'quartier', 'surface'];
     if (typeMeta?.rooms) base.push('rooms');
-    base.push('condition');
+    // Default to showing `condition` until a type is chosen (the most common
+    // branch), then drop it for types where it makes no sense (bare land).
+    if (!typeMeta || typeMeta.condition) base.push('condition');
     return base;
   }, [typeMeta]);
 
   const currentStep = steps[Math.min(stepIndex, steps.length - 1)];
   const isLastStep = stepIndex >= steps.length - 1;
-  const progress = Math.round(((stepIndex + 1) / steps.length) * 100);
+  // Stable denominator: before a type is chosen, advertise the LONGEST possible
+  // flow (residential = 6 steps) so the "Step X/N" counter and progress bar
+  // never jump backwards (e.g. 1/5 → 1/6) when the user picks a residential type.
+  const MAX_STEPS = 6;
+  const totalSteps = form.type ? steps.length : MAX_STEPS;
+  const progress = Math.round(((stepIndex + 1) / totalSteps) * 100);
 
   /** Is the current step satisfied enough to advance? */
   function canAdvance(): boolean {
@@ -143,7 +153,8 @@ export default function EstimateTool({ lang }: Props) {
         return form.quartier.trim().length >= 2;
       case 'surface': {
         const n = Number(form.surface);
-        return Number.isFinite(n) && n > 0;
+        // Reject 0, negative, empty and absurd values; cap at a sane upper bound.
+        return Number.isFinite(n) && n > 0 && n <= 100000;
       }
       case 'rooms':
         return form.rooms !== '';
@@ -172,12 +183,22 @@ export default function EstimateTool({ lang }: Props) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-  /** Human label for the chosen type / transaction / condition (current lang). */
+  /** Human label for the chosen type / transaction / condition (current lang).
+   *  Transaction uses the NOUN form ("Vente" / "Location") here — it's shown as
+   *  a value under the "Projet" label (recap, result, lead, WhatsApp), where the
+   *  verb form ("Vendre") used on the wizard buttons would read awkwardly. */
   const typeLabel = form.type ? t(`estimate.type.${form.type}`, lang) : '';
+  // Inline form for the « Votre {type} à … » sentence. Lowercased ONLY for FR/EN
+  // (mid-sentence common-noun convention); Wolof keeps its original casing.
+  const typeLabelInline = lang === 'wo' ? typeLabel : typeLabel.toLowerCase();
   const transactionLabel = form.transaction
-    ? t(`estimate.transaction.${form.transaction}`, lang)
+    ? t(`estimate.transaction.noun.${form.transaction}`, lang)
     : '';
-  const conditionLabel = form.condition ? t(`estimate.condition.${form.condition}`, lang) : '';
+  // Only surface a condition when the type actually has that step — guards
+  // against a stale value lingering if the user picks a residential type, sets
+  // a condition, then switches to land (where the step is skipped).
+  const conditionLabel =
+    typeMeta?.condition && form.condition ? t(`estimate.condition.${form.condition}`, lang) : '';
 
   /** Full property recap — REUSED as the lead `message` AND the WhatsApp text. */
   const recap = useMemo(() => {
@@ -303,7 +324,7 @@ export default function EstimateTool({ lang }: Props) {
           <div className="mb-6" aria-hidden="true">
             <div className="flex justify-between text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
               <span>
-                {t('estimate.step', lang)} {stepIndex + 1}/{steps.length}
+                {t('estimate.step', lang)} {stepIndex + 1}/{totalSteps}
               </span>
               <span>{progress}%</span>
             </div>
@@ -356,7 +377,8 @@ export default function EstimateTool({ lang }: Props) {
               </Fieldset>
             )}
 
-            {/* (c) Quartier — autocomplete from the quartier catalogue */}
+            {/* (c) Quartier — nationwide autocomplete (communes + quartiers,
+                all 14 regions). Non-blocking: free text is still accepted. */}
             {currentStep === 'quartier' && (
               <Fieldset
                 icon={<MapPin className="w-5 h-5" />}
@@ -373,13 +395,11 @@ export default function EstimateTool({ lang }: Props) {
                   className="w-full h-11 px-3.5 rounded-xl border border-input bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
                 <datalist id="est-quartier-list">
-                  {QUARTIER_OPTIONS.filter(
-                    (o) =>
-                      form.quartier.trim().length < 2 ||
-                      norm(o.name).includes(norm(form.quartier)),
-                  ).map((o) => (
-                    <option key={o.name} value={o.name}>
-                      {o.city}
+                  {filterPlaces(form.quartier, 50).map((p) => (
+                    // Names collide nationally (~57 dupes) → key on name|commune,
+                    // and show "commune, region" to disambiguate.
+                    <option key={`${p.name}|${p.commune}`} value={p.name}>
+                      {placeContext(p)}
                     </option>
                   ))}
                 </datalist>
@@ -389,11 +409,14 @@ export default function EstimateTool({ lang }: Props) {
               </Fieldset>
             )}
 
-            {/* (d) Surface m² */}
+            {/* (d) Surface m² — for bare land, ask for the PLOT area instead. */}
             {currentStep === 'surface' && (
               <Fieldset
                 icon={<Ruler className="w-5 h-5" />}
-                legend={t('estimate.q.surface', lang)}
+                legend={t(
+                  form.type === 'terrain' ? 'estimate.q.surface.terrain' : 'estimate.q.surface',
+                  lang,
+                )}
               >
                 <div className="relative">
                   <input
@@ -401,6 +424,8 @@ export default function EstimateTool({ lang }: Props) {
                     type="number"
                     inputMode="numeric"
                     min={1}
+                    max={100000}
+                    step={1}
                     value={form.surface}
                     onChange={(e) => update('surface', e.target.value)}
                     placeholder="120"
@@ -489,7 +514,7 @@ export default function EstimateTool({ lang }: Props) {
             </p>
             <p className="font-serif text-xl sm:text-2xl leading-snug">
               {t('estimate.result.recapPrefix', lang)}{' '}
-              <strong className="text-primary">{typeLabel.toLowerCase()}</strong>{' '}
+              <strong className="text-primary">{typeLabelInline}</strong>{' '}
               {t('estimate.result.recapAt', lang)}{' '}
               <strong className="text-primary">{form.quartier.trim()}</strong>
             </p>

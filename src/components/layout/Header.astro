@@ -12,16 +12,33 @@ interface Props {
 const { lang, solid = false } = Astro.props;
 const p = (path: string) => localizedPath(path, lang);
 
-const navLinks: Array<{ href: string; key: string }> = [
-  { href: p('/biens'),                key: 'nav.listings' },
-  { href: `${p('/')}#services`,       key: 'nav.services' },
-  { href: `${p('/')}#pourquoi`,       key: 'nav.why' },
-  { href: `${p('/')}#process`,        key: 'nav.process' },
-  { href: p('/proprietaires'),        key: 'nav.owners' },
-  { href: p('/estimation'),           key: 'nav.estimate' },
-  { href: p('/partenaires'),          key: 'nav.partners' },
-  { href: p('/contact'),              key: 'nav.contact' },
+// Desktop navigation: 4 top-level entries (2 of them dropdowns) instead of
+// 8 flat links — keeps the bar airy and readable from `md` up. Dropdown
+// triggers reuse the first child's key as their label, so NO new i18n keys
+// are introduced (constraint: reuse existing nav.* keys only).
+type NavItem = { href: string; key: string };
+type NavEntry = NavItem | { key: string; children: NavItem[] };
+
+const navEntries: NavEntry[] = [
+  { href: p('/biens'), key: 'nav.listings' },           // buyer core — always visible
+  { key: 'nav.services', children: [                     // "Agence" group
+    { href: `${p('/')}#services`, key: 'nav.services' },
+    { href: `${p('/')}#pourquoi`, key: 'nav.why' },
+    { href: `${p('/')}#process`,  key: 'nav.process' },
+  ]},
+  { key: 'nav.owners', children: [                        // "Vendre & confier" group
+    { href: p('/proprietaires'), key: 'nav.owners' },
+    { href: p('/estimation'),    key: 'nav.estimate' },
+    { href: p('/partenaires'),   key: 'nav.partners' },
+  ]},
+  { href: p('/contact'), key: 'nav.contact' },
 ];
+
+// Flat list derived from the grouped structure — used only by the mobile
+// drawer, whose vertical-scroll UX is fine showing all links at one level.
+const navLinks: NavItem[] = navEntries.flatMap((e) =>
+  'children' in e ? e.children : [e],
+);
 
 // Secondary discover links for the mobile drawer (the newer pages).
 const quickLinks: Array<{ href: string; key: string }> = [
@@ -71,12 +88,43 @@ const langItems = LANGS.map((code) => ({
       </span>
     </a>
 
-    <div class="hidden md:flex items-center gap-7 text-[14.5px] font-medium">
-      {navLinks.map((l) => (
-        <a
-          href={l.href}
-          class="relative py-1.5 after:absolute after:left-0 after:-bottom-0.5 after:h-px after:w-0 after:bg-current after:transition-[width] after:duration-300 hover:after:w-full"
-        >{t(l.key, lang)}</a>
+    <div class="hidden md:flex items-center gap-6 lg:gap-7 text-[14.5px] font-medium">
+      {navEntries.map((e) => (
+        'children' in e ? (
+          // Dropdown group — opens on hover AND focus-within so it works with
+          // the keyboard too; the panel mirrors LanguageSwitcher's styling for
+          // visual consistency. CSS-only: no JS / no hydration needed.
+          <div class="relative group/dd">
+            <button
+              type="button"
+              aria-haspopup="true"
+              class="inline-flex items-center gap-1 py-1.5 group-hover/dd:opacity-90 transition-opacity"
+            >
+              {t(e.key, lang)}
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true" class="transition-transform duration-200 group-hover/dd:rotate-180 group-focus-within/dd:rotate-180">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            {/* Invisible bridge: covers the gap between trigger and panel so
+                the menu doesn't close as the cursor crosses the offset. */}
+            <div class="absolute left-0 top-full h-3 w-full" aria-hidden="true"></div>
+            <div
+              class="absolute left-0 top-[calc(100%+0.5rem)] min-w-[230px] rounded-xl border border-clay bg-card text-foreground shadow-xl overflow-hidden p-1.5 opacity-0 invisible translate-y-1 transition-all duration-200 group-hover/dd:opacity-100 group-hover/dd:visible group-hover/dd:translate-y-0 group-focus-within/dd:opacity-100 group-focus-within/dd:visible group-focus-within/dd:translate-y-0"
+            >
+              {e.children.map((c) => (
+                <a
+                  href={c.href}
+                  class="block px-3.5 py-2.5 rounded-lg text-sm hover:bg-accent hover:text-accent-foreground transition"
+                >{t(c.key, lang)}</a>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <a
+            href={e.href}
+            class="relative py-1.5 after:absolute after:left-0 after:-bottom-0.5 after:h-px after:w-0 after:bg-current after:transition-[width] after:duration-300 hover:after:w-full"
+          >{t(e.key, lang)}</a>
+        )
       ))}
     </div>
 

@@ -382,6 +382,7 @@
   "estimate.q.transaction": "Vous souhaitez vendre ou louer ?",
   "estimate.q.quartier": "Dans quel quartier ?",
   "estimate.q.surface": "Quelle surface, en m² ?",
+  "estimate.q.surface.terrain": "Quelle superficie du terrain, en m² ?",
   "estimate.q.rooms": "Combien de chambres ?",
   "estimate.q.condition": "Quel état / standing ?",
 
@@ -395,13 +396,15 @@
 
   "estimate.transaction.vente": "Vendre",
   "estimate.transaction.location": "Louer",
+  "estimate.transaction.noun.vente": "Vente",
+  "estimate.transaction.noun.location": "Location",
 
   "estimate.condition.neuf": "Neuf / récent",
   "estimate.condition.bon": "Bon état",
   "estimate.condition.renover": "À rénover",
 
   "estimate.placeholder.quartier": "Ex. Almadies, Mermoz, Sacré-Cœur…",
-  "estimate.hint.quartier": "Commencez à taper : les quartiers de Dakar vous sont proposés.",
+  "estimate.hint.quartier": "Commencez à taper : communes et quartiers de tout le Sénégal vous sont proposés. Vous pouvez aussi saisir librement.",
 
   "estimate.label.type": "Type de bien",
   "estimate.label.transaction": "Projet",
