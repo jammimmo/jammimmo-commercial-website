@@ -12,10 +12,18 @@ test.describe('Feature en prod — outil /estimation (capture mandat)', () => {
     expect(resp?.status(), 'HTTP /estimation').toBeLessThan(400);
 
     // L'île est montée : la 1re question est visible (aucun gate avant l'outil).
-    await expect(page.getByRole('button', { name: 'Appartement' })).toBeVisible({ timeout: 15_000 });
+    const appart = page.getByRole('button', { name: 'Appartement' });
+    await expect(appart).toBeVisible({ timeout: 15_000 });
 
     // — Wizard : toutes les étapes sont gratuites et SANS contact —
-    await page.getByRole('button', { name: 'Appartement' }).click();
+    // Garde-fou HYDRATATION : le bouton SSR est cliquable (focus) avant que le
+    // onClick de l'île React soit attaché → un clic trop tôt ne sélectionne pas.
+    // On re-clique jusqu'à ce que la sélection prenne (aria-pressed). Robuste
+    // desktop+mobile ; une fois hydraté, le reste du wizard répond normalement.
+    await expect(async () => {
+      await appart.click();
+      await expect(appart).toHaveAttribute('aria-pressed', 'true', { timeout: 1000 });
+    }).toPass({ timeout: 15_000 });
     await page.getByRole('button', { name: 'Continuer' }).click();
 
     await page.getByRole('button', { name: 'Vendre' }).click();
