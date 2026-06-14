@@ -23,3 +23,10 @@ dist/
 npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
+
+# Playwright visual QA — ignore generated artifacts, KEEP baselines.
+# Baselines live in tests/visual/__screenshots__/ and MUST stay committed.
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
