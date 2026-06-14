@@ -382,6 +382,7 @@
   "estimate.q.transaction": "Do you want to sell or let?",
   "estimate.q.quartier": "Which neighbourhood?",
   "estimate.q.surface": "What surface area, in m²?",
+  "estimate.q.surface.terrain": "What is the plot area, in m²?",
   "estimate.q.rooms": "How many bedrooms?",
   "estimate.q.condition": "What condition / standing?",
 
@@ -395,13 +396,15 @@
 
   "estimate.transaction.vente": "Sell",
   "estimate.transaction.location": "Let",
+  "estimate.transaction.noun.vente": "Sale",
+  "estimate.transaction.noun.location": "Rental",
 
   "estimate.condition.neuf": "New / recent",
   "estimate.condition.bon": "Good condition",
   "estimate.condition.renover": "Needs renovation",
 
   "estimate.placeholder.quartier": "e.g. Almadies, Mermoz, Sacré-Cœur…",
-  "estimate.hint.quartier": "Start typing: Dakar neighbourhoods are suggested.",
+  "estimate.hint.quartier": "Start typing: communes and neighbourhoods across all of Senegal are suggested. You can also type freely.",
 
   "estimate.label.type": "Property type",
   "estimate.label.transaction": "Project",
