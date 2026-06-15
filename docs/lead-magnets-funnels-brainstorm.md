@@ -66,12 +66,12 @@ Scores sur 5 — **L** = valeur lead · **Faisa** = faisabilité (5 = livrable s
 | 3 | Estimateur vendeur/bailleur (capture **mandat**) | ✅ **Live** | `/estimation` |
 | 2 | Mon budget (acheteurs/locataires) | ✅ **Live** | `/budget` |
 | 4 | Score de sécurité foncière (anti-arnaque) | ✅ **Live** | `/securite-fonciere` |
+| 5 | Match-o-mètre (quiz → 3 biens réels) | ✅ **Live** | `/trouver-mon-bien` |
 | 1 | Alerte WhatsApp « Préviens-moi » | ⏳ Capture livrable seule ; **push = worker estate-flow** (cross-repo, à séquencer) | — |
-| 5 | Match-o-mètre | ⏳ À faire (pas de prérequis bloquant) | — |
 | 6 | Calculateur de rendement / coût total | 🔒 Bloqué sur la **grille prix/m²** (mode optimal) ; livrable en mode « saisie utilisateur » sans elle | — |
 | 9 | Comparateur de quartiers enrichi | 🔒 Bloqué sur la **grille prix/m²** | — |
 
-**Prochain non bloqué :** #5 Match-o-mètre (quiz → 3 biens réels + capture WhatsApp), puis la **grille prix/m²** (build-time) qui débloque le cluster vendeur/investisseur (#6 optimal, #9, et les chiffres réels de l'estimateur #3).
+**Prochain non bloqué :** la **grille prix/m²** (build-time, dérivée des annonces réelles + benchmarks) qui débloque le cluster vendeur/investisseur (#6 rendement, #9 comparateur, et les chiffres réels de l'estimateur #3) — sensible côté honnêteté (chiffres défendables), à cadrer. Sinon #8 « Comprendre l'achat » (parcours guidé diaspora, sans chiffre). #1 alerte WhatsApp = bloqué worker estate-flow.
 
 ---
 
