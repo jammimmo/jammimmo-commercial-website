@@ -31,6 +31,10 @@ test.describe('Feature en prod — navigation de lecture (landing /)', () => {
       .evaluate((el) => parseFloat((el as HTMLElement).style.width || '0'));
     expect(barW, 'largeur barre de progression > 0').toBeGreaterThan(0);
 
+    // Le sommaire surligne DYNAMIQUEMENT la section courante : exactement une
+    // pastille porte aria-current dès qu'on est dans une section (sans clic).
+    await expect(page.locator('[data-spy-link][aria-current="true"]')).toHaveCount(1);
+
     // Scrollspy : cliquer la pastille « process » → aria-current sur ce lien.
     const processLink = page.locator('[data-spy-link="process"]');
     await processLink.click();

@@ -96,7 +96,7 @@ const items: Section[] = sections ?? [
   type="button"
   data-back-to-top
   aria-label={t('nav.backToTop', lang)}
-  class="fixed bottom-6 right-5 z-40 w-12 h-12 grid place-items-center rounded-full bg-primary text-primary-foreground shadow-lg ring-1 ring-black/5 opacity-0 translate-y-3 pointer-events-none transition-all duration-300 hover:bg-secondary hover:text-secondary-foreground hover:-translate-y-0.5"
+  class="fixed bottom-8 right-6 sm:bottom-10 sm:right-8 z-40 w-12 h-12 grid place-items-center rounded-full bg-primary text-primary-foreground shadow-lg ring-1 ring-black/5 opacity-0 translate-y-3 pointer-events-none transition-all duration-300 hover:bg-secondary hover:text-secondary-foreground hover:-translate-y-0.5"
 >
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M12 19V5M5 12l7-7 7 7" />
@@ -107,6 +107,10 @@ const items: Section[] = sections ?? [
   // Plain JS only (is:inline = emitted verbatim; any TS would be a parse error
   // that kills the whole block — same constraint as the mobile drawer script).
   (function () {
+    // Différé au DOM prêt : ce script is:inline est émis EN HAUT de page, donc
+    // les <section> ciblées n'existent pas encore au parse → on attend que le
+    // DOM soit complet pour résoudre les sections du scrollspy.
+    function init() {
     var bar = document.querySelector('[data-page-progress]');
     var fab = document.querySelector('[data-back-to-top]');
     var nav = document.querySelector('[data-section-nav]');
@@ -114,7 +118,47 @@ const items: Section[] = sections ?? [
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var NAV_OFFSET = 90; // hauteur de la nav fixe (78px) + petite marge.
 
-    // ---- 1. Barre de progression + 2. visibilité du FAB (sur scroll) ----
+    // Sections cibles (ordre du DOM).
+    var targets = links
+      .map(function (a) {
+        var id = a.getAttribute('data-spy-link');
+        return { id: id, el: document.getElementById(id) };
+      })
+      .filter(function (s) { return s.el; });
+
+    // ---- 2b. Surligne la pastille + libellé de la section donnée ----
+    // Styles INLINE (robustes : indépendants des classes Tailwind générées).
+    function setActive(id) {
+      links.forEach(function (a) {
+        var on = a.getAttribute('data-spy-link') === id;
+        var dot = a.querySelector('[data-spy-dot]');
+        var label = a.querySelector('[data-spy-label]');
+        if (on) {
+          a.setAttribute('aria-current', 'true');
+          if (dot) { dot.style.backgroundColor = 'hsl(var(--secondary))'; dot.style.transform = 'scale(1.4)'; }
+          if (label) { label.style.opacity = '1'; label.style.transform = 'translateX(0)'; }
+        } else {
+          a.removeAttribute('aria-current');
+          if (dot) { dot.style.backgroundColor = ''; dot.style.transform = ''; }
+          if (label) { label.style.opacity = ''; label.style.transform = ''; }
+        }
+      });
+    }
+
+    // Section courante = la DERNIÈRE dont le haut a passé la ligne sous la nav.
+    // Déterministe (toujours exactement une active), donc le libellé s'affiche
+    // dynamiquement dès qu'on entre dans la section correspondante.
+    function updateActive() {
+      if (!targets.length) return;
+      var probe = window.scrollY + NAV_OFFSET + 40;
+      var current = targets[0].id;
+      for (var i = 0; i < targets.length; i++) {
+        if (targets[i].el.getBoundingClientRect().top + window.scrollY <= probe) current = targets[i].id;
+      }
+      setActive(current);
+    }
+
+    // ---- 1. Barre de progression + 2a. visibilité FAB/sommaire + 2b. section active ----
     function onScroll() {
       var doc = document.documentElement;
       var scrollable = doc.scrollHeight - window.innerHeight;
@@ -134,6 +178,7 @@ const items: Section[] = sections ?? [
         nav.style.transform = 'translateY(-50%) ' + (showNav ? 'translateX(0)' : 'translateX(0.5rem)');
         nav.style.pointerEvents = showNav ? 'auto' : 'none';
       }
+      updateActive();
     }
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
@@ -146,25 +191,7 @@ const items: Section[] = sections ?? [
       });
     }
 
-    // ---- 2. Scrollspy : section active + saut fluide avec décalage nav ----
-    function setActive(id) {
-      links.forEach(function (a) {
-        var on = a.getAttribute('data-spy-link') === id;
-        var dot = a.querySelector('[data-spy-dot]');
-        var label = a.querySelector('[data-spy-label]');
-        if (on) {
-          a.setAttribute('aria-current', 'true');
-          if (dot) { dot.classList.add('bg-secondary', 'ring-secondary/30', 'scale-125'); dot.classList.remove('bg-muted-foreground/40'); }
-          if (label) { label.style.opacity = '1'; label.style.transform = 'translateX(0)'; }
-        } else {
-          a.removeAttribute('aria-current');
-          if (dot) { dot.classList.remove('bg-secondary', 'ring-secondary/30', 'scale-125'); dot.classList.add('bg-muted-foreground/40'); }
-          if (label) { label.style.opacity = ''; label.style.transform = ''; }
-        }
-      });
-    }
-
-    // Clic pastille → scroll fluide en tenant compte de la nav fixe.
+    // Clic pastille → scroll fluide (décalage nav) + activation immédiate.
     links.forEach(function (a) {
       a.addEventListener('click', function (e) {
         var id = a.getAttribute('data-spy-link');
@@ -176,24 +203,8 @@ const items: Section[] = sections ?? [
         setActive(id);
       });
     });
-
-    // Observe les sections pour surligner la pastille courante.
-    var targets = links
-      .map(function (a) { return document.getElementById(a.getAttribute('data-spy-link')); })
-      .filter(Boolean);
-    if ('IntersectionObserver' in window && targets.length) {
-      var io = new IntersectionObserver(
-        function (entries) {
-          // Choisit la section la plus visible proche du milieu de l'écran.
-          var best = null;
-          entries.forEach(function (en) {
-            if (en.isIntersecting && (!best || en.intersectionRatio > best.intersectionRatio)) best = en;
-          });
-          if (best) setActive(best.target.id);
-        },
-        { rootMargin: '-45% 0px -50% 0px', threshold: [0, 0.25, 0.5, 1] },
-      );
-      targets.forEach(function (el) { io.observe(el); });
     }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
   })();
 </script>
