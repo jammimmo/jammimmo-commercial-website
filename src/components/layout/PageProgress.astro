@@ -59,14 +59,14 @@ const items: Section[] = sections ?? [
 <nav
   data-section-nav
   aria-label={t('nav.onThisPage', lang)}
-  class="fixed right-8 sm:right-10 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-5 py-2 opacity-0 translate-x-2 pointer-events-none transition-all duration-500 ease-out"
+  class="fixed right-8 sm:right-10 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-1.5 opacity-0 translate-x-2 pointer-events-none transition-all duration-500 ease-out"
 >
-  {/* Ombre SOMBRE et fine le long de la timeline : fin dégradé vertical foncé,
-      flouté, qui s'estompe en haut/bas → relief discret (pas un aplat grossier).
-      Sur les sections sombres, les halos lumineux des pastilles + du texte
-      prennent le relais. */}
+  {/* Ombre noire en DÉGRADÉ HORIZONTAL : foncée au bord droit de l'écran, elle
+      s'estompe vers la gauche et disparaît quelques centimètres après la
+      timeline → ancre la timeline au bord, fait ressortir pastilles + texte.
+      (Sur fond sombre elle se fond ; les halos lumineux prennent le relais.) */}
   <span
-    class="absolute -inset-y-2 left-1/2 -translate-x-1/2 w-3.5 rounded-full bg-gradient-to-b from-transparent via-foreground/30 to-transparent blur-md"
+    class="absolute -inset-y-6 -right-8 sm:-right-10 w-40 rounded-l-full bg-gradient-to-l from-black/28 via-black/10 to-transparent blur-md"
     aria-hidden="true"
   >
   </span>
@@ -81,7 +81,7 @@ const items: Section[] = sections ?? [
       href={`#${s.id}`}
       data-spy-link={s.id}
       aria-label={t(s.labelKey, lang)}
-      class="group/spy relative flex items-center justify-center"
+      class="group/spy relative flex items-center justify-center p-3"
       style="-webkit-tap-highlight-color: transparent;"
     >
       {/* Libellé SANS cartouche : texte avec un léger GLOW (halo clair) →
