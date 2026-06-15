@@ -14,7 +14,7 @@ import { getStatusBadge, getTransactionBadge } from '@/lib/status';
 import { SITE, TEL_URI, MAILTO_URI } from '@/lib/site-config';
 import {
   Bed, Maximize2, MapPin, Tag, Award, FileText, Download,
-  Phone, MessageCircle, Mail, Bath, Building2, Sparkles,
+  Phone, MessageCircle, Mail, Bath, Building2, Sparkles, ShieldCheck,
 } from 'lucide-react';
 
 interface Props {
@@ -208,6 +208,19 @@ const hasImages = p.images.length > 0;
                 <FavoriteToggle client:visible reference={p.reference} title={p.title} lang={lang} variant="pill" />
               </div>
             </div>
+
+            {/* Anti-arnaque entry — reassurance link to the free land-safety
+                diagnostic. Subtle, below the contact card. */}
+            <a
+              href={localizedPath('/securite-fonciere', lang)}
+              data-track="safety.fromDetail"
+              class="mt-3 flex items-center gap-3 rounded-2xl border border-clay bg-card px-4 py-3.5 text-sm hover:border-secondary/60 transition group/saf"
+            >
+              <span class="w-9 h-9 rounded-full bg-emerald/12 text-emerald grid place-items-center shrink-0">
+                <ShieldCheck className="w-4.5 h-4.5" />
+              </span>
+              <span class="text-foreground font-medium leading-snug">{t('safety.detail.cta', lang)}</span>
+            </a>
           </aside>
         </div>
       </div>
