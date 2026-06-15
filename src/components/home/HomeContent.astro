@@ -11,10 +11,15 @@ import Testimonials from './Testimonials.astro';
 import Faq from './Faq.astro';
 import ContactSection from './ContactSection.astro';
 import CompareBar from '@/components/property/CompareBar.tsx';
+import PageProgress from '@/components/layout/PageProgress.astro';
 import { getLang } from '@/lib/i18n';
 
 const lang = getLang(Astro.url);
 ---
+
+{/* Navigation de lecture (landing longue) : barre de progression + sommaire
+    interactif au scroll (scrollspy) + bouton « remonter en haut ». */}
+<PageProgress lang={lang} />
 
 <Hero lang={lang} />
 <Marquee />
