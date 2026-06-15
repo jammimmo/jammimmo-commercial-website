@@ -59,19 +59,20 @@ const items: Section[] = sections ?? [
 <nav
   data-section-nav
   aria-label={t('nav.onThisPage', lang)}
-  class="fixed right-4 sm:right-6 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-5 py-2 opacity-0 translate-x-2 pointer-events-none transition-all duration-500 ease-out"
+  class="fixed right-8 sm:right-10 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-5 py-2 opacity-0 translate-x-2 pointer-events-none transition-all duration-500 ease-out"
 >
-  {/* Ombre dégradée DISCRÈTE derrière la timeline : un halo clair flou qui
-      s'estompe vers la gauche → rend pastilles + libellés lisibles sur
-      N'IMPORTE QUEL fond (clair ou foncé) sans cartouche opaque. */}
+  {/* Ombre SOMBRE et fine le long de la timeline : fin dégradé vertical foncé,
+      flouté, qui s'estompe en haut/bas → relief discret (pas un aplat grossier).
+      Sur les sections sombres, les halos lumineux des pastilles + du texte
+      prennent le relais. */}
   <span
-    class="absolute -inset-y-6 -right-4 left-[-3.5rem] rounded-full bg-gradient-to-l from-background/55 via-background/25 to-transparent blur-lg"
+    class="absolute -inset-y-2 left-1/2 -translate-x-1/2 w-3.5 rounded-full bg-gradient-to-b from-transparent via-foreground/30 to-transparent blur-md"
     aria-hidden="true"
   >
   </span>
-  {/* Timeline verticale en DÉGRADÉ (s'estompe en haut et en bas). */}
+  {/* Timeline verticale fine (s'estompe en haut et en bas). */}
   <span
-    class="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-px bg-gradient-to-b from-transparent via-foreground/35 to-transparent"
+    class="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-px bg-gradient-to-b from-transparent via-foreground/40 to-transparent"
     aria-hidden="true"
   >
   </span>
@@ -81,22 +82,24 @@ const items: Section[] = sections ?? [
       data-spy-link={s.id}
       aria-label={t(s.labelKey, lang)}
       class="group/spy relative flex items-center justify-center"
+      style="-webkit-tap-highlight-color: transparent;"
     >
       {/* Libellé SANS cartouche : texte avec un léger GLOW (halo clair) →
           lisible sur fond clair comme foncé. Survol (desktop) + actif (JS). */}
       <span
         data-spy-label
         class="pointer-events-none absolute right-full mr-3.5 text-foreground text-[11.5px] font-semibold whitespace-nowrap opacity-0 translate-x-1 transition-all duration-200 group-hover/spy:opacity-100 group-hover/spy:translate-x-0"
-        style="text-shadow: 0 0 7px hsl(var(--background)), 0 0 3px hsl(var(--background)), 0 1px 2px hsl(var(--background));"
+        style="text-shadow: 0 0 9px hsl(var(--background)), 0 0 5px hsl(var(--background)), 0 0 2px hsl(var(--background));"
       >
         {t(s.labelKey, lang)}
       </span>
-      {/* Pastille un peu plus grande, avec halo clair → toujours visible,
+      {/* Pastille travaillée : léger HALO LUMINEUX autour (glow clair) + fine
+          bordure pour la définir sur fond clair → toujours visible, élégante,
           même à l'arrêt sur une section sombre. */}
       <span
         data-spy-dot
-        class="relative w-3 h-3 rounded-full bg-foreground/55 transition-all duration-200 group-hover/spy:bg-secondary"
-        style="box-shadow: 0 0 0 3px hsl(var(--background) / 0.55), 0 1px 4px hsl(var(--foreground) / 0.3);"
+        class="relative w-3 h-3 rounded-full bg-foreground/60 transition-all duration-200 group-hover/spy:bg-secondary"
+        style="box-shadow: 0 0 7px 1px hsl(var(--background) / 0.9), 0 0 2px hsl(var(--background)), 0 0 0 1px hsl(var(--foreground) / 0.2);"
       >
       </span>
     </a>
@@ -129,6 +132,7 @@ const items: Section[] = sections ?? [
     var links = nav ? Array.prototype.slice.call(nav.querySelectorAll('[data-spy-link]')) : [];
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var NAV_OFFSET = 90; // hauteur de la nav fixe (78px) + petite marge.
+    var suppressUntil = 0; // ignore le scrollspy auto pendant un scroll déclenché par clic (anti-flicker).
 
     // Sections cibles (ordre du DOM).
     var targets = links
@@ -161,7 +165,7 @@ const items: Section[] = sections ?? [
     // Déterministe (toujours exactement une active), donc le libellé s'affiche
     // dynamiquement dès qu'on entre dans la section correspondante.
     function updateActive() {
-      if (!targets.length) return;
+      if (!targets.length || Date.now() < suppressUntil) return;
       var probe = window.scrollY + NAV_OFFSET + 40;
       var current = targets[0].id;
       for (var i = 0; i < targets.length; i++) {
@@ -210,6 +214,9 @@ const items: Section[] = sections ?? [
         var el = document.getElementById(id);
         if (!el) return; // laisse le comportement par défaut si la section manque
         e.preventDefault();
+        // Garde l'état actif sur la CIBLE pendant tout le scroll fluide → évite
+        // que les pastilles clignotent en traversant les sections intermédiaires.
+        suppressUntil = Date.now() + 900;
         var y = el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
         window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
         setActive(id);
