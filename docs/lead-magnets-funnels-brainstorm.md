@@ -59,6 +59,20 @@ Scores sur 5 — **L** = valeur lead · **Faisa** = faisabilité (5 = livrable s
 
 **Écartés / phase ultérieure :** recherche en langage naturel FR/EN/WO, dessine-ta-zone, swipe « coup de cœur » (améliorent la *découverte*, peu d'intention captée → phase « expérience ») ; WhatsApp Flows in-chat natif (vit côté WhatsApp Business API + CRM, hors périmètre vitrine — la version dégradée deeplink est déjà couverte) ; mécaniques virales pures (parrainage, reels-battle, « devine le prix ») = beaucoup de trafic, peu d'intention d'achat directe → à tester *après* le cœur du funnel ; « Mon espace mandat » via `/g/{uuid}` = excellent en **rétention** post-conversion mais cross-repo lourd → phase 2.
 
+### État de livraison (au 15 juin 2026)
+
+| # | Outil | Statut | Route |
+|---|-------|--------|-------|
+| 3 | Estimateur vendeur/bailleur (capture **mandat**) | ✅ **Live** | `/estimation` |
+| 2 | Mon budget (acheteurs/locataires) | ✅ **Live** | `/budget` |
+| 4 | Score de sécurité foncière (anti-arnaque) | ✅ **Live** | `/securite-fonciere` |
+| 1 | Alerte WhatsApp « Préviens-moi » | ⏳ Capture livrable seule ; **push = worker estate-flow** (cross-repo, à séquencer) | — |
+| 5 | Match-o-mètre | ⏳ À faire (pas de prérequis bloquant) | — |
+| 6 | Calculateur de rendement / coût total | 🔒 Bloqué sur la **grille prix/m²** (mode optimal) ; livrable en mode « saisie utilisateur » sans elle | — |
+| 9 | Comparateur de quartiers enrichi | 🔒 Bloqué sur la **grille prix/m²** | — |
+
+**Prochain non bloqué :** #5 Match-o-mètre (quiz → 3 biens réels + capture WhatsApp), puis la **grille prix/m²** (build-time) qui débloque le cluster vendeur/investisseur (#6 optimal, #9, et les chiffres réels de l'estimateur #3).
+
 ---
 
 ## 4. Quick-wins (fort impact / faible effort — ce qu'on lance en premier)
