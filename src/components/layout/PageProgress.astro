@@ -66,7 +66,7 @@ const items: Section[] = sections ?? [
       timeline → ancre la timeline au bord, fait ressortir pastilles + texte.
       (Sur fond sombre elle se fond ; les halos lumineux prennent le relais.) */}
   <span
-    class="absolute -inset-y-6 -right-8 sm:-right-10 w-40 rounded-l-full bg-gradient-to-l from-black/28 via-black/10 to-transparent blur-md"
+    class="absolute -inset-y-8 -right-8 sm:-right-10 w-48 rounded-l-full bg-gradient-to-l from-black/50 via-black/25 to-transparent blur-sm"
     aria-hidden="true"
   >
   </span>
@@ -133,6 +133,26 @@ const items: Section[] = sections ?? [
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var NAV_OFFSET = 90; // hauteur de la nav fixe (78px) + petite marge.
     var suppressUntil = 0; // ignore le scrollspy auto pendant un scroll déclenché par clic (anti-flicker).
+    var hideTimer = 0;
+    var hero = document.getElementById('top'); // <header id="top"> = le hero
+    var railThreshold = hero ? Math.max(280, hero.offsetHeight - 220) : 400; // « après le hero »
+
+    // Affiche la timeline + son ombre dès qu'on scrolle (après le hero), puis
+    // la fait disparaître en fondu ~2 s après l'ARRÊT du scroll (auto-hide).
+    function showRail() {
+      if (!nav) return;
+      nav.style.opacity = '1';
+      nav.style.transform = 'translateY(-50%) translateX(0)';
+      nav.style.pointerEvents = 'auto';
+      if (hideTimer) clearTimeout(hideTimer);
+      hideTimer = setTimeout(hideRail, 2000);
+    }
+    function hideRail() {
+      if (!nav) return;
+      nav.style.opacity = '0';
+      nav.style.transform = 'translateY(-50%) translateX(0.5rem)';
+      nav.style.pointerEvents = 'none';
+    }
 
     // Sections cibles (ordre du DOM).
     var targets = links
@@ -186,19 +206,26 @@ const items: Section[] = sections ?? [
         fab.style.transform = show ? 'translateY(0)' : 'translateY(0.75rem)';
         fab.style.pointerEvents = show ? 'auto' : 'none';
       }
-      // Le sommaire (timeline) apparaît en fondu après le hero, puis reste.
+      // Timeline + ombre : apparaissent au scroll APRÈS le hero, et s'effacent
+      // ~2 s après l'arrêt du scroll (showRail (ré)arme le minuteur d'auto-hide).
       if (nav) {
-        var showNav = window.scrollY > 350;
-        nav.style.opacity = showNav ? '1' : '0';
-        // Conserve le centrage vertical (translateY(-50%)) imposé par la classe.
-        nav.style.transform = 'translateY(-50%) ' + (showNav ? 'translateX(0)' : 'translateX(0.5rem)');
-        nav.style.pointerEvents = showNav ? 'auto' : 'none';
+        if (window.scrollY > railThreshold) showRail();
+        else { if (hideTimer) clearTimeout(hideTimer); hideRail(); }
       }
       updateActive();
     }
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
     onScroll();
+
+    // Survol (desktop) : garde la timeline visible tant que la souris est dessus.
+    if (nav) {
+      nav.addEventListener('mouseenter', function () { if (hideTimer) clearTimeout(hideTimer); });
+      nav.addEventListener('mouseleave', function () {
+        if (hideTimer) clearTimeout(hideTimer);
+        if (window.scrollY > railThreshold) hideTimer = setTimeout(hideRail, 2000);
+      });
+    }
 
     // ---- 3. Remonter en haut ----
     if (fab) {
