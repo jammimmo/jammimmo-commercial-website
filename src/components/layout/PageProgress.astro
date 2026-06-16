@@ -65,14 +65,18 @@ const items: Section[] = sections ?? [
       s'estompe vers la gauche et disparaît quelques centimètres après la
       timeline → ancre la timeline au bord, fait ressortir pastilles + texte.
       (Sur fond sombre elle se fond ; les halos lumineux prennent le relais.) */}
+  {/* Dégradé en STYLE INLINE (les classes Tailwind 3-stops `via` ne se génèrent
+      pas ici → background:none, l'ombre était invisible). */}
   <span
-    class="absolute -inset-y-6 -right-8 sm:-right-10 w-32 rounded-l-full bg-gradient-to-l from-black/42 via-black/14 to-transparent blur-sm"
+    class="absolute -inset-y-6 -right-8 sm:-right-10 w-32 rounded-l-full blur-sm"
+    style="background-image: linear-gradient(to left, rgba(0,0,0,0.5), rgba(0,0,0,0.18) 45%, rgba(0,0,0,0) 80%);"
     aria-hidden="true"
   >
   </span>
-  {/* Timeline verticale fine (s'estompe en haut et en bas). */}
+  {/* Timeline verticale fine (s'estompe en haut/bas) — inline pour la même raison. */}
   <span
-    class="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-px bg-gradient-to-b from-transparent via-foreground/40 to-transparent"
+    class="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-px"
+    style="background-image: linear-gradient(to bottom, transparent, hsl(var(--foreground) / 0.4) 18%, hsl(var(--foreground) / 0.4) 82%, transparent);"
     aria-hidden="true"
   >
   </span>
