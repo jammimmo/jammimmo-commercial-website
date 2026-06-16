@@ -66,7 +66,7 @@ const items: Section[] = sections ?? [
       timeline → ancre la timeline au bord, fait ressortir pastilles + texte.
       (Sur fond sombre elle se fond ; les halos lumineux prennent le relais.) */}
   <span
-    class="absolute -inset-y-8 -right-8 sm:-right-10 w-48 rounded-l-full bg-gradient-to-l from-black/50 via-black/25 to-transparent blur-sm"
+    class="absolute -inset-y-6 -right-8 sm:-right-10 w-28 rounded-l-full bg-gradient-to-l from-black/38 via-black/12 to-transparent blur-md"
     aria-hidden="true"
   >
   </span>
@@ -138,14 +138,14 @@ const items: Section[] = sections ?? [
     var railThreshold = hero ? Math.max(280, hero.offsetHeight - 220) : 400; // « après le hero »
 
     // Affiche la timeline + son ombre dès qu'on scrolle (après le hero), puis
-    // la fait disparaître en fondu ~2 s après l'ARRÊT du scroll (auto-hide).
+    // la fait disparaître en fondu ~1 s après l'ARRÊT du scroll (auto-hide).
     function showRail() {
       if (!nav) return;
       nav.style.opacity = '1';
       nav.style.transform = 'translateY(-50%) translateX(0)';
       nav.style.pointerEvents = 'auto';
       if (hideTimer) clearTimeout(hideTimer);
-      hideTimer = setTimeout(hideRail, 2000);
+      hideTimer = setTimeout(hideRail, 1000);
     }
     function hideRail() {
       if (!nav) return;
@@ -223,7 +223,7 @@ const items: Section[] = sections ?? [
       nav.addEventListener('mouseenter', function () { if (hideTimer) clearTimeout(hideTimer); });
       nav.addEventListener('mouseleave', function () {
         if (hideTimer) clearTimeout(hideTimer);
-        if (window.scrollY > railThreshold) hideTimer = setTimeout(hideRail, 2000);
+        if (window.scrollY > railThreshold) hideTimer = setTimeout(hideRail, 1000);
       });
     }
 
