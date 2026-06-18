@@ -34,6 +34,8 @@
   "search.tab.gestion": "Manage",
   "search.label.type": "Type",
   "search.label.city": "City",
+  "search.label.place": "City or neighbourhood",
+  "search.placeholder.place": "e.g. Dakar, Almadies, Saly…",
   "search.label.rooms": "Min rooms",
   "search.label.budget": "Max budget",
   "search.submit": "Search listings",

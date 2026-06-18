@@ -2,11 +2,12 @@ import { test, expect } from '../visual/_helpers'; // `test` étendu = route.abo
 import type { Locator, Page } from '@playwright/test';
 
 /**
- * E2E EN PROD : sélecteur de lieu (PlaceAutocomplete) sur Estimation + Budget.
+ * E2E EN PROD : sélecteur de lieu (PlaceAutocomplete) sur Estimation, Budget et
+ * le hero d'accueil.
  *  1. aucune suggestion sous 3 lettres ;
- *  2. à 3 lettres, chaque suggestion affiche sa VILLE (commune · région) ;
- *  3. l'entrée canonique « Almadies » → « Ngor, Dakar » ; la choisir n'écrit que
- *     le nom propre dans le champ.
+ *  2. à 3 lettres, fil d'Ariane « nom › commune › région » par suggestion ;
+ *  3. entrée canonique « Almadies › Ngor › Dakar » ; la choisir n'écrit que le
+ *     nom propre dans le champ.
  * On ne soumet rien (pas de faux lead). Vidéo + trace.
  */
 async function hydrationSafeClick(btn: Locator) {
@@ -30,13 +31,23 @@ async function assertPicker(
   await expect.poll(() => options.count()).toBe(0);
   await input.fill(threeChars);
   await expect.poll(() => options.count()).toBeGreaterThan(0);
-  const cities = await page.locator(`${listboxSel} [data-place-city]`).allInnerTexts();
-  expect(cities.length).toBeGreaterThan(0);
-  expect(cities.every((c) => c.trim().length > 0), 'chaque suggestion montre une ville').toBe(true);
+  const trails = await page.locator(`${listboxSel} [data-place-trail]`).allInnerTexts();
+  expect(trails.length, 'fils d’Ariane').toBeGreaterThan(0);
+  expect(trails.every((tr) => tr.trim().length > 0)).toBe(true);
 }
 
-test.describe('Feature en prod — sélecteur de lieu (ville affichée, seuil 3)', () => {
-  test('/estimation (#est-quartier) + Almadies → Ngor, Dakar', async ({ page }) => {
+async function assertAlmadiesBreadcrumb(page: Page, listboxSel: string) {
+  const almadies = page
+    .locator(`${listboxSel} [data-place-option]`)
+    .filter({ has: page.locator('[data-place-name]', { hasText: /^Almadies$/ }) });
+  await expect(almadies).toHaveCount(1);
+  await expect(almadies).toContainText('›');
+  await expect(almadies).toContainText('Ngor');
+  await expect(almadies).toContainText('Dakar');
+}
+
+test.describe('Feature en prod — sélecteur de lieu (fil d’Ariane, seuil 3)', () => {
+  test('/estimation (#est-quartier) + Almadies › Ngor › Dakar', async ({ page }) => {
     const resp = await page.goto('/estimation');
     expect(resp?.status(), 'HTTP /estimation').toBeLessThan(400);
     const appart = page.getByRole('button', { name: 'Appartement' });
@@ -47,12 +58,11 @@ test.describe('Feature en prod — sélecteur de lieu (ville affichée, seuil 3)
     await page.getByRole('button', { name: 'Continuer' }).click();
 
     await assertPicker(page, '#est-quartier', '#est-quartier-listbox', 'al', 'alm');
+    await assertAlmadiesBreadcrumb(page, '#est-quartier-listbox');
 
     const almadies = page
       .locator('#est-quartier-listbox [data-place-option]')
       .filter({ has: page.locator('[data-place-name]', { hasText: /^Almadies$/ }) });
-    await expect(almadies).toHaveCount(1);
-    await expect(almadies.locator('[data-place-city]')).toHaveText('Ngor, Dakar');
     await almadies.click();
     await expect(page.locator('#est-quartier')).toHaveValue('Almadies');
     await expect(page.locator('#est-quartier-listbox')).toHaveCount(0);
@@ -69,5 +79,20 @@ test.describe('Feature en prod — sélecteur de lieu (ville affichée, seuil 3)
     await page.getByRole('button', { name: 'Continuer' }).click();
 
     await assertPicker(page, '#bud-zone', '#bud-zone-listbox', 'al', 'alm');
+    await assertAlmadiesBreadcrumb(page, '#bud-zone-listbox');
+  });
+
+  test('/ hero (#hs-city) — liste (portal) visible malgré l’overflow du hero', async ({ page }) => {
+    const resp = await page.goto('/');
+    expect(resp?.status(), 'HTTP /').toBeLessThan(400);
+    const input = page.locator('#hs-city');
+    await expect(input).toBeVisible({ timeout: 15_000 });
+    const options = page.locator('#hs-city-listbox [data-place-option]');
+    await expect(async () => {
+      await input.fill('');
+      await input.fill('alm');
+      await expect(options.first()).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 15_000 });
+    await assertAlmadiesBreadcrumb(page, '#hs-city-listbox');
   });
 });

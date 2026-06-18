@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
 import { t, type Lang, localizedPath } from '@/lib/i18n';
+import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
 
 interface Props { lang: Lang }
 
@@ -23,7 +24,7 @@ const TABS: Array<['Vente' | 'Location' | 'Gestion', 'search.tab.vente' | 'searc
 export default function HeroSearch({ lang }: Props) {
   const [tab, setTab] = useState<'Vente' | 'Location' | 'Gestion'>('Vente');
   const [type, setType] = useState('Appartement');
-  const [city, setCity] = useState('Dakar');
+  const [place, setPlace] = useState('');
   const [rooms, setRooms] = useState('1+');
   const [budget, setBudget] = useState('0');
 
@@ -36,7 +37,14 @@ export default function HeroSearch({ lang }: Props) {
     const params = new URLSearchParams();
     params.set('transaction', tab);
     if (type) params.set('type', type);
-    if (city) params.set('city', city);
+    const placeQ = place.trim();
+    if (placeQ) {
+      // Grande ville connue → filtre `city` exact ; sinon (quartier/commune) →
+      // recherche texte `q` (qui matche ville ET quartier sur /biens).
+      const knownCity = CITIES.find((c) => c.toLowerCase() === placeQ.toLowerCase());
+      if (knownCity) params.set('city', knownCity);
+      else params.set('q', placeQ);
+    }
     // "rooms" select maps to /biens bedsMin filter (e.g. "3+" → 3)
     const beds = parseInt(rooms.replace(/\D/g, ''), 10);
     if (Number.isFinite(beds) && beds > 0) params.set('bedsMin', String(beds));
@@ -81,16 +89,16 @@ export default function HeroSearch({ lang }: Props) {
         </div>
         <div>
           <label className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5" htmlFor="hs-city">
-            {t('search.label.city', lang)}
+            {t('search.label.place', lang)}
           </label>
-          <select
+          <PlaceAutocomplete
             id="hs-city"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className="w-full h-11 px-3 rounded-xl border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            {CITIES.map((c) => <option key={c}>{c}</option>)}
-          </select>
+            value={place}
+            onChange={setPlace}
+            placeholder={t('search.placeholder.place', lang)}
+            ariaLabel={t('search.label.place', lang)}
+            inputClassName="w-full h-11 px-3 rounded-xl border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          />
         </div>
       </div>
 

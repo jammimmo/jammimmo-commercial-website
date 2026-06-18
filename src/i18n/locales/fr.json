@@ -34,6 +34,8 @@
   "search.tab.gestion": "Gestion",
   "search.label.type": "Type",
   "search.label.city": "Ville",
+  "search.label.place": "Ville ou quartier",
+  "search.placeholder.place": "Ex. Dakar, Almadies, Saly…",
   "search.label.rooms": "Pièces min.",
   "search.label.budget": "Budget max.",
   "search.submit": "Rechercher un bien",

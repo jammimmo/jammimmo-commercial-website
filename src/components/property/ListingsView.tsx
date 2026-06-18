@@ -5,6 +5,7 @@ import MiniCard from './MiniCard';
 import ListingsMap from './ListingsMap';
 import { t, type Lang } from '@/lib/i18n';
 import { MIN_QUERY_CHARS } from '@/lib/places';
+import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
 
 type SortKey = 'relevance' | 'price_asc' | 'price_desc' | 'newest';
 /** Sort options — labels are looked up via `t()` at render time so they
@@ -143,15 +144,15 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
         <div className="container py-3 sm:py-4">
           <div className="flex flex-wrap items-center gap-2">
             {/* Search */}
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="search"
+            <div className="flex-1 min-w-[200px]">
+              <PlaceAutocomplete
+                id="listings-q"
                 value={filters.q}
-                onChange={(e) => setFilters((f) => ({ ...f, q: e.target.value }))}
+                onChange={(v) => setFilters((f) => ({ ...f, q: v }))}
                 placeholder={t('listings.search.placeholder', lang)}
-                aria-label={t('listings.search.placeholder', lang)}
-                className="w-full pl-10 pr-3 py-2.5 rounded-full bg-background border border-clay text-[14px] outline-none focus:border-primary transition"
+                ariaLabel={t('listings.search.placeholder', lang)}
+                leading={<Search className="w-4 h-4" />}
+                inputClassName="w-full h-11 pl-10 pr-3 rounded-full bg-background border border-clay text-[14px] outline-none focus:border-primary transition"
               />
             </div>
 

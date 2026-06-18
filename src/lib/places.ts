@@ -47,11 +47,18 @@ export function norm(s: string): string {
 }
 
 /**
- * Secondary label shown next to an option to disambiguate identical names.
- * "Plateau" → "Dakar-Plateau, Dakar" ; a commune → just its region.
+ * Fil d'Ariane (breadcrumb) du lieu : du nom tapé jusqu'à la ville/région.
+ *   • quartier « Almadies » → ["Almadies", "Ngor", "Dakar"]
+ *   • commune  « Ngor »     → ["Ngor", "Dakar"]
+ * Niveaux dédupliqués, vides ignorés. NB : le catalogue slim ne stocke que
+ * nom/commune/région — arrondissement & département demanderaient un rebuild
+ * avec la source territoriale (cf. scripts/build-places.mjs).
  */
-export function placeContext(p: Place): string {
-  return p.commune !== p.name && p.commune ? `${p.commune}, ${p.region}` : p.region;
+export function placeCrumbs(p: Place): string[] {
+  const out = [p.name];
+  if (p.commune && p.commune !== p.name) out.push(p.commune);
+  if (p.region && p.region !== p.commune && p.region !== p.name) out.push(p.region);
+  return out;
 }
 
 /**
