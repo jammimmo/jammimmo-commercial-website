@@ -44,7 +44,7 @@ import {
 import { t, type Lang } from '@/lib/i18n';
 import { track } from '@/lib/analytics';
 import { SITE } from '@/lib/site-config';
-import { filterPlaces, placeContext } from '@/lib/places';
+import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
 
 interface Props {
   lang: Lang;
@@ -384,25 +384,13 @@ export default function EstimateTool({ lang }: Props) {
                 icon={<MapPin className="w-5 h-5" />}
                 legend={t('estimate.q.quartier', lang)}
               >
-                <input
+                <PlaceAutocomplete
                   id="est-quartier"
-                  type="text"
-                  list="est-quartier-list"
-                  autoComplete="off"
                   value={form.quartier}
-                  onChange={(e) => update('quartier', e.target.value)}
+                  onChange={(v) => update('quartier', v)}
                   placeholder={t('estimate.placeholder.quartier', lang)}
-                  className="w-full h-11 px-3.5 rounded-xl border border-input bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  ariaLabel={t('estimate.q.quartier', lang)}
                 />
-                <datalist id="est-quartier-list">
-                  {filterPlaces(form.quartier, 50).map((p) => (
-                    // Names collide nationally (~57 dupes) → key on name|commune,
-                    // and show "commune, region" to disambiguate.
-                    <option key={`${p.name}|${p.commune}`} value={p.name}>
-                      {placeContext(p)}
-                    </option>
-                  ))}
-                </datalist>
                 <p className="text-muted-foreground text-xs mt-2">
                   {t('estimate.hint.quartier', lang)}
                 </p>

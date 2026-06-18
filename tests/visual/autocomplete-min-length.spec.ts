@@ -2,23 +2,17 @@ import { test, expect } from './_helpers'; // `test` étendu = route.abort() Cla
 import type { Locator, Page } from '@playwright/test';
 
 /**
- * Standard site : un autocomplete de lieu ne propose RIEN tant que l'utilisateur
- * n'a pas tapé au moins `MIN_QUERY_CHARS` (= 3) caractères ; à partir de 3 il
- * propose les communes/quartiers correspondants. Implémenté une seule fois dans
- * `filterPlaces` (src/lib/places.ts) → appliqué à TOUS les pickers de lieu :
- * Estimation (#est-quartier), Budget (#bud-zone), Match-o-mètre (#match-zone).
+ * Standard site du sélecteur de lieu (PlaceAutocomplete), partagé par
+ * Estimation (#est-quartier), Budget (#bud-zone), Match-o-mètre (#match-zone) :
+ *  1. aucune suggestion sous MIN_QUERY_CHARS (= 3) caractères ;
+ *  2. à partir de 3, chaque suggestion affiche le NOM + sa VILLE de rattachement
+ *     (« commune · région ») — la demande « show the corresponding city » ;
+ *  3. choisir une suggestion n'écrit que le nom propre dans le champ.
  *
- * Ce test n'est PAS un snapshot (aucune baseline) : il vérifie le COMPORTEMENT
- * (nombre d'options du <datalist>) sur le serveur dev. Le catalogue de lieux est
- * un JSON bundlé (aucune dépendance DB) → fiable même sans secrets.
- *
- * NB : on n'assert jamais une valeur transitoire — on poll le nombre d'options
- * pour laisser le <datalist> contrôlé par React se re-rendre après chaque saisie.
+ * Combobox maison (pas un <datalist> natif, dont le libellé secondaire est
+ * invisible sur iOS) → le texte de ville est de vrais nœuds DOM, donc testable.
+ * Catalogue de lieux = JSON bundlé (aucune dépendance DB) → fiable en dev.
  */
-
-// Clic robuste à l'hydratation : le bouton SSR est focusable avant que le
-// onClick de l'île React soit attaché → on re-clique jusqu'à ce que la
-// sélection prenne (aria-pressed), comme les specs e2e du funnel.
 async function hydrationSafeClick(btn: Locator) {
   await expect(async () => {
     await btn.click();
@@ -26,39 +20,31 @@ async function hydrationSafeClick(btn: Locator) {
   }).toPass({ timeout: 15_000 });
 }
 
-// Cœur de l'assertion, réutilisé pour chaque outil : 2 lettres → 0 suggestion,
-// 3 lettres → au moins une suggestion (dont le quartier attendu).
-async function assertMinThreeStandard(
+async function assertPicker(
   page: Page,
   inputSel: string,
-  datalistSel: string,
-  twoChars: string, // préfixe de 2 lettres (sous le seuil)
-  threeChars: string, // préfixe de 3 lettres (au seuil)
+  listboxSel: string,
+  twoChars: string,
+  threeChars: string,
 ) {
   const input = page.locator(inputSel);
-  const options = page.locator(`${datalistSel} option`);
+  const options = page.locator(`${listboxSel} [data-place-option]`);
+  await input.click();
 
-  // Champ vide : aucune suggestion (fini le « tout afficher » au focus).
-  await expect.poll(() => options.count()).toBe(0);
-
-  // 2 lettres : toujours rien (sous le seuil de 3).
+  // 2 lettres : rien (sous le seuil de 3).
   await input.fill(twoChars);
   await expect.poll(() => options.count()).toBe(0);
 
-  // 3 lettres : des suggestions apparaissent, ET chacune correspond vraiment à
-  // la requête (le <datalist> filtre, il ne déverse pas tout le catalogue).
+  // 3 lettres : des suggestions, chacune avec sa VILLE (commune · région) non vide.
   await input.fill(threeChars);
   await expect.poll(() => options.count()).toBeGreaterThan(0);
-  const values = await options.evaluateAll((els) =>
-    els.map((o) => (o as HTMLOptionElement).value),
-  );
-  const norm = (s: string) =>
-    s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
-  expect(values.every((v) => norm(v).includes(threeChars))).toBe(true);
+  const cities = await page.locator(`${listboxSel} [data-place-city]`).allInnerTexts();
+  expect(cities.length).toBeGreaterThan(0);
+  expect(cities.every((c) => c.trim().length > 0), 'chaque suggestion montre une ville').toBe(true);
 }
 
-test.describe('Standard autocomplete — suggestions à partir de 3 lettres', () => {
-  test('/estimation — picker de quartier (#est-quartier)', async ({ page }) => {
+test.describe('Sélecteur de lieu — seuil 3 lettres + ville affichée', () => {
+  test('/estimation (#est-quartier) + Almadies → Ngor, Dakar', async ({ page }) => {
     await page.goto('/estimation');
     const appart = page.getByRole('button', { name: 'Appartement' });
     await expect(appart).toBeVisible({ timeout: 15_000 });
@@ -67,10 +53,22 @@ test.describe('Standard autocomplete — suggestions à partir de 3 lettres', ()
     await page.getByRole('button', { name: 'Vendre' }).click();
     await page.getByRole('button', { name: 'Continuer' }).click();
 
-    await assertMinThreeStandard(page, '#est-quartier', '#est-quartier-list', 'al', 'alm');
+    await assertPicker(page, '#est-quartier', '#est-quartier-listbox', 'al', 'alm');
+
+    // L'entrée canonique « Almadies » existe et affiche bien sa ville = Ngor, Dakar.
+    const almadies = page
+      .locator('#est-quartier-listbox [data-place-option]')
+      .filter({ has: page.locator('[data-place-name]', { hasText: /^Almadies$/ }) });
+    await expect(almadies).toHaveCount(1);
+    await expect(almadies.locator('[data-place-city]')).toHaveText('Ngor, Dakar');
+
+    // Choisir « Almadies » n'écrit QUE le nom propre dans le champ (matching/lead inchangés).
+    await almadies.click();
+    await expect(page.locator('#est-quartier')).toHaveValue('Almadies');
+    await expect(page.locator('#est-quartier-listbox')).toHaveCount(0); // liste fermée
   });
 
-  test('/budget — picker de zone (#bud-zone)', async ({ page }) => {
+  test('/budget (#bud-zone)', async ({ page }) => {
     await page.goto('/budget');
     const buy = page.getByRole('button', { name: 'Acheter' });
     await expect(buy).toBeVisible({ timeout: 15_000 });
@@ -79,6 +77,6 @@ test.describe('Standard autocomplete — suggestions à partir de 3 lettres', ()
     await page.locator('#bud-amount').fill('50000000');
     await page.getByRole('button', { name: 'Continuer' }).click();
 
-    await assertMinThreeStandard(page, '#bud-zone', '#bud-zone-list', 'al', 'alm');
+    await assertPicker(page, '#bud-zone', '#bud-zone-listbox', 'al', 'alm');
   });
 });

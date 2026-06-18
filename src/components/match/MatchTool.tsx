@@ -39,7 +39,7 @@ import {
 import { t, type Lang, localizedPath } from '@/lib/i18n';
 import { track } from '@/lib/analytics';
 import { SITE } from '@/lib/site-config';
-import { filterPlaces, placeContext } from '@/lib/places';
+import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
 import { formatRentalPrice } from '@/lib/format';
 import type { PublicProperty } from '@/types/property';
 
@@ -371,23 +371,13 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
 
             {currentStep === 'zone' && (
               <Fieldset icon={<MapPin className="w-5 h-5" />} legend={t('match.q.zone', lang)}>
-                <input
+                <PlaceAutocomplete
                   id="match-zone"
-                  type="text"
-                  list="match-zone-list"
-                  autoComplete="off"
                   value={form.zone}
-                  onChange={(e) => update('zone', e.target.value)}
+                  onChange={(v) => update('zone', v)}
                   placeholder={t('match.placeholder.zone', lang)}
-                  className="w-full h-11 px-3.5 rounded-xl border border-input bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  ariaLabel={t('match.q.zone', lang)}
                 />
-                <datalist id="match-zone-list">
-                  {filterPlaces(form.zone, 50).map((p) => (
-                    <option key={`${p.name}|${p.commune}`} value={p.name}>
-                      {placeContext(p)}
-                    </option>
-                  ))}
-                </datalist>
                 <p className="text-muted-foreground text-xs mt-2">{t('match.hint.zone', lang)}</p>
               </Fieldset>
             )}

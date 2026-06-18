@@ -62,6 +62,15 @@ function walk(node, ctx) {
 }
 walk(tree, { region: null, commune: null });
 
+// Ajouts CURÉS (manuels), vérifiés — lieux usuels absents/ambigus du référentiel
+// source. Fusionnés puis dédupliqués ci-dessous, donc sans effet s'ils existent déjà.
+//  • « Almadies » : quartier résidentiel huppé (Pointe des Almadies). Le référentiel
+//    n'a que « Ngor Almadies » et « Almadies Keur Massar » (autre lieu, à Keur Massar).
+//    On ajoute l'entrée canonique rattachée à sa commune réelle = Ngor, région Dakar.
+//    NB : Almadies n'est PAS une commune (c'est un arrondissement + un quartier de Ngor).
+const CURATED_EXTRA = [{ n: 'Almadies', c: 'Ngor', r: 'Dakar' }];
+for (const e of CURATED_EXTRA) rows.push(e);
+
 // Stable, de-duplicated by (name|commune|region) to be safe.
 const seen = new Set();
 const deduped = [];

@@ -51,7 +51,7 @@ import {
 import { t, type Lang, localizedPath } from '@/lib/i18n';
 import { track } from '@/lib/analytics';
 import { SITE } from '@/lib/site-config';
-import { filterPlaces, placeContext } from '@/lib/places';
+import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
 
 interface Props {
   lang: Lang;
@@ -395,25 +395,13 @@ export default function BudgetTool({ lang }: Props) {
                 quartiers, all 14 regions). Non-blocking: free text accepted. */}
             {currentStep === 'zone' && (
               <Fieldset icon={<MapPin className="w-5 h-5" />} legend={t('budget.q.zone', lang)}>
-                <input
+                <PlaceAutocomplete
                   id="bud-zone"
-                  type="text"
-                  list="bud-zone-list"
-                  autoComplete="off"
                   value={form.zone}
-                  onChange={(e) => update('zone', e.target.value)}
+                  onChange={(v) => update('zone', v)}
                   placeholder={t('budget.placeholder.zone', lang)}
-                  className="w-full h-11 px-3.5 rounded-xl border border-input bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  ariaLabel={t('budget.q.zone', lang)}
                 />
-                <datalist id="bud-zone-list">
-                  {filterPlaces(form.zone, 50).map((p) => (
-                    // Names collide nationally (~57 dupes) → key on name|commune,
-                    // and show "commune, region" to disambiguate.
-                    <option key={`${p.name}|${p.commune}`} value={p.name}>
-                      {placeContext(p)}
-                    </option>
-                  ))}
-                </datalist>
                 <p className="text-muted-foreground text-xs mt-2">{t('budget.hint.zone', lang)}</p>
               </Fieldset>
             )}

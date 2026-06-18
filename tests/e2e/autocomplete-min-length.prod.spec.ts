@@ -2,10 +2,12 @@ import { test, expect } from '../visual/_helpers'; // `test` étendu = route.abo
 import type { Locator, Page } from '@playwright/test';
 
 /**
- * E2E EN PROD : standard d'autocomplete de lieu = aucune suggestion sous 3
- * lettres, suggestions filtrées à partir de 3 (cf. filterPlaces / MIN_QUERY_CHARS).
- * Vérifié en LIVE sur les deux pickers : Estimation (#est-quartier) et
- * Budget (#bud-zone). On ne soumet rien (pas de faux lead). Vidéo + trace.
+ * E2E EN PROD : sélecteur de lieu (PlaceAutocomplete) sur Estimation + Budget.
+ *  1. aucune suggestion sous 3 lettres ;
+ *  2. à 3 lettres, chaque suggestion affiche sa VILLE (commune · région) ;
+ *  3. l'entrée canonique « Almadies » → « Ngor, Dakar » ; la choisir n'écrit que
+ *     le nom propre dans le champ.
+ * On ne soumet rien (pas de faux lead). Vidéo + trace.
  */
 async function hydrationSafeClick(btn: Locator) {
   await expect(async () => {
@@ -14,32 +16,27 @@ async function hydrationSafeClick(btn: Locator) {
   }).toPass({ timeout: 15_000 });
 }
 
-async function assertMinThreeStandard(
+async function assertPicker(
   page: Page,
   inputSel: string,
-  datalistSel: string,
+  listboxSel: string,
   twoChars: string,
   threeChars: string,
 ) {
   const input = page.locator(inputSel);
-  const options = page.locator(`${datalistSel} option`);
-
-  await expect.poll(() => options.count()).toBe(0); // champ vide → rien
+  const options = page.locator(`${listboxSel} [data-place-option]`);
+  await input.click();
   await input.fill(twoChars);
-  await expect.poll(() => options.count()).toBe(0); // 2 lettres → rien
-
+  await expect.poll(() => options.count()).toBe(0);
   await input.fill(threeChars);
-  await expect.poll(() => options.count()).toBeGreaterThan(0); // 3 lettres → suggestions
-  const values = await options.evaluateAll((els) =>
-    els.map((o) => (o as HTMLOptionElement).value),
-  );
-  const norm = (s: string) =>
-    s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
-  expect(values.every((v) => norm(v).includes(threeChars))).toBe(true);
+  await expect.poll(() => options.count()).toBeGreaterThan(0);
+  const cities = await page.locator(`${listboxSel} [data-place-city]`).allInnerTexts();
+  expect(cities.length).toBeGreaterThan(0);
+  expect(cities.every((c) => c.trim().length > 0), 'chaque suggestion montre une ville').toBe(true);
 }
 
-test.describe('Feature en prod — autocomplete lieu : seuil 3 lettres', () => {
-  test('/estimation (#est-quartier)', async ({ page }) => {
+test.describe('Feature en prod — sélecteur de lieu (ville affichée, seuil 3)', () => {
+  test('/estimation (#est-quartier) + Almadies → Ngor, Dakar', async ({ page }) => {
     const resp = await page.goto('/estimation');
     expect(resp?.status(), 'HTTP /estimation').toBeLessThan(400);
     const appart = page.getByRole('button', { name: 'Appartement' });
@@ -48,7 +45,17 @@ test.describe('Feature en prod — autocomplete lieu : seuil 3 lettres', () => {
     await page.getByRole('button', { name: 'Continuer' }).click();
     await page.getByRole('button', { name: 'Vendre' }).click();
     await page.getByRole('button', { name: 'Continuer' }).click();
-    await assertMinThreeStandard(page, '#est-quartier', '#est-quartier-list', 'al', 'alm');
+
+    await assertPicker(page, '#est-quartier', '#est-quartier-listbox', 'al', 'alm');
+
+    const almadies = page
+      .locator('#est-quartier-listbox [data-place-option]')
+      .filter({ has: page.locator('[data-place-name]', { hasText: /^Almadies$/ }) });
+    await expect(almadies).toHaveCount(1);
+    await expect(almadies.locator('[data-place-city]')).toHaveText('Ngor, Dakar');
+    await almadies.click();
+    await expect(page.locator('#est-quartier')).toHaveValue('Almadies');
+    await expect(page.locator('#est-quartier-listbox')).toHaveCount(0);
   });
 
   test('/budget (#bud-zone)', async ({ page }) => {
@@ -60,6 +67,7 @@ test.describe('Feature en prod — autocomplete lieu : seuil 3 lettres', () => {
     await page.getByRole('button', { name: 'Continuer' }).click();
     await page.locator('#bud-amount').fill('50000000');
     await page.getByRole('button', { name: 'Continuer' }).click();
-    await assertMinThreeStandard(page, '#bud-zone', '#bud-zone-list', 'al', 'alm');
+
+    await assertPicker(page, '#bud-zone', '#bud-zone-listbox', 'al', 'alm');
   });
 });
