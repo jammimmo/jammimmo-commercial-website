@@ -410,7 +410,7 @@
   "estimate.condition.renover": "Needs renovation",
 
   "estimate.placeholder.quartier": "e.g. Almadies, Mermoz, Sacré-Cœur…",
-  "estimate.hint.quartier": "Start typing: communes and neighbourhoods across all of Senegal are suggested. You can also type freely.",
+  "estimate.hint.quartier": "Type at least 3 letters: communes and neighbourhoods across all of Senegal are suggested. You can also type freely.",
 
   "estimate.label.type": "Property type",
   "estimate.label.transaction": "Project",
@@ -488,7 +488,7 @@
   "budget.placeholder.zone": "e.g. Almadies, Saly, Mermoz, Thiès…",
   "budget.hint.budget.acheter": "The overall budget you can put towards a purchase. We make no loan calculation: we start from what you tell us.",
   "budget.hint.budget.louer": "The maximum rent you can pay each month.",
-  "budget.hint.zone": "Start typing: communes and neighbourhoods across all of Senegal are suggested. You can also type freely.",
+  "budget.hint.zone": "Type at least 3 letters: communes and neighbourhoods across all of Senegal are suggested. You can also type freely.",
   "budget.hint.type": "Optional. Leave on “Any type” to see every kind of property.",
 
   "budget.label.transaction": "Project",
@@ -665,7 +665,7 @@
   "match.bedrooms.4plus": "4+",
 
   "match.hint.optional": "Optional — you can skip this step.",
-  "match.hint.zone": "Start typing: communes and neighbourhoods across all of Senegal. Optional.",
+  "match.hint.zone": "Type at least 3 letters: communes and neighbourhoods across all of Senegal. Optional.",
   "match.placeholder.zone": "e.g. Almadies, Saly, Mermoz, Thiès…",
 
   "match.label.transaction": "Project",

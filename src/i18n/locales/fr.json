@@ -410,7 +410,7 @@
   "estimate.condition.renover": "À rénover",
 
   "estimate.placeholder.quartier": "Ex. Almadies, Mermoz, Sacré-Cœur…",
-  "estimate.hint.quartier": "Commencez à taper : communes et quartiers de tout le Sénégal vous sont proposés. Vous pouvez aussi saisir librement.",
+  "estimate.hint.quartier": "Tapez au moins 3 lettres : communes et quartiers de tout le Sénégal vous sont proposés. Vous pouvez aussi saisir librement.",
 
   "estimate.label.type": "Type de bien",
   "estimate.label.transaction": "Projet",
@@ -488,7 +488,7 @@
   "budget.placeholder.zone": "Ex. Almadies, Saly, Mermoz, Thiès…",
   "budget.hint.budget.acheter": "Le budget global que vous pouvez consacrer à l'achat. On ne fait aucun calcul de crédit : on part de ce que vous indiquez.",
   "budget.hint.budget.louer": "Le loyer maximum que vous pouvez payer chaque mois.",
-  "budget.hint.zone": "Commencez à taper : communes et quartiers de tout le Sénégal vous sont proposés. Vous pouvez aussi saisir librement.",
+  "budget.hint.zone": "Tapez au moins 3 lettres : communes et quartiers de tout le Sénégal vous sont proposés. Vous pouvez aussi saisir librement.",
   "budget.hint.type": "Facultatif. Laissez « Peu importe » pour voir tous les types de biens.",
 
   "budget.label.transaction": "Projet",
@@ -665,7 +665,7 @@
   "match.bedrooms.4plus": "4+",
 
   "match.hint.optional": "Facultatif — vous pouvez passer cette étape.",
-  "match.hint.zone": "Commencez à taper : communes et quartiers de tout le Sénégal. Facultatif.",
+  "match.hint.zone": "Tapez au moins 3 lettres : communes et quartiers de tout le Sénégal. Facultatif.",
   "match.placeholder.zone": "Ex. Almadies, Saly, Mermoz, Thiès…",
 
   "match.label.transaction": "Projet",

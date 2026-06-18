@@ -4,6 +4,7 @@ import type { PublicProperty } from '@/types/property';
 import MiniCard from './MiniCard';
 import ListingsMap from './ListingsMap';
 import { t, type Lang } from '@/lib/i18n';
+import { MIN_QUERY_CHARS } from '@/lib/places';
 
 type SortKey = 'relevance' | 'price_asc' | 'price_desc' | 'newest';
 /** Sort options — labels are looked up via `t()` at render time so they
@@ -80,7 +81,9 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
       if (filters.priceMin && p.price < filters.priceMin) return false;
       if (filters.priceMax && filters.priceMax > 0 && p.price > filters.priceMax) return false;
       if (filters.bedsMin && p.bedrooms < filters.bedsMin) return false;
-      if (filters.q) {
+      // Same site-wide standard as the place autocompletes: only start matching
+      // once the query is long enough (a 1–2 char text search isn't meaningful).
+      if (filters.q.trim().length >= MIN_QUERY_CHARS) {
         const q = filters.q.toLowerCase();
         if (
           !p.title.toLowerCase().includes(q) &&

@@ -275,7 +275,7 @@
   "estimate.condition.renover": "War nañ koo defaraat",
 
   "estimate.placeholder.quartier": "Ci misaal Almadies, Mermoz, Sacré-Cœur…",
-  "estimate.hint.quartier": "Tàmbalil bind: komin ak gox yu Senegaal gépp dañu lay won. Mën nga it bind ci sa bopp.",
+  "estimate.hint.quartier": "Bindal 3 araf walla lu ëpp : komin ak gox yu Senegaal gépp dañu lay won. Mën nga it bind ci sa bopp.",
 
   "estimate.label.type": "Xeeti kër",
   "estimate.label.transaction": "Mébét",
@@ -355,7 +355,7 @@
   "budget.placeholder.zone": "Ci misaal Almadies, Saly, Mermoz, Thiès…",
   "budget.hint.budget.acheter": "Budget bi nga mën a teg ci njënd bi. Du nu def benn kàttanu xaalis (crédit): noo ngi tàmbalee ci li nga wax.",
   "budget.hint.budget.louer": "Loyer bu gën a réy bi nga mën a fay weer wu nekk.",
-  "budget.hint.zone": "Tàmbalil bind: komin ak gox yu Senegaal gépp dañu lay won. Mën nga it bind ci sa bopp.",
+  "budget.hint.zone": "Bindal 3 araf walla lu ëpp : komin ak gox yu Senegaal gépp dañu lay won. Mën nga it bind ci sa bopp.",
   "budget.hint.type": "Su soobee. Bàyyil ci «Lépp a baax» ngir gis xeeti kër yépp.",
 
   "budget.label.transaction": "Mébét",
@@ -532,7 +532,7 @@
   "match.bedrooms.4plus": "4+",
 
   "match.hint.optional": "Su soobee — mën nga génn tànk bii.",
-  "match.hint.zone": "Tàmbalil bind: komin ak gox yu Senegaal gépp. Su soobee.",
+  "match.hint.zone": "Bindal 3 araf walla lu ëpp : komin ak gox yu Senegaal gépp. Su soobee.",
   "match.placeholder.zone": "Ci misaal Almadies, Saly, Mermoz, Thiès…",
 
   "match.label.transaction": "Mébét",

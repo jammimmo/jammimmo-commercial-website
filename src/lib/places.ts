@@ -55,13 +55,23 @@ export function placeContext(p: Place): string {
 }
 
 /**
- * Filter the catalogue for the autocomplete. Matches the query (≥2 chars, after
- * normalization) against the place NAME, ranking prefix matches first, then caps
- * the result so the rendered `<datalist>` never holds 1 200 options.
+ * Site-wide standard: an autocomplete only starts suggesting once the user has
+ * typed at least this many characters. Below it we suggest NOTHING (rather than
+ * dumping the whole catalogue) — that's the conventional minimum-query-length
+ * behaviour. Shared so every place picker (estimation, budget, match-o-mètre)
+ * applies the exact same rule.
+ */
+export const MIN_QUERY_CHARS = 3;
+
+/**
+ * Filter the catalogue for the autocomplete. Below `MIN_QUERY_CHARS` chars (after
+ * normalization) it returns nothing; from there it matches the query against the
+ * place NAME, ranking prefix matches first, then caps the result so the rendered
+ * `<datalist>` never holds 1 200 options.
  */
 export function filterPlaces(query: string, limit = 50): Place[] {
   const q = norm(query);
-  if (q.length < 2) return PLACES.slice(0, limit);
+  if (q.length < MIN_QUERY_CHARS) return [];
 
   const starts: Place[] = [];
   const contains: Place[] = [];
