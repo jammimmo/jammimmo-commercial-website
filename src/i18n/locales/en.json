@@ -327,6 +327,7 @@
   "listings.sort.newest": "Newest first",
   "listings.filter.button": "Filters",
   "listings.filter.reset": "Reset",
+  "listings.filter.seeResults": "See {count} results",
   "listings.filter.resetAll": "Reset filters",
   "listings.filter.transactionLabel": "Sale / Rent",
   "listings.filter.typeLabel": "All types",

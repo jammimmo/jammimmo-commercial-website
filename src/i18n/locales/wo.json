@@ -223,6 +223,7 @@
   "listings.sort.newest": "Yu yees",
   "listings.filter.button": "Filtres",
   "listings.filter.reset": "Soppi",
+  "listings.filter.seeResults": "Gis {count} kër",
   "listings.filter.resetAll": "Soppi filtres yépp",
   "listings.filter.transactionLabel": "Jënd / Luwaa",
   "listings.filter.typeLabel": "Xeet yépp",

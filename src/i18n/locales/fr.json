@@ -327,6 +327,7 @@
   "listings.sort.newest": "Plus récents",
   "listings.filter.button": "Filtres",
   "listings.filter.reset": "Réinitialiser",
+  "listings.filter.seeResults": "Voir {count} résultats",
   "listings.filter.resetAll": "Réinitialiser les filtres",
   "listings.filter.transactionLabel": "Vente / Location",
   "listings.filter.typeLabel": "Tous types",

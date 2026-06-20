@@ -242,6 +242,23 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
                   options={[{ value: '', label: t('listings.filter.cityLabel', lang) }, ...cities.map((c) => ({ value: c, label: c }))]}
                 />
               </div>
+
+              {/* Compteur live + CTA « Voir X résultats » : règle l'audit (filtres
+                  sans retour live). Le bouton ferme le panneau pour révéler la liste. */}
+              <div className="col-span-2 sm:col-span-4 flex items-center justify-between gap-3 pt-3 mt-1 border-t border-clay/60">
+                <span className="text-[13px] text-muted-foreground">
+                  <strong className="text-foreground font-semibold">{filtered.length}</strong>{' '}
+                  {t('listings.results.count', lang).replace('{count}', '').trim()}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setFiltersOpen(false)}
+                  disabled={filtered.length === 0}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground font-semibold text-[13px] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-secondary hover:text-secondary-foreground transition"
+                >
+                  {t('listings.filter.seeResults', lang).replace('{count}', String(filtered.length))}
+                </button>
+              </div>
             </div>
           )}
         </div>
