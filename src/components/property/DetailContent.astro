@@ -14,7 +14,7 @@ import { getStatusBadge, getTransactionBadge } from '@/lib/status';
 import { SITE, TEL_URI, MAILTO_URI } from '@/lib/site-config';
 import {
   Bed, Maximize2, MapPin, Tag, Award, FileText, Download,
-  Phone, MessageCircle, Mail, Bath, Building2, Sparkles, ShieldCheck,
+  Phone, MessageCircle, Mail, Bath, Building2, Sparkles, ShieldCheck, Languages,
 } from 'lucide-react';
 
 interface Props {
@@ -58,6 +58,20 @@ const documentEntries = Object.entries(p.documents || {})
   .filter(([, url]) => typeof url === 'string' && url.length > 0);
 
 const priceLabel = formatRentalPrice(p.price, p.transaction_type);
+
+// Traduction à la demande (FR → langue de la page) — côté client, via le worker
+// Cloudflare (Workers AI). `translateEndpoint` = origine du worker (= endpoint
+// analytics) ; vide en dev → la fonctionnalité reste invisible. On ne l'active
+// que sur les pages EN (Wolof écarté). Le worker traduit SA propre donnée par
+// `ref` (anti-abus) + cache KV ; côté client on cache en sessionStorage.
+const translateEndpoint = (import.meta.env.PUBLIC_ANALYTICS_ENDPOINT ?? '').replace(/\/$/, '');
+const trLabels = {
+  action: t('listing.translate.action', lang),
+  loading: t('listing.translate.loading', lang),
+  badge: t('listing.translate.badge', lang),
+  original: t('listing.translate.original', lang),
+  error: t('listing.translate.error', lang),
+};
 // `transaction.label` comes from the FR-only badge dict in lib/status — we
 // compare against its raw value to choose the i18n key, but display through `t`.
 const priceCaption =
@@ -111,7 +125,7 @@ const hasImages = p.images.length > 0;
           )}
         </div>
 
-        <h1 class="font-serif font-light text-[clamp(28px,4vw,52px)] leading-tight tracking-tight [text-wrap:balance]">
+        <h1 class="font-serif font-light text-[clamp(28px,4vw,52px)] leading-tight tracking-tight [text-wrap:balance]" data-tr-field="title">
           {p.title}
         </h1>
 
@@ -247,9 +261,24 @@ const hasImages = p.images.length > 0;
     <div class="container">
       <article class="prop-description relative max-w-5xl mx-auto rounded-2xl bg-card border border-clay px-6 sm:px-9 py-7 sm:py-9 shadow-sm">
         <div class="absolute left-0 top-8 bottom-8 w-1 rounded-r-full bg-gradient-to-b from-secondary via-secondary/60 to-transparent"></div>
-        <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2">
+        <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2 flex-wrap">
           <span class="w-6 h-px bg-primary"></span>
           {t('property.detail.description', lang)}
+          {lang === 'en' && (
+            <span class="ml-auto inline-flex items-center gap-2.5 normal-case tracking-normal">
+              <span data-tr-badge hidden class="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
+                <Sparkles className="w-3 h-3" />{trLabels.badge}
+              </span>
+              <button
+                type="button"
+                data-tr-toggle
+                hidden
+                class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-secondary underline underline-offset-2 disabled:opacity-60"
+              >
+                <Languages className="w-3.5 h-3.5" /><span data-tr-toggle-label>{trLabels.action}</span>
+              </button>
+            </span>
+          )}
         </div>
 
         <!-- Essentials row (above description) — colourful icon cards -->
@@ -289,10 +318,10 @@ const hasImages = p.images.length > 0;
           <div>
             {p.commercial_message && (
               <p class="font-serif italic text-[clamp(17px,1.3vw,21px)] text-foreground/85 leading-relaxed max-w-[58ch] mb-5">
-                « {p.commercial_message} »
+                « <span data-tr-field="commercial_message">{p.commercial_message}</span> »
               </p>
             )}
-            <div class="description-body text-foreground/85 leading-[1.75] text-[15.5px] whitespace-pre-line max-w-[68ch]">{p.description}</div>
+            <div class="description-body text-foreground/85 leading-[1.75] text-[15.5px] whitespace-pre-line max-w-[68ch]" data-tr-field="description">{p.description}</div>
             {p.address && (
               <p class="mt-5 text-sm text-muted-foreground inline-flex items-center gap-2">
                 <MapPin className="w-4 h-4" />{p.address}
@@ -479,7 +508,7 @@ const hasImages = p.images.length > 0;
   }
 </style>
 
-<script define:vars={{ propertyId: p.id }}>
+<script define:vars={{ propertyId: p.id, translateEndpoint, translateLang: lang, propertyRef: p.reference, trLabels }}>
   if ('requestIdleCallback' in window) {
     window.requestIdleCallback(() => {
       fetch('/api/views', {
@@ -520,4 +549,71 @@ const hasImages = p.images.length > 0;
       }
     });
   }
+
+  // --- Traduction à la demande (FR → langue de la page), via le worker CF ---
+  // Le bouton reste CACHÉ tant que l'endpoint /api/translate ne répond pas
+  // (probe), donc rien ne s'affiche tant que le worker n'est pas déployé.
+  (function () {
+    var toggle = document.querySelector('[data-tr-toggle]');
+    if (!toggle || !translateEndpoint || translateLang === 'fr') return;
+    var fields = Array.prototype.slice.call(document.querySelectorAll('[data-tr-field]'));
+    if (!fields.length) return;
+    fields.forEach(function (el) { el.setAttribute('data-tr-orig', el.textContent); });
+
+    var tlabel = toggle.querySelector('[data-tr-toggle-label]');
+    var badge = document.querySelector('[data-tr-badge]');
+    var cacheKey = 'tr:' + propertyRef + ':' + translateLang;
+    var translated = null;
+    var state = 'orig';
+    try { var cached = sessionStorage.getItem(cacheKey); if (cached) translated = JSON.parse(cached); } catch (e) {}
+
+    function label(txt) { if (tlabel) tlabel.textContent = txt; }
+    function showOriginal() {
+      fields.forEach(function (el) { el.textContent = el.getAttribute('data-tr-orig'); });
+      if (badge) badge.hidden = true;
+      label(trLabels.action); state = 'orig';
+    }
+    function showTranslated() {
+      fields.forEach(function (el) {
+        var f = el.getAttribute('data-tr-field');
+        if (translated && translated[f] != null) el.textContent = translated[f];
+      });
+      if (badge) badge.hidden = false;
+      label(trLabels.original); state = 'tr';
+    }
+    function fetchTranslation() {
+      toggle.disabled = true; label(trLabels.loading);
+      fetch(translateEndpoint + '/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ref: propertyRef, source: 'fr', target: translateLang,
+          fields: fields.map(function (el) { return el.getAttribute('data-tr-field'); }),
+        }),
+      })
+        .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+        .then(function (d) {
+          translated = (d && d.translations) || null;
+          if (!translated) throw 0;
+          try { sessionStorage.setItem(cacheKey, JSON.stringify(translated)); } catch (e) {}
+          toggle.disabled = false; showTranslated();
+        })
+        .catch(function () {
+          toggle.disabled = false; label(trLabels.error);
+          setTimeout(function () { if (state === 'orig') label(trLabels.action); }, 2200);
+        });
+    }
+    toggle.addEventListener('click', function () {
+      if (state === 'orig') { if (translated) showTranslated(); else fetchTranslation(); }
+      else showOriginal();
+    });
+
+    // Révèle le bouton seulement si l'endpoint est disponible (ou déjà en cache).
+    if (translated) { toggle.hidden = false; }
+    else {
+      fetch(translateEndpoint + '/api/translate?ping=1', { method: 'GET' })
+        .then(function (r) { if (r.ok) toggle.hidden = false; })
+        .catch(function () {});
+    }
+  })();
 </script>
