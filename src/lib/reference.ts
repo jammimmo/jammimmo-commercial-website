@@ -30,11 +30,21 @@ export function isInternalRef(ref: string): boolean {
   return REF_RE.test(ref);
 }
 
-/** "Ref #00019" for public display, or "Ref #—" if unparseable. */
-export function formatPublicRef(ref: string): string {
+/**
+ * "Ref #00019" for public display. Robust to ref-scheme changes: the admin now
+ * emits refs like `JI-RCH-DKR-2606-0304` (5 segments) which the strict legacy
+ * regex rejects — that made every fiche show a useless "Ref #—" while the real
+ * ref was printed on the photo. So: try the legacy parse, else use the trailing
+ * numeric block as the serial, else show the ref as-is. NEVER returns "#—" for a
+ * non-empty ref; returns '' when there's no ref (so callers can hide the chip).
+ */
+export function formatPublicRef(ref: string | null | undefined): string {
+  if (!ref) return '';
   const parsed = parseInternalRef(ref);
-  if (!parsed) return 'Ref #—';
-  return `Ref #${parsed.serial}`;
+  if (parsed) return `Ref #${parsed.serial}`;
+  const trailing = ref.match(/(\d+)\s*$/);
+  if (trailing) return `Ref #${trailing[1]}`;
+  return `Ref ${ref}`;
 }
 
 /** URL-safe slug for /biens/[slug]. We use the full internal ref because

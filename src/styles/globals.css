@@ -134,6 +134,15 @@
   ::selection {
     background: hsl(var(--secondary) / 0.35);
   }
+  /* Placeholders lisibles (contraste AA). Par défaut les navigateurs (surtout
+     Firefox/iOS) appliquent une opacité <1 → placeholders quasi invisibles
+     (~1,2-1,9:1, sous le seuil). On force le token muted-foreground à pleine
+     opacité, soit ~6:1 sur fond clair. */
+  input::placeholder,
+  textarea::placeholder {
+    color: hsl(var(--muted-foreground));
+    opacity: 1;
+  }
 }
 
 /* ============================================================================

@@ -3,6 +3,7 @@ import { Bed, Maximize2, Play, Images } from 'lucide-react';
 import type { PublicProperty } from '@/types/property';
 import { youtubeIdFromUrl, youtubeThumb } from '@/lib/youtube';
 import { t, type Lang } from '@/lib/i18n';
+import { formatRentalPrice } from '@/lib/format';
 import FavoriteToggle from './FavoriteToggle';
 
 interface Props {
@@ -14,12 +15,10 @@ interface Props {
   onLeave?: () => void;
 }
 
-const FCFA = new Intl.NumberFormat('fr-FR');
-
 function formatPrice(p: PublicProperty): string {
-  return p.transaction_type === 'Location'
-    ? `${FCFA.format(p.price)} FCFA / mois`
-    : `${FCFA.format(p.price)} FCFA`;
+  // Shared formatter (deterministic grouping) → cartes liste et fiche bien
+  // affichent EXACTEMENT le même format de prix.
+  return formatRentalPrice(p.price, p.transaction_type);
 }
 
 /**

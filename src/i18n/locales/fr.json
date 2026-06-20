@@ -1,6 +1,6 @@
 {
   "site.name": "Jamm Immobilier",
-  "site.tagline": "Un investissement sûr et toute sécurité",
+  "site.tagline": "L'immobilier en toute sérénité",
   "site.description": "Agence immobilière sénégalaise — vente, location, gestion et accompagnement de projet. De Dakar à Saint-Louis.",
 
   "nav.listings": "Annonces",
@@ -283,11 +283,13 @@
   "common.transaction.sale": "À vendre",
   "common.videoTour": "Visite vidéo",
   "common.details": "Détails",
+  "common.copied": "Copié",
   "common.backToListings": "Toutes les annonces",
 
   "property.detail.interested": "Je suis intéressé",
   "property.detail.call": "Appeler",
   "property.detail.whatsapp": "WhatsApp",
+  "property.detail.copyRef": "Copier la référence",
   "property.detail.priceTerms": "Conditions, caution, avance — sur demande.",
   "property.detail.rentalPrice": "Loyer mensuel",
   "property.detail.salePrice": "Prix de vente",

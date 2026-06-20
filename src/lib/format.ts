@@ -3,12 +3,26 @@
  * Sourced from admin: PropertyForm.tsx ~ formatFCFA().
  */
 
-const FCFA = new Intl.NumberFormat('fr-FR');
+/**
+ * Group an integer with thin spaces every 3 digits — "110000" → "110 000".
+ *
+ * We do NOT use `Intl.NumberFormat('fr-FR')`: at BUILD time (Cloudflare Pages
+ * Node) the fr-FR locale grouping silently no-ops on some runtimes, so prices
+ * rendered server-side (fiche bien, PropertyCard) came out as "110000" while
+ * client-rendered ones (MiniCard, browser ICU) showed "110 000" — an embarrassing
+ * inconsistency on the detail page. Manual grouping is deterministic everywhere.
+ * Uses a regular space (renders identically, stays predictable in tests).
+ */
+function groupFr(n: number): string {
+  return Math.round(n)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
 
 export function formatFCFA(n: number | null | undefined, opts: { suffix?: boolean } = {}): string {
   if (n === null || n === undefined || Number.isNaN(n)) return '—';
   const suffix = opts.suffix !== false ? ' FCFA' : '';
-  return `${FCFA.format(Math.round(n))}${suffix}`;
+  return `${groupFr(n)}${suffix}`;
 }
 
 /** "850 000 FCFA / mois" for rentals */
@@ -71,7 +85,7 @@ export function formatBedrooms(n: number): string {
 /** "420 m²" */
 export function formatSurface(n: number): string {
   if (!n || n <= 0) return '—';
-  return `${FCFA.format(n)} m²`;
+  return `${groupFr(n)} m²`;
 }
 
 /** "Dakar · Almadies" */

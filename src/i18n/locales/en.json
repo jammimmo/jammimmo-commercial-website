@@ -1,6 +1,6 @@
 {
   "site.name": "Jamm Immobilier",
-  "site.tagline": "A safe and secure investment",
+  "site.tagline": "Real estate, complete peace of mind",
   "site.description": "Senegalese real estate agency — sale, rental, property management and project guidance. From Dakar to Saint-Louis.",
 
   "nav.listings": "Listings",
@@ -283,11 +283,13 @@
   "common.transaction.sale": "For sale",
   "common.videoTour": "Video tour",
   "common.details": "Details",
+  "common.copied": "Copied",
   "common.backToListings": "All listings",
 
   "property.detail.interested": "I'm interested",
   "property.detail.call": "Call",
   "property.detail.whatsapp": "WhatsApp",
+  "property.detail.copyRef": "Copy the reference",
   "property.detail.priceTerms": "Terms, deposit, prepayment — on request.",
   "property.detail.rentalPrice": "Monthly rent",
   "property.detail.salePrice": "Sale price",

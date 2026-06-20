@@ -93,7 +93,22 @@ const hasImages = p.images.length > 0;
           {p.tags.map((tag) => (
             <span class="px-3 py-1.5 rounded-full text-[12px] font-semibold bg-ochre/10 text-ink border border-ochre/30">{tag}</span>
           ))}
-          <span class="ml-auto text-[12px] font-mono text-muted-foreground/70">{formatPublicRef(p.reference)}</span>
+          {p.reference && (
+            <button
+              type="button"
+              data-copy-ref
+              data-ref={p.reference}
+              data-copied={t('common.copied', lang)}
+              class="ml-auto inline-flex items-center gap-1.5 text-[12px] font-mono text-muted-foreground hover:text-foreground transition"
+              title={t('property.detail.copyRef', lang)}
+              aria-label={t('property.detail.copyRef', lang)}
+            >
+              <span data-copy-ref-label>{formatPublicRef(p.reference)}</span>
+              <svg data-copy-ref-icon width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+            </button>
+          )}
         </div>
 
         <h1 class="font-serif font-light text-[clamp(28px,4vw,52px)] leading-tight tracking-tight [text-wrap:balance]">
@@ -484,5 +499,25 @@ const hasImages = p.images.length > 0;
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
+  }
+
+  // Référence copiable : clic → copie la réf complète + feedback « ✓ Copié ».
+  var copyBtn = document.querySelector('[data-copy-ref]');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      var ref = copyBtn.getAttribute('data-ref') || '';
+      var label = copyBtn.querySelector('[data-copy-ref-label]');
+      var done = function () {
+        if (!label) return;
+        var prev = label.textContent;
+        label.textContent = '✓ ' + (copyBtn.getAttribute('data-copied') || 'Copié');
+        setTimeout(function () { label.textContent = prev; }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(ref).then(done).catch(done);
+      } else {
+        done();
+      }
+    });
   }
 </script>

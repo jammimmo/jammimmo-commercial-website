@@ -2,7 +2,7 @@
   "_NOTE": "Wolof translations to be reviewed by a native speaker. Keys not present here fall back to French via the t() helper in src/lib/i18n.ts.",
 
   "site.name": "Jamm Immobilier",
-  "site.tagline": "Saytu bu wér ak xel mu dal",
+  "site.tagline": "Sa alal ci kaaraange ak xel mu dal",
 
   "nav.listings": "Yu jaay",
   "nav.services": "Liggéey yi",
@@ -179,11 +179,13 @@
   "common.transaction.sale": "Yu jaay",
   "common.videoTour": "Saytu vidéo",
   "common.details": "Yokk lu",
+  "common.copied": "Kopie nañu ko",
   "common.backToListings": "Kër yépp",
 
   "property.detail.interested": "Damay bëgg",
   "property.detail.call": "Wax",
   "property.detail.whatsapp": "WhatsApp",
+  "property.detail.copyRef": "Copier référans bi",
   "property.detail.priceTerms": "Conditions, caution, avance — sur demande.",
   "property.detail.rentalPrice": "Loyer ci weer",
   "property.detail.salePrice": "Prix bu jaay",
