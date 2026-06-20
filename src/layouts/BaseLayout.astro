@@ -2,6 +2,7 @@
 import '@/styles/globals.css';
 import Header from '@/components/layout/Header.astro';
 import Footer from '@/components/layout/Footer.astro';
+import WhatsAppFab from '@/components/layout/WhatsAppFab.astro';
 import SeoTags from '@/components/seo/SeoTags.astro';
 import JsonLdOrg from '@/components/seo/JsonLdOrg.astro';
 import { getLang, t } from '@/lib/i18n';
@@ -14,6 +15,8 @@ interface Props {
   canonical?: string;
   /** Force the nav to its solid (opaque) state from the top of the page. */
   solidNav?: boolean;
+  /** Masque le FAB WhatsApp global (ex. fiche bien : a déjà sa barre CTA collante). */
+  hideWhatsappFab?: boolean;
 }
 
 const lang = getLang(Astro.url);
@@ -24,6 +27,7 @@ const {
   type,
   canonical,
   solidNav,
+  hideWhatsappFab,
 } = Astro.props;
 
 // Search-engine + analytics verification — empty strings disable each.
@@ -87,6 +91,7 @@ const isHome = ['/', '/en', '/en/', '/wo', '/wo/'].includes(Astro.url.pathname);
 
     <Header lang={lang} solid={solidNav} />
     <main id="main" class={solidNav ? 'pt-[78px]' : ''}><slot /></main>
+    {!hideWhatsappFab && <WhatsAppFab lang={lang} />}
     <Footer lang={lang} />
 
     {/* Cloudflare Web Analytics — privacy-friendly, no cookies, no consent

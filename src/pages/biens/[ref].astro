@@ -43,6 +43,7 @@ const canonical = `${Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammi
   type="article"
   canonical={canonical}
   solidNav
+  hideWhatsappFab
 >
   <slot slot="head">
     <JsonLdProperty property={property} url={canonical} lang={lang} />

@@ -106,6 +106,12 @@ export async function waitForLoaded(page: Page, lcpSelector: string): Promise<vo
   await freezeReveals(page);
   // No-op CSS on pages without #hero-stars; hides the random star field on home.
   await hideHeroStars(page);
+  // Le FAB WhatsApp global est un overlay fixe (présent sur toutes les pages) —
+  // hors-sujet pour les snapshots de MISE EN PAGE, on le masque pour ne pas avoir
+  // à régénérer toutes les baselines (même logique que le champ d'étoiles random).
+  await page.addStyleTag({
+    content: '[data-track="whatsapp.fab.tapped"]{display:none !important}',
+  });
 }
 
 /**
