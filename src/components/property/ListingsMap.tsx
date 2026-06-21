@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PublicProperty } from '@/types/property';
 import { parseGps } from '@/lib/gps';
-import { STREETS, SATELLITE, MAP_BASE_OPTIONS } from '@/lib/map-tiles';
+import { STREETS_VECTOR, SATELLITE, MAP_BASE_OPTIONS } from '@/lib/map-tiles';
+import VectorBasemap from './VectorBasemap';
 
 interface Props {
   properties: PublicProperty[];
@@ -181,6 +182,7 @@ export default function ListingsMap({ properties, activeRef, onPinClick }: Props
         <MapContainer
           center={center}
           zoom={11}
+          maxZoom={SATELLITE.maxZoom}
           scrollWheelZoom
           style={{ height: '100%', width: '100%', minHeight: 360 }}
           {...MAP_BASE_OPTIONS}
@@ -190,11 +192,11 @@ export default function ListingsMap({ properties, activeRef, onPinClick }: Props
               still render, because OSM's ODbL license requires it. */}
           <AttributionControl position="bottomright" prefix={false} />
           {tileStyle === 'streets' ? (
-            <TileLayer
-              url={STREETS.url}
-              attribution={STREETS.attribution}
-              maxZoom={STREETS.maxZoom}
-              subdomains={STREETS.subdomains ?? 'abc'}
+            <VectorBasemap
+              useMap={useMap}
+              styleUrl={STREETS_VECTOR.styleUrl}
+              attribution={STREETS_VECTOR.attribution}
+              maxZoom={STREETS_VECTOR.maxZoom}
             />
           ) : (
             <TileLayer
