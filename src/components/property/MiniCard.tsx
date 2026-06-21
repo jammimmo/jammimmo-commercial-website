@@ -107,7 +107,7 @@ export default function MiniCard({ property: p, href, active, lang = 'fr', onEnt
       </div>
 
       <div className="p-4">
-        <div className="font-serif text-[19px] font-normal tracking-tight">{formatPrice(p)}</div>
+        <div className="font-serif text-[19px] font-normal tracking-tight"><span className="bidi-ltr">{formatPrice(p)}</span></div>
         <div className="mt-1.5 text-[14px] font-medium text-foreground/85 line-clamp-1">{p.title}</div>
         <div className="mt-2 flex flex-wrap gap-3 text-[12.5px] text-muted-foreground">
           {p.bedrooms > 0 && (

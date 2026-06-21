@@ -22,7 +22,7 @@ interface Props {
   cities: string[];
   /** Resolved /biens/<ref> path for each property reference (case+lang correct). */
   hrefByRef: Record<string, string>;
-  lang: 'fr' | 'en' | 'wo';
+  lang: Lang;
 }
 
 type Filters = {

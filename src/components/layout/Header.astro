@@ -54,7 +54,7 @@ const quickLinks: Array<{ href: string; key: string }> = [
 
 // Language pills: same page, swapped locale. Strip the current lang prefix
 // then re-localize so e.g. /en/biens → /biens (FR) or /wo/biens (WO).
-const cleanPath = Astro.url.pathname.replace(/^\/(en|wo)(?=\/|$)/, '') || '/';
+const cleanPath = Astro.url.pathname.replace(/^\/(en|wo|es|it|ar)(?=\/|$)/, '') || '/';
 const langItems = LANGS.map((code) => ({
   code,
   label: code.toUpperCase(),
@@ -141,7 +141,7 @@ const langItems = LANGS.map((code) => ({
       >
         <span class="pointer-events-none absolute inset-0 -translate-x-full group-hover/cta:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/25 to-transparent" aria-hidden="true"></span>
         {t('nav.cta', lang)}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" class="hidden sm:block">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" class="hidden sm:block rtl-flip">
           <path d="M5 12h14M13 5l7 7-7 7" />
         </svg>
       </a>
@@ -224,7 +224,7 @@ const langItems = LANGS.map((code) => ({
             <li>
               <a href={l.href} class="group flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-accent hover:text-accent-foreground transition">
                 <span>{t(l.key, lang)}</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-muted-foreground group-hover:text-accent-foreground group-hover:translate-x-0.5 transition" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-muted-foreground group-hover:text-accent-foreground group-hover:translate-x-0.5 transition rtl-flip" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
               </a>
             </li>
           ))}
@@ -316,7 +316,7 @@ const langItems = LANGS.map((code) => ({
         {/* subtle sheen sweep on hover */}
         <span class="pointer-events-none absolute inset-0 -translate-x-full group-hover/cta:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/25 to-transparent" aria-hidden="true"></span>
         {t('nav.cta', lang)}
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" class="rtl-flip"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
       </a>
     </div>
   </aside>

@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import QuartierContent from '@/components/geo/QuartierContent.astro';
 import { QUARTIERS, quartierMatches, getQuartier } from '@/lib/quartiers';
 import { listPublicProperties } from '@/lib/supabase.build';
-import { getLang } from '@/lib/i18n';
+import { getLang, t } from '@/lib/i18n';
 
 export const prerender = true;
 
@@ -22,7 +22,7 @@ if (!q) return Astro.redirect('/immobilier', 307);
 
 const lang = getLang(Astro.url);
 const meta = q.meta[lang === 'en' ? 'en' : 'fr'];
-const title = `${lang === 'en' ? 'Real estate in' : 'Immobilier à'} ${q.name}, ${q.city} — Jamm Immobilier`;
+const title = `${t('geo.quartier.titlePrefix', lang)} ${q.name}, ${q.city} — Jamm Immobilier`;
 const canonical = `${Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com'}${Astro.url.pathname}`;
 ---
 

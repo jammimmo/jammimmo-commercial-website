@@ -5,7 +5,7 @@ import Footer from '@/components/layout/Footer.astro';
 import WhatsAppFab from '@/components/layout/WhatsAppFab.astro';
 import SeoTags from '@/components/seo/SeoTags.astro';
 import JsonLdOrg from '@/components/seo/JsonLdOrg.astro';
-import { getLang, t } from '@/lib/i18n';
+import { getLang, getDir, t } from '@/lib/i18n';
 
 interface Props {
   title?: string;
@@ -50,7 +50,7 @@ const isHome = ['/', '/en', '/en/', '/wo', '/wo/'].includes(Astro.url.pathname);
 ---
 
 <!doctype html>
-<html lang={lang}>
+<html lang={lang} dir={getDir(lang)}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -92,7 +92,7 @@ const isHome = ['/', '/en', '/en/', '/wo', '/wo/'].includes(Astro.url.pathname);
       href="#main"
       class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-full focus:bg-primary focus:text-primary-foreground focus:font-semibold focus:shadow-lg"
     >
-      Aller au contenu principal
+      {t('a11y.skipToContent', lang)}
     </a>
 
     <Header lang={lang} solid={solidNav} />

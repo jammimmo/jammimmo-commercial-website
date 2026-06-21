@@ -26,23 +26,35 @@ export interface TileSpec {
 }
 
 const JAWG_TOKEN: string = import.meta.env.PUBLIC_JAWG_ACCESS_TOKEN ?? '';
+const GEOAPIFY_KEY: string = import.meta.env.PUBLIC_GEOAPIFY_API_KEY ?? '';
 
 /**
- * CartoDB Voyager — color-coded streets, modern editorial palette, the look
- * you see on Compass / Redfin. Free, no API key, no signup. Carto's TOS
- * permits fair-use without registration; for high-volume commercial use they
- * recommend a paid plan (https://carto.com/legal/), but for an early-stage
- * agency site this is the sweet spot of looks-vs-friction.
- *
- * `{r}` resolves to "@2x" on retina screens — sharper tiles on Mac/iPhone
- * without doubling bandwidth on low-DPI devices.
+ * Geoapify Positron — clean editorial palette with denser street-name labelling
+ * than CARTO Voyager, and (decisively) a FREE tier that PERMITS commercial /
+ * production use — unlike Voyager/Jawg/MapTiler/Stadia, whose free tiers are
+ * non-commercial only. Leaflet raster, retina `{r}` @2x, zoom 20. Needs a free
+ * key (no card): create at geoapify.com → set PUBLIC_GEOAPIFY_API_KEY in the
+ * Cloudflare Pages env. CSP `img-src` lists maps.geoapify.com.
  */
-const CARTODB_VOYAGER: TileSpec = {
-  url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+const GEOAPIFY_POSITRON: TileSpec = {
+  url: `https://maps.geoapify.com/v1/tile/positron/{z}/{x}/{y}{r}.png?apiKey=${GEOAPIFY_KEY}`,
   attribution:
-    '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>',
+    '&copy; <a href="https://www.geoapify.com/" target="_blank" rel="noopener">Geoapify</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
   maxZoom: 20,
-  subdomains: 'abcd',
+};
+
+/**
+ * OpenStreetMap-France Humanitarian (HOT) — KEYLESS, unambiguously free for
+ * commercial use (CC0 style + ODbL data). Used as the zero-friction fallback
+ * when no Geoapify key is set (local dev / before the env var is added). Labels
+ * are sparser than Geoapify/Voyager, so it's a fallback, not the target style.
+ */
+const OSM_FRANCE_HOT: TileSpec = {
+  url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+  attribution:
+    '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, Tiles courtesy of <a href="https://www.hotosm.org/" target="_blank" rel="noopener">Humanitarian OSM Team</a>',
+  maxZoom: 19,
+  subdomains: 'abc',
 };
 
 /**
@@ -58,11 +70,21 @@ const JAWG_STREETS: TileSpec = {
 };
 
 /**
- * Editorial street layer — Jawg if the token is set, otherwise Voyager.
- * Both look modern, both are correct for an editorial real-estate site;
- * the only difference is the operational story behind them.
+ * Editorial street layer, in priority order:
+ *   1. Geoapify Positron   — if PUBLIC_GEOAPIFY_API_KEY is set (target style:
+ *                            best free + commercial-licensed + well-labelled).
+ *   2. Jawg.Streets        — if a Jawg token is set instead.
+ *   3. OSM-France HOT      — keyless, commercial-safe fallback (no key needed).
+ *
+ * NOTE: CARTO Voyager was dropped — its free tier is non-commercial only, a
+ * licensing risk for a business site. See the map-tile research (2026-06).
+ * `{r}` resolves to "@2x" on retina screens (sharper on Mac/iPhone).
  */
-export const STREETS: TileSpec = JAWG_TOKEN ? JAWG_STREETS : CARTODB_VOYAGER;
+export const STREETS: TileSpec = GEOAPIFY_KEY
+  ? GEOAPIFY_POSITRON
+  : JAWG_TOKEN
+    ? JAWG_STREETS
+    : OSM_FRANCE_HOT;
 
 /**
  * Satellite layer — Esri WorldImagery. No key required, free for the

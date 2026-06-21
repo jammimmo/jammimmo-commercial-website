@@ -8,7 +8,8 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "verbatimModuleSyntax": false,
-    "allowImportingTsExtensions": false,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "resolveJsonModule": true
   },
   "include": ["src", ".astro/types.d.ts"],

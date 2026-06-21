@@ -216,3 +216,33 @@
   outline-offset: 2px;
   border-radius: 3px;
 }
+
+/* ── Right-to-left (Arabic) ──────────────────────────────────────────────
+   `dir="rtl"` (set on <html> for ar in BaseLayout) already mirrors flex/grid
+   flow, text alignment and logical properties (ms-/me-/ps-/pe-/start-/end-).
+   This layer fixes what does NOT auto-mirror in a physical-utility codebase:
+   explicit text-left/right, and the *direction* of arrow/chevron glyphs. */
+[dir='rtl'] .text-left { text-align: right; }
+[dir='rtl'] .text-right { text-align: left; }
+
+/* Mirror directional icons so arrows point with the reading direction.
+   lucide-react keeps its `lucide lucide-<name>` class on every SVG, and
+   `.rtl-flip` is an opt-in for the inline (non-lucide) arrow glyphs/SVGs. */
+[dir='rtl'] .lucide-arrow-right,
+[dir='rtl'] .lucide-arrow-left,
+[dir='rtl'] .lucide-arrow-up-right,
+[dir='rtl'] .lucide-arrow-down-right,
+[dir='rtl'] .lucide-chevron-right,
+[dir='rtl'] .lucide-chevron-left,
+[dir='rtl'] .lucide-move-right,
+[dir='rtl'] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* Keep inherently left-to-right data (prices "1 250 000 FCFA", phone numbers,
+   references, emails) from being reordered by the bidi algorithm inside RTL
+   text. Isolating them renders the digits in the correct order in every dir. */
+.bidi-ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+}

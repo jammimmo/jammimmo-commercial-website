@@ -2,6 +2,8 @@
  * Sénégalais number formatting helpers.
  * Sourced from admin: PropertyForm.tsx ~ formatFCFA().
  */
+import type { Lang } from './i18n';
+import { typeLabel } from './status';
 
 /**
  * Group an integer with thin spaces every 3 digits — "110000" → "110 000".
@@ -34,18 +36,17 @@ export function formatRentalPrice(price: number, transactionType: string): strin
 
 /**
  * Localized SEO `<title>` for a property detail page.
- * FR / EN / WO surface unit + " — " price-as-headline + brand suffix.
- * Used by all three `[ref].astro` files.
+ * Surface unit + " — " price-as-headline + brand suffix, localized per lang.
+ * Used by every `[ref].astro` locale file.
  */
 export function propertySeoTitle(
   p: { type: string; surface: number; quartier: string; city: string; price: number; transaction_type: string },
-  lang: 'fr' | 'en' | 'wo',
+  lang: Lang,
 ): string {
   const unit = lang === 'en' ? 'sqm' : 'm²';
   const surfaceFrag = p.surface > 0 ? `${p.surface}${unit} ` : '';
   const price = formatRentalPrice(p.price, p.transaction_type);
-  const sep = lang === 'en' ? ' — ' : ' — ';
-  return `${p.type} ${surfaceFrag}${p.quartier} ${p.city}${sep}${price} | Jamm Immobilier`;
+  return `${typeLabel(p.type, lang)} ${surfaceFrag}${p.quartier} ${p.city} — ${price} | Jamm Immobilier`;
 }
 
 /**

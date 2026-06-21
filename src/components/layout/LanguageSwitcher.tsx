@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { Languages, Check } from 'lucide-react';
 import { LANG_LABELS, LANGS, type Lang } from '@/lib/i18n';
 
 interface Props {
@@ -11,7 +12,7 @@ interface Props {
  * Default lang (fr) has no prefix.
  */
 function rewritePath(pathname: string, target: Lang): string {
-  const stripped = pathname.replace(/^\/(en|wo)(\/|$)/, '/').replace(/\/+/g, '/');
+  const stripped = pathname.replace(/^\/(en|wo|es|it|ar)(\/|$)/, '/').replace(/\/+/g, '/');
   if (target === 'fr') return stripped || '/';
   const base = stripped === '/' ? '' : stripped;
   return `/${target}${base}`;
@@ -45,8 +46,10 @@ export default function LanguageSwitcher({ lang, pathname }: Props) {
         aria-expanded={open}
         aria-label="Change language"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-[12.5px] font-bold tracking-[0.04em] transition"
+        title="Translate / Traduire"
+        className="inline-flex items-center justify-center gap-1.5 h-11 px-3 rounded-full bg-white/10 hover:bg-white/20 text-[12.5px] font-bold tracking-[0.04em] transition"
       >
+        <Languages className="w-4 h-4" aria-hidden />
         {lang.toUpperCase()}
       </button>
       {open && (
@@ -80,6 +83,7 @@ export default function LanguageSwitcher({ lang, pathname }: Props) {
                     {l.toUpperCase()}
                   </span>
                   <span>{label.native}</span>
+                  {isActive && <Check className="w-4 h-4 ms-auto text-primary" aria-hidden />}
                 </a>
               </li>
             );

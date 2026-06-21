@@ -2,7 +2,7 @@
 import type { PublicProperty } from '@/types/property';
 import { formatRentalPrice, formatLocation } from '@/lib/format';
 import { formatPublicRef } from '@/lib/reference';
-import { getStatusBadge, getTransactionBadge } from '@/lib/status';
+import { getStatusBadge, getTransactionBadge, statusLabel, transactionLabel } from '@/lib/status';
 import { localizedPath, t, type Lang } from '@/lib/i18n';
 import CompareToggle from './CompareToggle.tsx';
 import FavoriteToggle from './FavoriteToggle.tsx';
@@ -127,10 +127,10 @@ const [phA, phB] = palette[hash]!;
         top-right corner stays clear for the favorite heart, à la Zillow. */}
     <div class="absolute top-3.5 left-3.5 flex flex-wrap gap-1.5 z-[2] max-w-[calc(100%-72px)]">
       <span class:list={['px-3 py-1.5 rounded-full text-[11.5px] font-semibold tracking-wide shadow-md backdrop-blur', transactionBadge.badgeClass]}>
-        {transactionBadge.label}
+        {transactionLabel(p.transaction_type, lang)}
       </span>
       <span class:list={['inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold tracking-wide uppercase shadow-md backdrop-blur', statusBadge.badgeClass]}>
-        <span aria-hidden>{statusBadge.emoji}</span>{statusBadge.label}
+        <span aria-hidden>{statusBadge.emoji}</span>{statusLabel(p.status, lang)}
       </span>
     </div>
 
@@ -186,7 +186,7 @@ const [phA, phB] = palette[hash]!;
 
     <div class="flex items-baseline justify-between mt-3 pt-3.5 border-t border-clay">
       <div class="font-serif text-[22px] font-normal tracking-tight">
-        {formatRentalPrice(p.price, p.transaction_type)}
+        <span class="bidi-ltr">{formatRentalPrice(p.price, p.transaction_type)}</span>
         {p.negotiable && (
           <span class="ml-2 text-[11px] font-sans font-semibold text-terra align-middle">{t('property.price.negotiable', lang)}</span>
         )}

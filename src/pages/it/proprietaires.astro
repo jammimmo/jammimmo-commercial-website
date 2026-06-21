@@ -1,0 +1,15 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import OwnerContent from '@/components/owner/OwnerContent.astro';
+import { getLang, t } from '@/lib/i18n';
+
+export const prerender = true;
+const lang = getLang(Astro.url);
+---
+
+<BaseLayout
+  title={`${t('owner.meta.title', lang)} — ${t('site.name', lang)}`}
+  description={t('owner.meta.description', lang)}
+>
+  <OwnerContent lang={lang} />
+</BaseLayout>
