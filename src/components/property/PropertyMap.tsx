@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { parseGps, type LatLng } from '@/lib/gps';
 import { approximateLocation } from '@/lib/dakar-geo';
-import { STREETS, MAP_BASE_OPTIONS } from '@/lib/map-tiles';
+import { STREETS_VECTOR, MAP_BASE_OPTIONS } from '@/lib/map-tiles';
+import VectorBasemap from './VectorBasemap';
 
 interface Props {
   gps: string | null;
@@ -76,7 +77,7 @@ export default function PropertyMap({ gps, title, quartier, city, className }: P
     );
   }
 
-  const { MapContainer, TileLayer, Marker, Popup, Circle, AttributionControl } = RL;
+  const { MapContainer, Marker, Popup, Circle, AttributionControl, useMap } = RL;
 
   // Brand teardrop pin as an inline-SVG divIcon — no external image, so it
   // can't 404 under the bundler. Anchored at the tip (bottom-center).
@@ -102,6 +103,7 @@ export default function PropertyMap({ gps, title, quartier, city, className }: P
       <MapContainer
         center={[coords.lat, coords.lng]}
         zoom={zoom}
+        maxZoom={STREETS_VECTOR.maxZoom}
         scrollWheelZoom={false}
         style={{
           height: '100%',
@@ -113,11 +115,11 @@ export default function PropertyMap({ gps, title, quartier, city, className }: P
         {...MAP_BASE_OPTIONS}
       >
         <AttributionControl position="bottomright" prefix={false} />
-        <TileLayer
-          url={STREETS.url}
-          attribution={STREETS.attribution}
-          maxZoom={STREETS.maxZoom}
-          subdomains={STREETS.subdomains ?? 'abc'}
+        <VectorBasemap
+          useMap={useMap}
+          styleUrl={STREETS_VECTOR.styleUrl}
+          attribution={STREETS_VECTOR.attribution}
+          maxZoom={STREETS_VECTOR.maxZoom}
         />
         {isApprox ? (
           <Circle

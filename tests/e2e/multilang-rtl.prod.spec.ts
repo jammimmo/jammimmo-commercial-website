@@ -148,28 +148,29 @@ test.describe('Arabe — RTL réellement appliqué', () => {
   });
 });
 
-test.describe('Carte — repli OSM-France HOT (clé Geoapify non posée)', () => {
-  test('les tuiles tile.openstreetmap.fr/hot se chargent (et aucune Geoapify sans clé)', async ({ page }) => {
-    const osm: string[] = [];
-    const geoapify: string[] = [];
+test.describe('Carte — fond OpenFreeMap Positron (keyless, libre commercial)', () => {
+  test('le fond vectoriel OpenFreeMap se charge (et plus aucune Geoapify / OSM-France raster)', async ({ page }) => {
+    const ofm: string[] = [];
+    const legacy: string[] = [];
     page.on('request', (r) => {
       const u = r.url();
-      if (/tile\.openstreetmap\.fr\/hot\//.test(u)) osm.push(u);
-      if (/maps\.geoapify\.com/.test(u)) geoapify.push(u);
+      if (/tiles\.openfreemap\.org/.test(u)) ofm.push(u);
+      if (/maps\.geoapify\.com|tile\.openstreetmap\.fr/.test(u)) legacy.push(u);
     });
 
     await page.goto('/biens/dkr-cite-2026-00050/');
     // La carte est un îlot `client:visible` : son wrapper (min-h-[260px]) est dans
     // le DOM dès le SSR, mais `.leaflet-container` n'existe qu'APRÈS hydratation,
     // déclenchée quand le wrapper entre dans le viewport. On scrolle donc vers le
-    // WRAPPER (présent), puis on attend le conteneur Leaflet + les tuiles.
+    // WRAPPER (présent), puis on attend le conteneur Leaflet + le fond MapLibre.
     await page.locator('[class*="min-h-[260px]"]').first().scrollIntoViewIfNeeded({ timeout: 20_000 });
     await expect(page.locator('.leaflet-container')).toBeVisible({ timeout: 20_000 });
 
-    await expect.poll(() => osm.length, {
-      message: 'tuiles tile.openstreetmap.fr/hot chargées',
-      timeout: 15_000,
+    // OpenFreeMap charge le style JSON + glyphs + tuiles vectorielles depuis tiles.openfreemap.org
+    await expect.poll(() => ofm.length, {
+      message: 'requêtes tiles.openfreemap.org (style/glyphs/tuiles vecteur)',
+      timeout: 20_000,
     }).toBeGreaterThan(0);
-    expect(geoapify.length, 'aucune tuile Geoapify tant que la clé n’est pas posée').toBe(0);
+    expect(legacy.length, 'plus aucune tuile Geoapify ni OSM-France raster').toBe(0);
   });
 });
