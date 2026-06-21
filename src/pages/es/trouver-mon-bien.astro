@@ -1,0 +1,67 @@
+---
+/**
+ * /trouver-mon-bien — outil lead-magnet « Match-o-mètre » (acheteurs/locataires).
+ *
+ * Miroir de /budget, à une différence près : l'outil affiche 3 biens RÉELS, donc
+ * la page récupère les annonces AU BUILD (listPublicProperties, comme /biens) et
+ * les passe en prop à l'île `MatchTool`. Isolation Tier-3 préservée : la donnée
+ * est figée au build (aucun secret/endpoint runtime), filtrée côté client.
+ *
+ * Les 3 fichiers (FR, en/, wo/) sont byte-identiques : getLang() dérive la
+ * langue depuis le préfixe d'URL.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import MatchTool from '@/components/match/MatchTool.tsx';
+import Ornament from '@/components/decor/Ornament.astro';
+import { listPublicProperties } from '@/lib/supabase.build';
+import { getLang, t, localizedPath } from '@/lib/i18n';
+
+export const prerender = true;
+const lang = getLang(Astro.url);
+
+// Annonces figées au BUILD (comme ListingsContent) → prop de l'île, filtrées
+// côté client. Aucun fetch runtime, aucun secret.
+const properties = await listPublicProperties({ limit: 200 });
+const hrefByRef = Object.fromEntries(
+  properties.map((p) => [p.reference, localizedPath(`/biens/${p.reference.toLowerCase()}`, lang)]),
+);
+---
+
+<BaseLayout
+  title={`${t('match.meta.title', lang)} — ${t('site.name', lang)}`}
+  description={t('match.meta.description', lang)}
+  solidNav
+>
+  <section class="relative py-16 sm:py-20 bg-card border-b border-clay overflow-hidden">
+    <div class="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
+      <div
+        class="absolute -top-24 left-1/2 -translate-x-1/2 w-[520px] h-[520px] rounded-full opacity-[0.12]"
+        style="background: radial-gradient(circle at 50% 30%, hsl(var(--secondary)), hsl(var(--ochre)) 45%, transparent 70%); filter: blur(8px);"
+      ></div>
+      <div
+        class="absolute inset-0 opacity-50"
+        style="background-image: var(--sahel-weave-bg); background-size: var(--sahel-weave-size); background-position: var(--sahel-weave-pos);"
+      ></div>
+    </div>
+    <div class="container max-w-3xl text-center relative z-10">
+      <p class="text-[11px] uppercase tracking-[0.18em] font-semibold text-secondary-strong mb-3">
+        {t('match.page.eyebrow', lang)}
+      </p>
+      <h1 class="font-serif font-light text-[clamp(36px,5vw,56px)] leading-tight tracking-tight">
+        {t('match.page.title', lang)}
+      </h1>
+      <div class="flex justify-center mt-5">
+        <Ornament />
+      </div>
+      <p class="mt-5 text-muted-foreground text-[16px] leading-relaxed">
+        {t('match.page.subtitle', lang)}
+      </p>
+    </div>
+  </section>
+
+  <section class="py-12 sm:py-16 bg-background">
+    <div class="container max-w-2xl">
+      <MatchTool client:load lang={lang} properties={properties} hrefByRef={hrefByRef} />
+    </div>
+  </section>
+</BaseLayout>

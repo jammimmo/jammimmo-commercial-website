@@ -15,6 +15,9 @@ const LANGS: ReadonlyArray<{ prefix: string; hreflang: string }> = [
   { prefix: '',     hreflang: 'fr' },
   { prefix: '/en',  hreflang: 'en' },
   { prefix: '/wo',  hreflang: 'wo' },
+  { prefix: '/es',  hreflang: 'es' },
+  { prefix: '/it',  hreflang: 'it' },
+  { prefix: '/ar',  hreflang: 'ar' },
 ];
 
 /**

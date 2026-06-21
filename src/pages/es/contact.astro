@@ -1,0 +1,12 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ContactSection from '@/components/home/ContactSection.astro';
+import { getLang, t } from '@/lib/i18n';
+
+export const prerender = true;
+const lang = getLang(Astro.url);
+---
+
+<BaseLayout title={`${t('page.contact.title', lang)} — ${t('site.name', lang)}`} solidNav>
+  <ContactSection lang={lang} />
+</BaseLayout>

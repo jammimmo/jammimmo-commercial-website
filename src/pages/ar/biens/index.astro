@@ -1,0 +1,11 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ListingsContent from '@/components/property/ListingsContent.astro';
+import { getLang, t } from '@/lib/i18n';
+export const prerender = true;
+const lang = getLang(Astro.url);
+---
+
+<BaseLayout title={`${t('page.listings.title', lang)} — ${t('site.name', lang)}`} solidNav>
+  <ListingsContent />
+</BaseLayout>

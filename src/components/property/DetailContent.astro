@@ -7,14 +7,18 @@ import PropertyCard from './PropertyCard.astro';
 import ContactForm from '@/components/forms/ContactForm.tsx';
 import CompareBar from './CompareBar.tsx';
 import FavoriteToggle from './FavoriteToggle.tsx';
+import BrandMark from '@/components/layout/BrandMark.astro';
 import { t, type Lang, localizedPath } from '@/lib/i18n';
 import { formatRentalPrice, formatLocation } from '@/lib/format';
 import { formatPublicRef } from '@/lib/reference';
-import { getStatusBadge, getTransactionBadge } from '@/lib/status';
+import { getStatusBadge, getTransactionBadge, statusLabel, transactionLabel, typeLabel } from '@/lib/status';
+import { parseGps } from '@/lib/gps';
+import { approximateLocation } from '@/lib/dakar-geo';
 import { SITE, TEL_URI, MAILTO_URI } from '@/lib/site-config';
+import listingTranslations from '@/data/listing-translations.json';
 import {
-  Bed, Maximize2, MapPin, Tag, Award, FileText, Download,
-  Phone, MessageCircle, Mail, Bath, Building2, Sparkles, ShieldCheck, Languages,
+  Bed, Maximize2, MapPin, Tag, FileText, Download,
+  Phone, MessageCircle, Mail, Bath, Building2, Sparkles, ShieldCheck, Languages, Check, Camera,
 } from 'lucide-react';
 
 interface Props {
@@ -26,11 +30,12 @@ const { property: p, similar, lang } = Astro.props;
 
 const status = getStatusBadge(p.status);
 const transaction = getTransactionBadge(p.transaction_type);
+const isRental = p.transaction_type === 'Location';
 
 const facts: Array<{ icon: 'bed' | 'surface' | 'type' | 'bath' | 'floor' | 'sparkles'; label: string; value: string }> = [];
 if (p.bedrooms > 0) facts.push({ icon: 'bed', label: t('property.facts.bedrooms', lang), value: String(p.bedrooms) });
 if (p.surface > 0) facts.push({ icon: 'surface', label: t('property.facts.surface', lang), value: `${p.surface} m²` });
-facts.push({ icon: 'type', label: t('property.facts.type', lang), value: p.type });
+facts.push({ icon: 'type', label: t('property.facts.type', lang), value: typeLabel(p.type, lang) });
 const attrSdb = p.attributes?.toilettes ?? p.attributes?.salles_de_bain;
 if (typeof attrSdb === 'number' && attrSdb > 0) {
   facts.push({ icon: 'bath', label: t('property.facts.bathrooms', lang), value: String(attrSdb) });
@@ -58,35 +63,41 @@ const documentEntries = Object.entries(p.documents || {})
   .filter(([, url]) => typeof url === 'string' && url.length > 0);
 
 const priceLabel = formatRentalPrice(p.price, p.transaction_type);
+const priceCaption = isRental
+  ? t('property.detail.rentalPrice', lang)
+  : t('property.detail.salePrice', lang);
 
-// Traduction à la demande (FR → langue de la page) — côté client, via le worker
-// Cloudflare (Workers AI). `translateEndpoint` = origine du worker (= endpoint
-// analytics) ; vide en dev → la fonctionnalité reste invisible. On ne l'active
-// que sur les pages EN (Wolof écarté). Le worker traduit SA propre donnée par
-// `ref` (anti-abus) + cache KV ; côté client on cache en sessionStorage.
-const translateEndpoint = (import.meta.env.PUBLIC_ANALYTICS_ENDPOINT ?? '').replace(/\/$/, '');
-const trLabels = {
-  action: t('listing.translate.action', lang),
-  loading: t('listing.translate.loading', lang),
-  badge: t('listing.translate.badge', lang),
-  original: t('listing.translate.original', lang),
-  error: t('listing.translate.error', lang),
-};
-// `transaction.label` comes from the FR-only badge dict in lib/status — we
-// compare against its raw value to choose the i18n key, but display through `t`.
-const priceCaption =
-  transaction.label === 'À louer'
-    ? t('property.detail.rentalPrice', lang)
-    : t('property.detail.salePrice', lang);
 const hasVideo = !!p.video_links?.length;
 const hasImages = p.images.length > 0;
+const hasMedia = hasVideo || hasImages;
+const bothMedia = hasVideo && hasImages;
+
+// Map: decide SERVER-SIDE whether a location is resolvable, so we never emit
+// the dead "Localisation indisponible" placeholder. Same resolution logic as
+// PropertyMap (exact GPS → approximate quartier/city centroid).
+const hasMap = !!(parseGps(p.gps) || approximateLocation(p.quartier, p.city));
+
+// ── Traduction des titres/descriptions ───────────────────────────────────
+// Le contenu traduit est cuit AU BUILD : prioritairement depuis le champ
+// `translations` du bien (à venir côté estate-flow / DB), sinon depuis le
+// snapshot local `listing-translations.json`. On rend la VERSION TRADUITE par
+// défaut sur les pages non-FR quand elle existe, l'original est gardé dans
+// `data-tr-orig`, et un toggle (100 % client, AUCUN appel réseau) bascule
+// entre les deux. Pas de traduction dispo → on affiche l'original, SANS badge
+// ni bouton (donc plus jamais de « Traduit automatiquement » mensonger).
+const trMap = (listingTranslations as Record<string, Record<string, Record<string, string>>>);
+const trData = (p as any).translations?.[lang] ?? trMap[p.reference]?.[lang] ?? null;
+const titleTr = lang !== 'fr' && trData?.title ? trData.title : null;
+const msgTr = lang !== 'fr' && trData?.commercial_message ? trData.commercial_message : null;
+const descTr = lang !== 'fr' && trData?.description ? trData.description : null;
+const showTranslate = !!(titleTr || msgTr || descTr);
+const trLabels = {
+  badge: t('listing.translate.badge', lang),
+  toOriginal: t('listing.translate.original', lang),
+  toTranslated: t('listing.translate.seeTranslation', lang),
+};
 ---
 
-<!-- ─────────────────────────────────────────────────────────────────────
-     Wrapper div: applies the elegant dot-pattern background behind all
-     content. Each section is transparent so the pattern shows through
-     the gutter between floating cards.
-     ───────────────────────────────────────────────────────────────────── -->
 <div class="property-detail-bg pb-24 xl:pb-0">
 
   <!-- 1. TITLE BAND — flat header, no card, stays on bg-card -->
@@ -94,15 +105,15 @@ const hasImages = p.images.length > 0;
     <div class="container">
       <div class="max-w-5xl mx-auto">
         <a href={localizedPath('/biens', lang)} class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-5">
-          <span aria-hidden>←</span> {t('common.backToListings', lang)}
+          <span aria-hidden class="rtl-flip inline-block">←</span> {t('common.backToListings', lang)}
         </a>
 
         <div class="flex flex-wrap items-center gap-2 mb-4">
           <span class:list={['px-3 py-1.5 rounded-full text-[12px] font-semibold tracking-wide', transaction.badgeClass]}>
-            {transaction.label}
+            {transactionLabel(p.transaction_type, lang)}
           </span>
           <span class:list={['inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold tracking-wide uppercase', status.badgeClass]}>
-            <span aria-hidden>{status.emoji}</span>{status.label}
+            <span aria-hidden>{status.emoji}</span>{statusLabel(p.status, lang)}
           </span>
           {p.tags.map((tag) => (
             <span class="px-3 py-1.5 rounded-full text-[12px] font-semibold bg-ochre/10 text-ink border border-ochre/30">{tag}</span>
@@ -113,11 +124,11 @@ const hasImages = p.images.length > 0;
               data-copy-ref
               data-ref={p.reference}
               data-copied={t('common.copied', lang)}
-              class="ml-auto inline-flex items-center gap-1.5 text-[12px] font-mono text-muted-foreground hover:text-foreground transition"
+              class="ms-auto inline-flex items-center gap-1.5 text-[12px] font-mono text-muted-foreground hover:text-foreground transition"
               title={t('property.detail.copyRef', lang)}
               aria-label={t('property.detail.copyRef', lang)}
             >
-              <span data-copy-ref-label>{formatPublicRef(p.reference)}</span>
+              <span data-copy-ref-label class="bidi-ltr">{formatPublicRef(p.reference)}</span>
               <svg data-copy-ref-icon width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
               </svg>
@@ -125,163 +136,211 @@ const hasImages = p.images.length > 0;
           )}
         </div>
 
-        <h1 class="font-serif font-light text-[clamp(28px,4vw,52px)] leading-tight tracking-tight [text-wrap:balance]" data-tr-field="title">
-          {p.title}
+        <h1
+          class="font-serif font-light text-[clamp(28px,4vw,52px)] leading-tight tracking-tight [text-wrap:balance]"
+          {...(titleTr ? { 'data-tr-field': 'title', 'data-tr-orig': p.title } : {})}
+        >
+          {titleTr ?? p.title}
         </h1>
 
         <p class="mt-2 inline-flex items-center gap-2 text-muted-foreground">
           <MapPin className="w-4 h-4" />
           {formatLocation(p.city, p.quartier)}{p.address ? ` · ${p.address}` : ''}
         </p>
+
+        {/* Reassurance band (option 2) — slim verified-by-Jamm trust line. */}
+        <a href="#trust-jamm" class="mt-4 inline-flex items-center gap-2 text-[13px] font-medium text-emerald hover:text-emerald/80 transition">
+          <ShieldCheck className="w-4 h-4" />
+          {t('safety.trust.band', lang)}
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- 2. HERO ROW — floating card (same max-w as others) -->
+  <!-- 2. HERO ROW — media-first (left) + sticky rail (right) -->
   <section class="pt-5 lg:pt-7 pb-3 lg:pb-5">
     <div class="container">
-      <div class="max-w-5xl mx-auto rounded-2xl bg-card border border-clay px-5 sm:px-7 py-6 sm:py-7 shadow-sm">
-        <div class="grid gap-4 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_300px] items-stretch">
-          {hasVideo && (
-            <div class="mx-auto xl:mx-0 w-full max-w-[360px] xl:max-w-none">
-              <div class="aspect-[9/16] overflow-hidden rounded-2xl border border-clay bg-black w-full shadow-sm ring-1 ring-ink/5">
-                <VideoTour videoLinks={p.video_links} title={p.title} />
+      <div class="max-w-5xl mx-auto grid gap-4 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_360px] items-start">
+
+        <!-- MEDIA BLOCK — flexes to whatever exists; branded placeholder if none -->
+        <div class="rounded-2xl bg-card border border-clay p-3 sm:p-4 shadow-sm">
+          {hasMedia ? (
+            bothMedia ? (
+              <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,260px)] items-stretch">
+                <div class="h-[clamp(320px,48vw,520px)]">
+                  <PropertyGallery client:visible images={p.images} title={p.title} />
+                </div>
+                <div class="aspect-[9/16] overflow-hidden rounded-2xl border border-clay bg-black w-full max-w-[300px] mx-auto lg:mx-0 self-center ring-1 ring-ink/5">
+                  <VideoTour videoLinks={p.video_links} title={p.title} />
+                </div>
               </div>
-            </div>
-          )}
-
-          {hasImages && (
-            <div class="h-full">
-              <PropertyGallery client:visible images={p.images} title={p.title} />
-            </div>
-          )}
-
-          <aside class="xl:sticky xl:top-24 self-start">
-            <div class="rounded-2xl bg-gradient-to-br from-primary via-primary to-[hsl(var(--primary)/0.85)] text-primary-foreground shadow-xl overflow-hidden">
-              <div class="p-5">
-                <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary-foreground/70">
-                  {priceCaption}
+            ) : hasImages ? (
+              <div class="h-[clamp(340px,52vw,560px)]">
+                <PropertyGallery client:visible images={p.images} title={p.title} />
+              </div>
+            ) : (
+              <div class="mx-auto w-full max-w-[400px]">
+                <div class="aspect-[9/16] overflow-hidden rounded-2xl border border-clay bg-black w-full shadow-sm ring-1 ring-ink/5">
+                  <VideoTour videoLinks={p.video_links} title={p.title} />
                 </div>
-                <div class="flex flex-wrap items-baseline gap-3 mt-2">
-                  <div class="font-serif font-light text-[clamp(24px,2.6vw,36px)] leading-none tracking-tight">
-                    {priceLabel}
-                  </div>
-                  {p.negotiable && (
-                    <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-secondary/30 text-secondary-foreground border border-secondary/50">
-                      {t('property.price.negotiable', lang)}
-                    </span>
-                  )}
+              </div>
+            )
+          ) : (
+            <div class="aspect-[16/10] rounded-2xl bg-accent border border-primary/10 grid place-items-center text-center px-6">
+              <div>
+                <div class="mx-auto w-14 h-14 rounded-2xl bg-card border border-clay grid place-items-center shadow-sm">
+                  <BrandMark size={36} />
                 </div>
-                <p class="mt-2.5 text-[12.5px] text-primary-foreground/70">
-                  {t('property.detail.priceTerms', lang)}
+                <p class="font-serif text-xl mt-3 inline-flex items-center gap-2 justify-center">
+                  <Camera className="w-5 h-5 text-primary" />{t('property.media.none.title', lang)}
                 </p>
-              </div>
-
-              <div class="h-px bg-white/15 mx-5" />
-
-              <ul class="p-5 space-y-3 text-[14px]">
-                <li class="flex items-start gap-3">
-                  <span class="w-9 h-9 rounded-full bg-white/12 grid place-items-center shrink-0">
-                    <Phone className="w-4 h-4 text-secondary" />
-                  </span>
-                  <div>
-                    <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">{t('property.detail.phone', lang)}</div>
-                    <a href={TEL_URI} class="hover:text-secondary transition">{SITE.phoneDisplay}</a>
-                  </div>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="w-9 h-9 rounded-full bg-white/12 grid place-items-center shrink-0">
-                    <Mail className="w-4 h-4 text-secondary" />
-                  </span>
-                  <div>
-                    <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">{t('property.detail.email', lang)}</div>
-                    <a href={MAILTO_URI} class="hover:text-secondary transition break-all">{SITE.email}</a>
-                  </div>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="w-9 h-9 rounded-full bg-white/12 grid place-items-center shrink-0">
-                    <MapPin className="w-4 h-4 text-secondary" />
-                  </span>
-                  <div>
-                    <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">{t('property.detail.agency', lang)}</div>
-                    <span>Jamm Immobilier · Dakar</span>
-                  </div>
-                </li>
-              </ul>
-
-              <div class="px-5 pb-5 flex flex-col gap-2.5">
-                <a href="#contact-bien" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-secondary text-secondary-foreground font-semibold shadow-md hover:translate-y-[-1px] transition">
-                  {t('property.detail.interested', lang)} →
+                <p class="text-muted-foreground text-sm mt-1.5 max-w-sm mx-auto">{t('property.media.none.body', lang)}</p>
+                <a href="#contact-bien" class="mt-4 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm shadow-md hover:translate-y-[-1px] transition">
+                  {t('property.media.none.cta', lang)} <span aria-hidden class="rtl-flip inline-block">→</span>
                 </a>
-                <div class="grid grid-cols-2 gap-2.5">
-                  <a
-                    href={TEL_URI}
-                    data-track="phone.tapped"
-                    data-track-prop-source="detail"
-                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-white/12 text-primary-foreground font-semibold border border-white/25 hover:bg-white/20 transition"
-                  >
-                    <Phone className="w-4 h-4" /> {t('property.detail.call', lang)}
-                  </a>
-                  <a
-                    href={SITE.whatsappUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-track="whatsapp.tapped"
-                    data-track-prop-source="detail"
-                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-emerald/85 text-emerald-foreground font-semibold hover:bg-emerald transition"
-                  >
-                    <MessageCircle className="w-4 h-4" /> {t('property.detail.whatsapp', lang)}
-                  </a>
-                </div>
-                {/* Favori — placé sous les CTAs principaux, même look pill que les CTAs */}
-                <FavoriteToggle client:visible reference={p.reference} title={p.title} lang={lang} variant="pill" />
               </div>
             </div>
+          )}
+        </div>
 
-            {/* Anti-arnaque entry — reassurance link to the free land-safety
-                diagnostic. Subtle, below the contact card. */}
+        <!-- STICKY RAIL — price + contact + anti-scam -->
+        <aside class="xl:sticky xl:top-24 self-start flex flex-col gap-3">
+          <div class="rounded-2xl bg-gradient-to-br from-primary via-primary to-[hsl(var(--primary)/0.85)] text-primary-foreground shadow-xl overflow-hidden">
+            <div class="p-5">
+              <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary-foreground/70">
+                {priceCaption}
+              </div>
+              <div class="flex flex-wrap items-baseline gap-3 mt-2">
+                <div class="font-serif font-light text-[clamp(24px,2.6vw,36px)] leading-none tracking-tight bidi-ltr">
+                  {priceLabel}
+                </div>
+                {p.negotiable && (
+                  <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-secondary/30 text-secondary-foreground border border-secondary/50">
+                    {t('property.price.negotiable', lang)}
+                  </span>
+                )}
+              </div>
+              <p class="mt-2.5 text-[12.5px] text-primary-foreground/70">
+                {t('property.detail.priceTerms', lang)}
+              </p>
+            </div>
+
+            <div class="h-px bg-white/15 mx-5" />
+
+            <ul class="p-5 space-y-3 text-[14px]">
+              <li class="flex items-start gap-3">
+                <span class="w-9 h-9 rounded-full bg-white/12 grid place-items-center shrink-0">
+                  <Phone className="w-4 h-4 text-secondary" />
+                </span>
+                <div>
+                  <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">{t('property.detail.phone', lang)}</div>
+                  <a href={TEL_URI} class="hover:text-secondary transition bidi-ltr">{SITE.phoneDisplay}</a>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="w-9 h-9 rounded-full bg-white/12 grid place-items-center shrink-0">
+                  <Mail className="w-4 h-4 text-secondary" />
+                </span>
+                <div>
+                  <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">{t('property.detail.email', lang)}</div>
+                  <a href={MAILTO_URI} class="hover:text-secondary transition break-all bidi-ltr">{SITE.email}</a>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="w-9 h-9 rounded-full bg-white/12 grid place-items-center shrink-0">
+                  <MapPin className="w-4 h-4 text-secondary" />
+                </span>
+                <div>
+                  <div class="text-[11px] uppercase tracking-wider text-primary-foreground/60 font-semibold">{t('property.detail.agency', lang)}</div>
+                  <span>Jamm Immobilier · Dakar</span>
+                </div>
+              </li>
+            </ul>
+
+            <div class="px-5 pb-5 flex flex-col gap-2.5">
+              <a href="#contact-bien" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-secondary text-secondary-foreground font-semibold shadow-md hover:translate-y-[-1px] transition">
+                {t('property.detail.interested', lang)} <span aria-hidden class="rtl-flip inline-block">→</span>
+              </a>
+              <div class="grid grid-cols-2 gap-2.5">
+                <a
+                  href={TEL_URI}
+                  data-track="phone.tapped"
+                  data-track-prop-source="detail"
+                  class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-white/12 text-primary-foreground font-semibold border border-white/25 hover:bg-white/20 transition"
+                >
+                  <Phone className="w-4 h-4" /> {t('property.detail.call', lang)}
+                </a>
+                <a
+                  href={SITE.whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-track="whatsapp.tapped"
+                  data-track-prop-source="detail"
+                  class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-emerald/85 text-emerald-foreground font-semibold hover:bg-emerald transition"
+                >
+                  <MessageCircle className="w-4 h-4" /> {t('property.detail.whatsapp', lang)}
+                </a>
+              </div>
+              <FavoriteToggle client:visible reference={p.reference} title={p.title} lang={lang} variant="pill" />
+            </div>
+          </div>
+
+          {/* Anti-scam trust strip (option 1) — how Jamm protects you on THIS bien. */}
+          <div id="trust-jamm" class="scroll-mt-24 rounded-2xl border border-emerald/25 bg-emerald/[0.06] p-5">
+            <div class="inline-flex items-center gap-2 text-emerald">
+              <ShieldCheck className="w-4.5 h-4.5" />
+              <span class="text-[11px] uppercase tracking-[0.14em] font-semibold">{t('safety.trust.eyebrow', lang)}</span>
+            </div>
+            <p class="font-serif text-lg leading-snug mt-1.5 text-foreground">{t('safety.trust.title', lang)}</p>
+            <ul class="mt-3 space-y-2.5 text-sm text-foreground/80">
+              {[t('safety.trust.point.deed', lang), t('safety.trust.point.seller', lang), t('safety.trust.point.nodouble', lang)].map((point) => (
+                <li class="flex items-start gap-2.5">
+                  <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-emerald/15 text-emerald grid place-items-center">
+                    <Check className="w-3.5 h-3.5" />
+                  </span>
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
             <a
               href={localizedPath('/securite-fonciere', lang)}
               data-track="safety.fromDetail"
-              class="mt-3 flex items-center gap-3 rounded-2xl border border-clay bg-card px-4 py-3.5 text-sm hover:border-secondary/60 transition group/saf"
+              class="mt-4 inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-full bg-emerald text-white font-semibold text-sm hover:translate-y-[-1px] transition text-center"
             >
-              <span class="w-9 h-9 rounded-full bg-emerald/12 text-emerald grid place-items-center shrink-0">
-                <ShieldCheck className="w-4.5 h-4.5" />
-              </span>
-              <span class="text-foreground font-medium leading-snug">{t('safety.detail.cta', lang)}</span>
+              <ShieldCheck className="w-4 h-4 shrink-0" />
+              <span>{t('safety.detail.cta', lang)}</span>
             </a>
-          </aside>
-        </div>
+          </div>
+        </aside>
       </div>
     </div>
   </section>
 
-  <!-- 3. DESCRIPTION — now also hosts the essentials (top) AND the map (left) -->
+  <!-- 3. DESCRIPTION — essentials (top) + description text (+ map if resolvable) -->
   <section class="py-3 lg:py-5">
     <div class="container">
       <article class="prop-description relative max-w-5xl mx-auto rounded-2xl bg-card border border-clay px-6 sm:px-9 py-7 sm:py-9 shadow-sm">
-        <div class="absolute left-0 top-8 bottom-8 w-1 rounded-r-full bg-gradient-to-b from-secondary via-secondary/60 to-transparent"></div>
+        <div class="prop-rule absolute top-8 bottom-8 w-1 rounded-r-full bg-gradient-to-b from-secondary via-secondary/60 to-transparent"></div>
         <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2 flex-wrap">
           <span class="w-6 h-px bg-primary"></span>
           {t('property.detail.description', lang)}
-          {lang === 'en' && (
-            <span class="ml-auto inline-flex items-center gap-2.5 normal-case tracking-normal">
-              <span data-tr-badge hidden class="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
+          {showTranslate && (
+            <span class="ms-auto inline-flex items-center gap-2.5 normal-case tracking-normal">
+              <span data-tr-badge class="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
                 <Sparkles className="w-3 h-3" />{trLabels.badge}
               </span>
               <button
                 type="button"
                 data-tr-toggle
-                hidden
-                class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-secondary underline underline-offset-2 disabled:opacity-60"
+                class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-secondary underline underline-offset-2"
               >
-                <Languages className="w-3.5 h-3.5" /><span data-tr-toggle-label>{trLabels.action}</span>
+                <Languages className="w-3.5 h-3.5" /><span data-tr-toggle-label>{trLabels.toOriginal}</span>
               </button>
             </span>
           )}
         </div>
 
-        <!-- Essentials row (above description) — colourful icon cards -->
+        <!-- Essentials row — colourful icon cards -->
         {facts.length > 0 && (
           <div class="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
             {facts.map((f, i) => (
@@ -313,15 +372,18 @@ const hasImages = p.images.length > 0;
           </div>
         )}
 
-        <!-- 2-col: description text LEFT, MAP RIGHT (stacks on mobile) -->
-        <div class="mt-7 grid gap-5 lg:gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)] items-stretch">
+        <!-- description text LEFT, MAP RIGHT (only when resolvable; else full width) -->
+        <div class:list={['mt-7 grid gap-5 lg:gap-6 items-stretch', hasMap ? 'lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)]' : '']}>
           <div>
             {p.commercial_message && (
               <p class="font-serif italic text-[clamp(17px,1.3vw,21px)] text-foreground/85 leading-relaxed max-w-[58ch] mb-5">
-                « <span data-tr-field="commercial_message">{p.commercial_message}</span> »
+                « <span {...(msgTr ? { 'data-tr-field': 'commercial_message', 'data-tr-orig': p.commercial_message } : {})}>{msgTr ?? p.commercial_message}</span> »
               </p>
             )}
-            <div class="description-body text-foreground/85 leading-[1.75] text-[15.5px] whitespace-pre-line max-w-[68ch]" data-tr-field="description">{p.description}</div>
+            <div
+              class="description-body text-foreground/85 leading-[1.75] text-[15.5px] whitespace-pre-line max-w-[68ch]"
+              {...(descTr ? { 'data-tr-field': 'description', 'data-tr-orig': p.description } : {})}
+            >{descTr ?? p.description}</div>
             {p.address && (
               <p class="mt-5 text-sm text-muted-foreground inline-flex items-center gap-2">
                 <MapPin className="w-4 h-4" />{p.address}
@@ -329,23 +391,24 @@ const hasImages = p.images.length > 0;
             )}
           </div>
 
-          <div class="rounded-xl overflow-hidden border border-clay min-h-[260px] lg:min-h-[320px]">
-            <PropertyMap
-              client:visible
-              gps={p.gps}
-              quartier={p.quartier}
-              city={p.city}
-              title={p.title}
-              className="w-full h-full block"
-            />
-          </div>
+          {hasMap && (
+            <div class="rounded-xl overflow-hidden border border-clay min-h-[260px] lg:min-h-[320px]">
+              <PropertyMap
+                client:visible
+                gps={p.gps}
+                quartier={p.quartier}
+                city={p.city}
+                title={p.title}
+                className="w-full h-full block"
+              />
+            </div>
+          )}
         </div>
       </article>
     </div>
   </section>
 
-  <!-- 4. INFORMATIONS DÉTAILLÉES — caractéristiques + nearby + docs
-       (essentials moved into the description block above) -->
+  <!-- 4. INFORMATIONS DÉTAILLÉES -->
   {(attrEntries.length > 0 || p.nearby_commerce.length > 0 || documentEntries.length > 0) && (
     <section class="py-3 lg:py-5">
       <div class="container">
@@ -448,9 +511,6 @@ const hasImages = p.images.length > 0;
             <span class="w-6 h-px bg-primary"></span>{t('property.detail.similarLabel', lang)}
           </div>
           <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mt-2 mb-6">{t('property.detail.similar', lang)}</h2>
-          <!-- auto-fit + minmax + justify-center spaces the cards evenly
-               whether there are 1, 2, or 3 matches; each card never
-               shrinks below 280 px wide. -->
           <div class="grid gap-6 justify-center grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
             {similar.map((sp, i) => (
               <PropertyCard property={sp} lang={lang} delay={(['', 'd1', 'd2'] as const)[i % 3]} hideCompare />
@@ -472,30 +532,28 @@ const hasImages = p.images.length > 0;
 >
   <div class="flex-1 min-w-0">
     <div class="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold leading-none">
-      {transaction.label === 'À louer' ? 'Loyer' : 'Prix'}
+      {isRental ? t('property.priceShort.rent', lang) : t('property.priceShort.sale', lang)}
     </div>
-    <div class="font-serif text-[18px] font-normal leading-tight tracking-tight truncate">
+    <div class="font-serif text-[18px] font-normal leading-tight tracking-tight truncate bidi-ltr">
       {priceLabel}
     </div>
   </div>
-  <a href={TEL_URI} data-track="phone.tapped" data-track-prop-source="sticky" aria-label="Appeler l'agence" class="w-11 h-11 grid place-items-center rounded-full bg-card border border-clay text-primary">
+  <a href={TEL_URI} data-track="phone.tapped" data-track-prop-source="sticky" aria-label={t('property.detail.call', lang)} class="w-11 h-11 grid place-items-center rounded-full bg-card border border-clay text-primary">
     <Phone className="w-4 h-4" />
   </a>
   <a href={SITE.whatsappUrl} target="_blank" rel="noopener noreferrer" data-track="whatsapp.tapped" data-track-prop-source="sticky" aria-label="WhatsApp" class="w-11 h-11 grid place-items-center rounded-full bg-emerald/15 text-emerald border border-emerald/30">
     <MessageCircle className="w-4 h-4" />
   </a>
   <a href="#contact-bien" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm shadow-md whitespace-nowrap">
-    Contacter
+    {t('property.cta.contact', lang)}
   </a>
 </div>
 
 <CompareBar client:idle lang={lang} />
 
 <style>
-  /* .property-detail-bg used to set its own dot pattern; now the body
-     in globals.css owns a richer Sahel-weave pattern (ink dot + ochre
-     halo + faint primary chevron). Leaving this wrapper empty so the
-     body texture shows through the gutters between floating cards. */
+  /* The description left accent rule — logical so it flips under RTL. */
+  .prop-description .prop-rule { inset-inline-start: 0; }
 
   .prop-description .description-body::first-letter {
     font-family: 'Fraunces', Georgia, serif;
@@ -506,9 +564,14 @@ const hasImages = p.images.length > 0;
     margin: 0.08em 0.14em 0 0;
     color: hsl(var(--primary));
   }
+  /* RTL: the drop-cap floats to the right + mirrored margin. */
+  [dir='rtl'] .prop-description .description-body::first-letter {
+    float: right;
+    margin: 0.08em 0 0 0.14em;
+  }
 </style>
 
-<script define:vars={{ propertyId: p.id, translateEndpoint, translateLang: lang, propertyRef: p.reference, trLabels }}>
+<script define:vars={{ propertyId: p.id, trLabels }}>
   if ('requestIdleCallback' in window) {
     window.requestIdleCallback(() => {
       fetch('/api/views', {
@@ -550,70 +613,30 @@ const hasImages = p.images.length > 0;
     });
   }
 
-  // --- Traduction à la demande (FR → langue de la page), via le worker CF ---
-  // Le bouton reste CACHÉ tant que l'endpoint /api/translate ne répond pas
-  // (probe), donc rien ne s'affiche tant que le worker n'est pas déployé.
+  // --- Traduction : toggle 100 % client sur du contenu DÉJÀ cuit au build. ---
+  // La version traduite est rendue par défaut ; on bascule vers l'original
+  // (stocké dans data-tr-orig) et retour. AUCUN appel réseau. Le badge est
+  // masqué via style.display (PAS l'attribut `hidden`, qui était écrasé par la
+  // classe utilitaire inline-flex et affichait un faux « Traduit auto. »).
   (function () {
     var toggle = document.querySelector('[data-tr-toggle]');
-    if (!toggle || !translateEndpoint || translateLang === 'fr') return;
-    var fields = Array.prototype.slice.call(document.querySelectorAll('[data-tr-field]'));
-    if (!fields.length) return;
-    fields.forEach(function (el) { el.setAttribute('data-tr-orig', el.textContent); });
-
-    var tlabel = toggle.querySelector('[data-tr-toggle-label]');
+    if (!toggle) return;
+    var fields = Array.prototype.slice.call(document.querySelectorAll('[data-tr-field][data-tr-orig]'));
+    if (!fields.length) { toggle.style.display = 'none'; return; }
+    fields.forEach(function (el) { el.setAttribute('data-tr-translated', el.textContent); });
     var badge = document.querySelector('[data-tr-badge]');
-    var cacheKey = 'tr:' + propertyRef + ':' + translateLang;
-    var translated = null;
-    var state = 'orig';
-    try { var cached = sessionStorage.getItem(cacheKey); if (cached) translated = JSON.parse(cached); } catch (e) {}
-
-    function label(txt) { if (tlabel) tlabel.textContent = txt; }
-    function showOriginal() {
-      fields.forEach(function (el) { el.textContent = el.getAttribute('data-tr-orig'); });
-      if (badge) badge.hidden = true;
-      label(trLabels.action); state = 'orig';
-    }
-    function showTranslated() {
+    var tlabel = toggle.querySelector('[data-tr-toggle-label]');
+    var state = 'tr'; // traduit par défaut
+    function apply() {
       fields.forEach(function (el) {
-        var f = el.getAttribute('data-tr-field');
-        if (translated && translated[f] != null) el.textContent = translated[f];
+        el.textContent = state === 'tr'
+          ? el.getAttribute('data-tr-translated')
+          : el.getAttribute('data-tr-orig');
       });
-      if (badge) badge.hidden = false;
-      label(trLabels.original); state = 'tr';
+      if (badge) badge.style.display = state === 'tr' ? '' : 'none';
+      if (tlabel) tlabel.textContent = state === 'tr' ? trLabels.toOriginal : trLabels.toTranslated;
     }
-    function fetchTranslation() {
-      toggle.disabled = true; label(trLabels.loading);
-      fetch(translateEndpoint + '/api/translate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ref: propertyRef, source: 'fr', target: translateLang,
-          fields: fields.map(function (el) { return el.getAttribute('data-tr-field'); }),
-        }),
-      })
-        .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-        .then(function (d) {
-          translated = (d && d.translations) || null;
-          if (!translated) throw 0;
-          try { sessionStorage.setItem(cacheKey, JSON.stringify(translated)); } catch (e) {}
-          toggle.disabled = false; showTranslated();
-        })
-        .catch(function () {
-          toggle.disabled = false; label(trLabels.error);
-          setTimeout(function () { if (state === 'orig') label(trLabels.action); }, 2200);
-        });
-    }
-    toggle.addEventListener('click', function () {
-      if (state === 'orig') { if (translated) showTranslated(); else fetchTranslation(); }
-      else showOriginal();
-    });
-
-    // Révèle le bouton seulement si l'endpoint est disponible (ou déjà en cache).
-    if (translated) { toggle.hidden = false; }
-    else {
-      fetch(translateEndpoint + '/api/translate?ping=1', { method: 'GET' })
-        .then(function (r) { if (r.ok) toggle.hidden = false; })
-        .catch(function () {});
-    }
+    toggle.addEventListener('click', function () { state = state === 'tr' ? 'orig' : 'tr'; apply(); });
+    apply();
   })();
 </script>

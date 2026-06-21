@@ -1,0 +1,25 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import CompareTable from '@/components/property/CompareTable.tsx';
+import CompareBar from '@/components/property/CompareBar.tsx';
+import { getLang, t } from '@/lib/i18n';
+
+export const prerender = true;
+const lang = getLang(Astro.url);
+---
+
+<BaseLayout title={`${t('page.compare.title', lang)} — ${t('site.name', lang)}`} solidNav>
+  <section class="py-16 bg-card border-b border-clay">
+    <div class="container max-w-3xl text-center">
+      <h1 class="font-serif font-light text-[clamp(36px,5vw,56px)] leading-tight tracking-tight">
+        {t('page.compare.title', lang)}
+      </h1>
+    </div>
+  </section>
+  <section class="py-16 bg-background">
+    <div class="container">
+      <CompareTable client:load lang={lang} />
+    </div>
+  </section>
+  <CompareBar client:idle lang={lang} />
+</BaseLayout>

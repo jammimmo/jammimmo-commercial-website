@@ -1,0 +1,63 @@
+---
+/**
+ * /estimation — outil lead-magnet « Estimation express ».
+ *
+ * Page MINCE et 100 % statique côté runtime : prerender, dérive `lang`, fixe
+ * title/description depuis l'i18n, et délègue tout l'interactif à l'île React
+ * `EstimateTool` montée en `client:load` (l'outil EST le cœur de la page).
+ *
+ * Aucun gate avant l'outil : l'en-tête est purement marketing, l'utilisateur
+ * arrive directement sur le formulaire multi-étapes (gratuit, sans contact).
+ * La capture (1 champ WhatsApp) n'apparaît qu'APRÈS le résultat, dans l'île.
+ *
+ * Les 3 fichiers /estimation (FR, en/, wo/) sont byte-identiques : getLang()
+ * dérive la langue depuis le préfixe d'URL.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import EstimateTool from '@/components/estimate/EstimateTool.tsx';
+import Ornament from '@/components/decor/Ornament.astro';
+import { getLang, t } from '@/lib/i18n';
+
+export const prerender = true;
+const lang = getLang(Astro.url);
+---
+
+<BaseLayout
+  title={`${t('estimate.meta.title', lang)} — ${t('site.name', lang)}`}
+  description={t('estimate.meta.description', lang)}
+  solidNav
+>
+  <section class="relative py-16 sm:py-20 bg-card border-b border-clay overflow-hidden">
+    {/* Fioriture: Sahel sun-glow + woven dot texture (same as favoris/hubs). */}
+    <div class="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
+      <div
+        class="absolute -top-24 left-1/2 -translate-x-1/2 w-[520px] h-[520px] rounded-full opacity-[0.12]"
+        style="background: radial-gradient(circle at 50% 30%, hsl(var(--secondary)), hsl(var(--ochre)) 45%, transparent 70%); filter: blur(8px);"
+      ></div>
+      <div
+        class="absolute inset-0 opacity-50"
+        style="background-image: var(--sahel-weave-bg); background-size: var(--sahel-weave-size); background-position: var(--sahel-weave-pos);"
+      ></div>
+    </div>
+    <div class="container max-w-3xl text-center relative z-10">
+      <p class="text-[11px] uppercase tracking-[0.18em] font-semibold text-secondary-strong mb-3">
+        {t('estimate.page.eyebrow', lang)}
+      </p>
+      <h1 class="font-serif font-light text-[clamp(36px,5vw,56px)] leading-tight tracking-tight">
+        {t('estimate.page.title', lang)}
+      </h1>
+      <div class="flex justify-center mt-5">
+        <Ornament />
+      </div>
+      <p class="mt-5 text-muted-foreground text-[16px] leading-relaxed">
+        {t('estimate.page.subtitle', lang)}
+      </p>
+    </div>
+  </section>
+
+  <section class="py-12 sm:py-16 bg-background">
+    <div class="container max-w-2xl">
+      <EstimateTool client:load lang={lang} />
+    </div>
+  </section>
+</BaseLayout>
