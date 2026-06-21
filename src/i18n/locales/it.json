@@ -1,5 +1,18 @@
 {
   "site.name": "Jamm Immobilier",
+  "propertyType.appartement": "Appartamento",
+  "propertyType.maison": "Casa",
+  "propertyType.villa": "Villa",
+  "propertyType.terrain": "Terreno",
+  "propertyType.magasin": "Negozio",
+  "propertyType.bureau": "Ufficio",
+  "propertyType.hangar": "Capannone",
+  "search.budget.unlimited": "Senza limite",
+  "contact.subject.buy": "Comprare un immobile",
+  "contact.subject.sell": "Vendere un immobile",
+  "contact.subject.rent": "Affittare un immobile",
+  "contact.subject.manage": "Gestione immobiliare",
+  "contact.subject.advice": "Consulenza / accompagnamento",
   "site.tagline": "Immobiliare, in tutta serenità",
   "site.description": "Agenzia immobiliare senegalese — vendita, affitto, gestione e consulenza di progetto. Da Dakar a Saint-Louis.",
 

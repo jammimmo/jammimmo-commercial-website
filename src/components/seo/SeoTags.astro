@@ -57,7 +57,7 @@ const hreflangs = buildHreflangLinks(Astro.url.pathname, siteOrigin).map((h) => 
 <meta property="og:image:alt" content={imageAlt} />
 <meta property="og:url" content={fullCanonical} />
 <meta property="og:site_name" content="Jamm Immobilier" />
-<meta property="og:locale" content={lang === 'fr' ? 'fr_SN' : lang === 'en' ? 'en_US' : 'wo_SN'} />
+<meta property="og:locale" content={({ fr: 'fr_SN', en: 'en_US', wo: 'wo_SN', es: 'es_ES', it: 'it_IT', ar: 'ar_AR' } as const)[lang] ?? 'fr_SN'} />
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />
