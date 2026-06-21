@@ -37,10 +37,16 @@ type Filters = {
 
 const EMPTY: Filters = { q: '', type: '', transaction: '', city: '', priceMin: 0, priceMax: 0, bedsMin: 0 };
 
-const TYPES = ['Appartement', 'Villa', 'Maison', 'Terrain', 'Magasin', 'Bureau', 'Hangar'];
-const TRANSACTIONS = [
-  { value: 'Vente', label: 'À vendre' },
-  { value: 'Location', label: 'À louer' },
+// [value canonique (filtre/param/champ Supabase, en FR), clé i18n du libellé].
+// Seul le libellé affiché est traduit via t() ; la value reste en français.
+const TYPES: Array<[string, string]> = [
+  ['Appartement', 'propertyType.appartement'],
+  ['Villa', 'propertyType.villa'],
+  ['Maison', 'propertyType.maison'],
+  ['Terrain', 'propertyType.terrain'],
+  ['Magasin', 'propertyType.magasin'],
+  ['Bureau', 'propertyType.bureau'],
+  ['Hangar', 'propertyType.hangar'],
 ];
 
 const FCFA = new Intl.NumberFormat('fr-FR');
@@ -161,12 +167,12 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
               <Select
                 value={filters.transaction}
                 onChange={(v) => setFilters((f) => ({ ...f, transaction: v }))}
-                options={[{ value: '', label: t('listings.filter.transactionLabel', lang) }, ...TRANSACTIONS]}
+                options={[{ value: '', label: t('listings.filter.transactionLabel', lang) }, { value: 'Vente', label: t('common.transaction.sale', lang) }, { value: 'Location', label: t('common.transaction.rental', lang) }]}
               />
               <Select
                 value={filters.type}
                 onChange={(v) => setFilters((f) => ({ ...f, type: v }))}
-                options={[{ value: '', label: t('listings.filter.typeLabel', lang) }, ...TYPES.map((ty) => ({ value: ty, label: ty }))]}
+                options={[{ value: '', label: t('listings.filter.typeLabel', lang) }, ...TYPES.map(([ty, k]) => ({ value: ty, label: t(k, lang) }))]}
               />
               <Select
                 value={filters.city}
@@ -229,12 +235,12 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
                 <Select
                   value={filters.transaction}
                   onChange={(v) => setFilters((f) => ({ ...f, transaction: v }))}
-                  options={[{ value: '', label: t('listings.filter.transactionLabel', lang) }, ...TRANSACTIONS]}
+                  options={[{ value: '', label: t('listings.filter.transactionLabel', lang) }, { value: 'Vente', label: t('common.transaction.sale', lang) }, { value: 'Location', label: t('common.transaction.rental', lang) }]}
                 />
                 <Select
                   value={filters.type}
                   onChange={(v) => setFilters((f) => ({ ...f, type: v }))}
-                  options={[{ value: '', label: t('listings.filter.typeLabel', lang) }, ...TYPES.map((ty) => ({ value: ty, label: ty }))]}
+                  options={[{ value: '', label: t('listings.filter.typeLabel', lang) }, ...TYPES.map(([ty, k]) => ({ value: ty, label: t(k, lang) }))]}
                 />
                 <Select
                   value={filters.city}

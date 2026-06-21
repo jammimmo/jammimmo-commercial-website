@@ -1,5 +1,18 @@
 {
   "site.name": "Jamm Immobilier",
+  "propertyType.appartement": "شقة",
+  "propertyType.maison": "منزل",
+  "propertyType.villa": "فيلا",
+  "propertyType.terrain": "أرض",
+  "propertyType.magasin": "محل تجاري",
+  "propertyType.bureau": "مكتب",
+  "propertyType.hangar": "مستودع",
+  "search.budget.unlimited": "بدون حد أقصى",
+  "contact.subject.buy": "شراء عقار",
+  "contact.subject.sell": "بيع عقار",
+  "contact.subject.rent": "استئجار عقار",
+  "contact.subject.manage": "إدارة عقار",
+  "contact.subject.advice": "استشارة / مرافقة",
   "site.tagline": "العقارات بكل طمأنينة",
   "site.description": "وكالة عقارية سنغالية — بيع وإيجار وإدارة عقارية ومرافقة مشاريع. من داكار إلى سان لويس.",
 

@@ -5,15 +5,18 @@ import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
 
 interface Props { lang: Lang }
 
-const TYPES = ['Appartement', 'Maison', 'Villa', 'Terrain', 'Magasin', 'Bureau', 'Hangar'];
-const CITIES = ['Dakar', 'Saly', 'Mbour', 'Thiès', 'Saint-Louis', 'Ziguinchor'];
-const BUDGETS = [
-  ['20000000', '20 000 000 FCFA'],
-  ['50000000', '50 000 000 FCFA'],
-  ['100000000', '100 000 000 FCFA'],
-  ['250000000', '250 000 000 FCFA'],
-  ['0', 'Sans limite'],
+// [value envoyée au filtre /biens (donnée canonique FR : param d'URL + champ Supabase),
+// clé i18n du libellé affiché]. Seul le libellé est traduit ; la value reste en français.
+const TYPES: Array<[string, string]> = [
+  ['Appartement', 'propertyType.appartement'],
+  ['Maison', 'propertyType.maison'],
+  ['Villa', 'propertyType.villa'],
+  ['Terrain', 'propertyType.terrain'],
+  ['Magasin', 'propertyType.magasin'],
+  ['Bureau', 'propertyType.bureau'],
+  ['Hangar', 'propertyType.hangar'],
 ];
+const CITIES = ['Dakar', 'Saly', 'Mbour', 'Thiès', 'Saint-Louis', 'Ziguinchor'];
 
 const TABS: Array<['Vente' | 'Location' | 'Gestion', 'search.tab.vente' | 'search.tab.location' | 'search.tab.gestion']> = [
   ['Vente', 'search.tab.vente'],
@@ -27,6 +30,15 @@ export default function HeroSearch({ lang }: Props) {
   const [place, setPlace] = useState('');
   const [rooms, setRooms] = useState('1+');
   const [budget, setBudget] = useState('0');
+
+  // Montants FCFA neutres (non traduits) ; seul « Sans limite » est localisé.
+  const BUDGETS: Array<[string, string]> = [
+    ['20000000', '20 000 000 FCFA'],
+    ['50000000', '50 000 000 FCFA'],
+    ['100000000', '100 000 000 FCFA'],
+    ['250000000', '250 000 000 FCFA'],
+    ['0', t('search.budget.unlimited', lang)],
+  ];
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -84,7 +96,7 @@ export default function HeroSearch({ lang }: Props) {
             onChange={(e) => setType(e.target.value)}
             className="w-full h-11 px-3 rounded-xl border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            {TYPES.map((t) => <option key={t}>{t}</option>)}
+            {TYPES.map(([v, k]) => <option key={v} value={v}>{t(k, lang)}</option>)}
           </select>
         </div>
         <div>

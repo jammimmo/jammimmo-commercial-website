@@ -199,11 +199,11 @@ export default function ContactForm({ lang, propertyId, propertyTitle, compact =
               className="w-full h-11 px-3.5 rounded-xl border border-input bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="">—</option>
-              <option>Acheter un bien</option>
-              <option>Vendre un bien</option>
-              <option>Louer un bien</option>
-              <option>Mettre en gestion</option>
-              <option>Conseil / accompagnement</option>
+              <option value="Acheter un bien">{t('contact.subject.buy', lang)}</option>
+              <option value="Vendre un bien">{t('contact.subject.sell', lang)}</option>
+              <option value="Louer un bien">{t('contact.subject.rent', lang)}</option>
+              <option value="Mettre en gestion">{t('contact.subject.manage', lang)}</option>
+              <option value="Conseil / accompagnement">{t('contact.subject.advice', lang)}</option>
             </select>
           </div>
         )}
