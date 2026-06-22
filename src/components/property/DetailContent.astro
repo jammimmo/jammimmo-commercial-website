@@ -49,15 +49,24 @@ if (p.flux_passage && (p.type === 'Magasin' || p.type === 'Bureau' || p.type ===
   facts.push({ icon: 'sparkles', label: t('property.facts.footTraffic', lang), value: String(p.flux_passage) });
 }
 
+// Attributs SECONDAIRES uniquement : chambres/toilettes/salles_de_bain/etage/niveaux
+// sont DÉJÀ dans la rangée `facts` ci-dessus → on ne les ré-émet jamais ici (sinon
+// doublon « Chambres = 1 »). Cf. panel UX : une donnée = un seul endroit.
 const ATTR_LABELS: Record<string, string> = {
-  chambres: 'Chambres', salons: 'Salons', toilettes: 'Toilettes', cuisine: 'Cuisine',
-  etage: 'Étage', parking: 'Parking', jardin: 'Jardin', piscine: 'Piscine',
-  terrasse: 'Terrasse', balcon: 'Balcon', niveaux: 'Niveaux',
-  ascenseur: 'Ascenseur', climatisation: 'Climatisation',
+  salons: 'Salons', cuisine: 'Cuisine', parking: 'Parking', jardin: 'Jardin', piscine: 'Piscine',
+  terrasse: 'Terrasse', balcon: 'Balcon', ascenseur: 'Ascenseur', climatisation: 'Climatisation',
 };
-const attrEntries = Object.entries(p.attributes || {})
-  .filter(([k, v]) => k in ATTR_LABELS && v !== false && v !== null && v !== '' && v !== 0)
-  .map(([k, v]) => ({ label: ATTR_LABELS[k]!, value: typeof v === 'boolean' ? '✓' : String(v) }));
+const FACTS_KEYS = new Set(['chambres', 'bedrooms', 'toilettes', 'salles_de_bain', 'etage', 'niveaux']);
+const attrRaw = Object.entries(p.attributes || {})
+  .filter(([k, v]) => k in ATTR_LABELS && !FACTS_KEYS.has(k) && v !== false && v !== null && v !== '' && v !== 0);
+// Booléens → chips d'équipement (libellé seul, plus de « ✓ » comme valeur).
+// Nombres/strings → cartes « Libellé : valeur » (valeur déjà formatée, on trim).
+const amenityChips = attrRaw.filter(([, v]) => v === true).map(([k]) => ATTR_LABELS[k]!);
+const countCards = attrRaw
+  .filter(([, v]) => v !== true)
+  .map(([k, v]) => ({ label: ATTR_LABELS[k]!, value: String(v).trim() }));
+const hasCharacteristics = amenityChips.length > 0 || countCards.length > 0;
+const hasEnviron = p.nearby_commerce.length > 0;
 
 const documentEntries = Object.entries(p.documents || {})
   .filter(([, url]) => typeof url === 'string' && url.length > 0);
@@ -162,45 +171,48 @@ const trLabels = {
     <div class="container">
       <div class="max-w-5xl mx-auto grid gap-4 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_360px] items-start">
 
-        <!-- MEDIA BLOCK — flexes to whatever exists; branded placeholder if none -->
+        <!-- MEDIA BLOCK — hauteur plancher CONSTANTE quel que soit le média (symétrie
+             hero) ; galerie prioritaire, vidéo en colonne secondaire / centrée. -->
         <div class="rounded-2xl bg-card border border-clay p-3 sm:p-4 shadow-sm">
-          {hasMedia ? (
-            bothMedia ? (
-              <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,260px)] items-stretch">
-                <div class="h-[clamp(320px,48vw,520px)]">
+          <div class="h-[clamp(420px,46vw,560px)]">
+            {hasMedia ? (
+              bothMedia ? (
+                <div class="h-full grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,230px)] items-stretch">
+                  <div class="h-full min-h-0">
+                    <PropertyGallery client:visible images={p.images} title={p.title} />
+                  </div>
+                  <div class="h-full overflow-hidden rounded-2xl border border-clay bg-black ring-1 ring-ink/5">
+                    <VideoTour videoLinks={p.video_links} title={p.title} />
+                  </div>
+                </div>
+              ) : hasImages ? (
+                <div class="h-full">
                   <PropertyGallery client:visible images={p.images} title={p.title} />
                 </div>
-                <div class="aspect-[9/16] overflow-hidden rounded-2xl border border-clay bg-black w-full max-w-[300px] mx-auto lg:mx-0 self-center ring-1 ring-ink/5">
-                  <VideoTour videoLinks={p.video_links} title={p.title} />
+              ) : (
+                <div class="h-full grid place-items-center">
+                  <div class="h-full aspect-[9/16] overflow-hidden rounded-2xl border border-clay bg-black ring-1 ring-ink/5">
+                    <VideoTour videoLinks={p.video_links} title={p.title} />
+                  </div>
                 </div>
-              </div>
-            ) : hasImages ? (
-              <div class="h-[clamp(340px,52vw,560px)]">
-                <PropertyGallery client:visible images={p.images} title={p.title} />
-              </div>
+              )
             ) : (
-              <div class="mx-auto w-full max-w-[400px]">
-                <div class="aspect-[9/16] overflow-hidden rounded-2xl border border-clay bg-black w-full shadow-sm ring-1 ring-ink/5">
-                  <VideoTour videoLinks={p.video_links} title={p.title} />
+              <div class="h-full rounded-2xl bg-accent border border-primary/10 grid place-items-center text-center px-6">
+                <div>
+                  <div class="mx-auto w-14 h-14 rounded-2xl bg-card border border-clay grid place-items-center shadow-sm">
+                    <BrandMark size={36} />
+                  </div>
+                  <p class="font-serif text-xl mt-3 inline-flex items-center gap-2 justify-center">
+                    <Camera className="w-5 h-5 text-primary" />{t('property.media.none.title', lang)}
+                  </p>
+                  <p class="text-muted-foreground text-sm mt-1.5 max-w-sm mx-auto">{t('property.media.none.body', lang)}</p>
+                  <a href="#contact-bien" class="mt-4 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm shadow-md hover:translate-y-[-1px] transition">
+                    {t('property.media.none.cta', lang)} <span aria-hidden class="rtl-flip inline-block">→</span>
+                  </a>
                 </div>
               </div>
-            )
-          ) : (
-            <div class="aspect-[16/10] rounded-2xl bg-accent border border-primary/10 grid place-items-center text-center px-6">
-              <div>
-                <div class="mx-auto w-14 h-14 rounded-2xl bg-card border border-clay grid place-items-center shadow-sm">
-                  <BrandMark size={36} />
-                </div>
-                <p class="font-serif text-xl mt-3 inline-flex items-center gap-2 justify-center">
-                  <Camera className="w-5 h-5 text-primary" />{t('property.media.none.title', lang)}
-                </p>
-                <p class="text-muted-foreground text-sm mt-1.5 max-w-sm mx-auto">{t('property.media.none.body', lang)}</p>
-                <a href="#contact-bien" class="mt-4 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm shadow-md hover:translate-y-[-1px] transition">
-                  {t('property.media.none.cta', lang)} <span aria-hidden class="rtl-flip inline-block">→</span>
-                </a>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         <!-- STICKY RAIL — price + contact + anti-scam -->
@@ -285,16 +297,24 @@ const trLabels = {
             </div>
           </div>
 
-          {/* Anti-scam trust strip (option 1) — how Jamm protects you on THIS bien. */}
-          <div id="trust-jamm" class="scroll-mt-24 rounded-2xl border border-emerald/25 bg-emerald/[0.06] p-5">
-            <div class="inline-flex items-center gap-2 text-emerald">
-              <ShieldCheck className="w-4.5 h-4.5" />
-              <span class="text-[11px] uppercase tracking-[0.14em] font-semibold">{t('safety.trust.eyebrow', lang)}</span>
+        </aside>
+      </div>
+
+      {/* Bande « Acheter en confiance » — pleine largeur sous le hero (sortie du
+          rail pour rééquilibrer la hauteur média ↔ rail). CTA = lien secondaire. */}
+      <div class="max-w-5xl mx-auto mt-3 lg:mt-4">
+        <div id="trust-jamm" class="scroll-mt-24 rounded-2xl border border-emerald/25 bg-emerald/[0.06] px-5 sm:px-6 py-4 sm:py-5">
+          <div class="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
+            <div class="shrink-0 lg:max-w-[230px]">
+              <div class="inline-flex items-center gap-2 text-emerald">
+                <ShieldCheck className="w-4.5 h-4.5" />
+                <span class="text-[11px] uppercase tracking-[0.14em] font-semibold">{t('safety.trust.eyebrow', lang)}</span>
+              </div>
+              <p class="font-serif text-lg leading-snug mt-1 text-foreground">{t('safety.trust.title', lang)}</p>
             </div>
-            <p class="font-serif text-lg leading-snug mt-1.5 text-foreground">{t('safety.trust.title', lang)}</p>
-            <ul class="mt-3 space-y-2.5 text-sm text-foreground/80">
+            <ul class="flex-1 grid sm:grid-cols-3 gap-2.5 lg:gap-5 text-sm text-foreground/80">
               {[t('safety.trust.point.deed', lang), t('safety.trust.point.seller', lang), t('safety.trust.point.nodouble', lang)].map((point) => (
-                <li class="flex items-start gap-2.5">
+                <li class="flex items-start gap-2">
                   <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-emerald/15 text-emerald grid place-items-center">
                     <Check className="w-3.5 h-3.5" />
                   </span>
@@ -305,13 +325,14 @@ const trLabels = {
             <a
               href={localizedPath('/securite-fonciere', lang)}
               data-track="safety.fromDetail"
-              class="mt-4 inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-full bg-emerald text-white font-semibold text-sm hover:translate-y-[-1px] transition text-center"
+              class="shrink-0 inline-flex items-center gap-1.5 text-[13px] font-semibold text-emerald hover:text-emerald/80 transition"
             >
               <ShieldCheck className="w-4 h-4 shrink-0" />
               <span>{t('safety.detail.cta', lang)}</span>
+              <span aria-hidden class="rtl-flip inline-block">→</span>
             </a>
           </div>
-        </aside>
+        </div>
       </div>
     </div>
   </section>
@@ -409,7 +430,7 @@ const trLabels = {
   </section>
 
   <!-- 4. INFORMATIONS DÉTAILLÉES -->
-  {(attrEntries.length > 0 || p.nearby_commerce.length > 0 || documentEntries.length > 0) && (
+  {(hasCharacteristics || p.nearby_commerce.length > 0 || documentEntries.length > 0) && (
     <section class="py-3 lg:py-5">
       <div class="container">
         <div class="max-w-5xl mx-auto rounded-2xl bg-card border border-clay px-6 sm:px-9 py-7 sm:py-9 shadow-sm">
@@ -417,20 +438,33 @@ const trLabels = {
             <span class="w-6 h-px bg-primary"></span>{t('property.detail.infoSectionLabel', lang)}
           </div>
           <h2 class="font-serif font-light text-[clamp(22px,2.4vw,32px)] tracking-tight mt-2 mb-6">
-            {t('property.detail.infoSectionTitle', lang)}
+            {hasEnviron ? t('property.detail.infoSectionTitle', lang) : t('property.detail.features', lang)}
           </h2>
 
-          {attrEntries.length > 0 && (
+          {hasCharacteristics && (
             <div class="mb-7">
-              <h3 class="font-serif text-lg tracking-tight mb-3">{t('property.detail.features', lang)}</h3>
-              <dl class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                {attrEntries.map((a) => (
-                  <div class="px-4 py-3 rounded-xl bg-background border border-clay">
-                    <dt class="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{a.label}</dt>
-                    <dd class="text-[15px] mt-0.5">{a.value}</dd>
-                  </div>
-                ))}
-              </dl>
+              {(hasEnviron || documentEntries.length > 0) && (
+                <h3 class="font-serif text-lg tracking-tight mb-3">{t('property.detail.features', lang)}</h3>
+              )}
+              {countCards.length > 0 && (
+                <dl class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {countCards.map((a) => (
+                    <div class="px-4 py-3 rounded-xl bg-background border border-clay">
+                      <dt class="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{a.label}</dt>
+                      <dd class="text-[15px] mt-0.5">{a.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+              {amenityChips.length > 0 && (
+                <div class:list={['flex flex-wrap gap-2.5', countCards.length > 0 && 'mt-3']}>
+                  {amenityChips.map((label) => (
+                    <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13.5px] bg-accent text-accent-foreground border border-primary/15">
+                      <Check className="w-3.5 h-3.5 text-primary shrink-0" />{label}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
