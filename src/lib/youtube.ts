@@ -9,7 +9,7 @@
 /** Extract the 11-char YouTube video ID from any common URL form. */
 export function youtubeIdFromUrl(url: string | null | undefined): string | null {
   if (!url) return null;
-  const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+  const m = url.match(/(?:v=|\/vi\/|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
   return m ? m[1]! : null;
 }
 

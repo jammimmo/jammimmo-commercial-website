@@ -1,5 +1,6 @@
 {
   "site.name": "Jamm Immobilier",
+  "common.close": "Close",
   "propertyType.appartement": "Apartment",
   "propertyType.maison": "House",
   "propertyType.villa": "Villa",
