@@ -148,7 +148,7 @@ test.describe('Arabe — RTL réellement appliqué', () => {
   });
 });
 
-test.describe('Carte — fond OpenFreeMap Positron (keyless, libre commercial)', () => {
+test.describe('Carte — fond OpenFreeMap vecteur (keyless, libre commercial)', () => {
   test('le fond vectoriel OpenFreeMap se charge (et plus aucune Geoapify / OSM-France raster)', async ({ page }) => {
     const ofm: string[] = [];
     const legacy: string[] = [];

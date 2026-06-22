@@ -8,7 +8,7 @@ interface Props {
    * screen). Must be rendered as a child of `<MapContainer>` so the context exists.
    */
   useMap: () => { addLayer?: unknown; removeLayer: (l: unknown) => void; hasLayer?: (l: unknown) => boolean } & Record<string, unknown>;
-  /** MapLibre GL style URL (e.g. OpenFreeMap Positron). */
+  /** MapLibre GL style URL (e.g. OpenFreeMap Liberty). */
   styleUrl: string;
   attribution: string;
   maxZoom?: number;
