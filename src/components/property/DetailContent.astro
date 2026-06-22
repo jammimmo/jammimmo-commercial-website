@@ -171,48 +171,44 @@ const trLabels = {
     <div class="container">
       <div class="max-w-5xl mx-auto grid gap-4 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_360px] items-start">
 
-        <!-- MEDIA BLOCK — hauteur plancher CONSTANTE quel que soit le média (symétrie
-             hero) ; galerie prioritaire, vidéo en colonne secondaire / centrée. -->
-        <div class="rounded-2xl bg-card border border-clay p-3 sm:p-4 shadow-sm">
-          <div class="h-[clamp(420px,46vw,560px)]">
-            {hasMedia ? (
-              bothMedia ? (
-                <div class="h-full grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,230px)] items-stretch">
-                  <div class="h-full min-h-0">
-                    <PropertyGallery client:visible images={p.images} title={p.title} />
-                  </div>
-                  <div class="h-full overflow-hidden rounded-2xl border border-clay bg-black ring-1 ring-ink/5">
-                    <VideoTour videoLinks={p.video_links} title={p.title} />
-                  </div>
-                </div>
-              ) : hasImages ? (
-                <div class="h-full">
-                  <PropertyGallery client:visible images={p.images} title={p.title} />
-                </div>
-              ) : (
-                <div class="h-full grid place-items-center">
-                  <div class="h-full aspect-[9/16] overflow-hidden rounded-2xl border border-clay bg-black ring-1 ring-ink/5">
-                    <VideoTour videoLinks={p.video_links} title={p.title} />
-                  </div>
-                </div>
-              )
-            ) : (
-              <div class="h-full rounded-2xl bg-accent border border-primary/10 grid place-items-center text-center px-6">
-                <div>
-                  <div class="mx-auto w-14 h-14 rounded-2xl bg-card border border-clay grid place-items-center shadow-sm">
-                    <BrandMark size={36} />
-                  </div>
-                  <p class="font-serif text-xl mt-3 inline-flex items-center gap-2 justify-center">
-                    <Camera className="w-5 h-5 text-primary" />{t('property.media.none.title', lang)}
-                  </p>
-                  <p class="text-muted-foreground text-sm mt-1.5 max-w-sm mx-auto">{t('property.media.none.body', lang)}</p>
-                  <a href="#contact-bien" class="mt-4 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm shadow-md hover:translate-y-[-1px] transition">
-                    {t('property.media.none.cta', lang)} <span aria-hidden class="rtl-flip inline-block">→</span>
-                  </a>
+        <!-- SCÈNE MÉDIA — contenant INVARIANT paysage 16/10 : les 3 états (galerie /
+             vidéo-seule / placeholder) remplissent la MÊME boîte en `absolute inset-0`,
+             toujours en object-cover. Plus de carte blanche ni de hauteur-plancher →
+             le média ne « flotte » plus (fin de la bande verticale qui était bizarre). -->
+        <div class="relative w-full aspect-[16/10] max-h-[560px] rounded-2xl overflow-hidden border border-clay bg-ink/[0.04] ring-1 ring-ink/5 shadow-sm">
+          {hasMedia ? (
+            bothMedia ? (
+              <div class="absolute inset-0">
+                <PropertyGallery client:visible images={p.images} title={p.title} />
+                <div class="absolute top-3 end-3 z-20 w-[32%] max-w-[210px] aspect-video rounded-xl overflow-hidden border border-white/40 bg-black shadow-lg ring-1 ring-ink/10">
+                  <VideoTour videoLinks={p.video_links} title={p.title} />
                 </div>
               </div>
-            )}
-          </div>
+            ) : hasImages ? (
+              <div class="absolute inset-0">
+                <PropertyGallery client:visible images={p.images} title={p.title} />
+              </div>
+            ) : (
+              <div class="absolute inset-0 bg-black">
+                <VideoTour videoLinks={p.video_links} title={p.title} />
+              </div>
+            )
+          ) : (
+            <div class="absolute inset-0 bg-accent grid place-items-center text-center px-6">
+              <div>
+                <div class="mx-auto w-14 h-14 rounded-2xl bg-card border border-clay grid place-items-center shadow-sm">
+                  <BrandMark size={36} />
+                </div>
+                <p class="font-serif text-xl mt-3 inline-flex items-center gap-2 justify-center">
+                  <Camera className="w-5 h-5 text-primary" />{t('property.media.none.title', lang)}
+                </p>
+                <p class="text-muted-foreground text-sm mt-1.5 max-w-sm mx-auto">{t('property.media.none.body', lang)}</p>
+                <a href="#contact-bien" class="mt-4 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm shadow-md hover:translate-y-[-1px] transition">
+                  {t('property.media.none.cta', lang)} <span aria-hidden class="rtl-flip inline-block">→</span>
+                </a>
+              </div>
+            </div>
+          )}
         </div>
 
         <!-- STICKY RAIL — price + contact + anti-scam -->
@@ -300,32 +296,33 @@ const trLabels = {
         </aside>
       </div>
 
-      {/* Bande « Acheter en confiance » — pleine largeur sous le hero (sortie du
-          rail pour rééquilibrer la hauteur média ↔ rail). CTA = lien secondaire. */}
+      {/* Bande « Acheter en confiance » — 3 ÉTAGES EMPILÉS (header / 3 points pleine
+          largeur / CTA seul après un filet) → chevauchement structurellement impossible,
+          robuste même pour WO/AR plus longs. */}
       <div class="max-w-5xl mx-auto mt-3 lg:mt-4">
         <div id="trust-jamm" class="scroll-mt-24 rounded-2xl border border-emerald/25 bg-emerald/[0.06] px-5 sm:px-6 py-4 sm:py-5">
-          <div class="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
-            <div class="shrink-0 lg:max-w-[230px]">
-              <div class="inline-flex items-center gap-2 text-emerald">
-                <ShieldCheck className="w-4.5 h-4.5" />
-                <span class="text-[11px] uppercase tracking-[0.14em] font-semibold">{t('safety.trust.eyebrow', lang)}</span>
-              </div>
-              <p class="font-serif text-lg leading-snug mt-1 text-foreground">{t('safety.trust.title', lang)}</p>
-            </div>
-            <ul class="flex-1 grid sm:grid-cols-3 gap-2.5 lg:gap-5 text-sm text-foreground/80">
-              {[t('safety.trust.point.deed', lang), t('safety.trust.point.seller', lang), t('safety.trust.point.nodouble', lang)].map((point) => (
-                <li class="flex items-start gap-2">
-                  <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-emerald/15 text-emerald grid place-items-center">
-                    <Check className="w-3.5 h-3.5" />
-                  </span>
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span class="inline-flex items-center gap-2 text-emerald">
+              <ShieldCheck className="w-4 h-4" />
+              <span class="text-[11px] uppercase tracking-[0.14em] font-semibold">{t('safety.trust.eyebrow', lang)}</span>
+            </span>
+            <p class="font-serif text-lg leading-snug text-foreground">{t('safety.trust.title', lang)}</p>
+          </div>
+          <ul class="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-3 text-sm text-foreground/80">
+            {[t('safety.trust.point.deed', lang), t('safety.trust.point.seller', lang), t('safety.trust.point.nodouble', lang)].map((point) => (
+              <li class="flex items-start gap-2">
+                <span class="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-emerald/15 text-emerald grid place-items-center">
+                  <Check className="w-3.5 h-3.5" />
+                </span>
+                <span class="leading-snug">{point}</span>
+              </li>
+            ))}
+          </ul>
+          <div class="mt-4 pt-3 border-t border-emerald/15">
             <a
               href={localizedPath('/securite-fonciere', lang)}
               data-track="safety.fromDetail"
-              class="shrink-0 inline-flex items-center gap-1.5 text-[13px] font-semibold text-emerald hover:text-emerald/80 transition"
+              class="inline-flex items-center gap-1.5 text-[13px] font-semibold text-emerald hover:text-emerald/80 transition"
             >
               <ShieldCheck className="w-4 h-4 shrink-0" />
               <span>{t('safety.detail.cta', lang)}</span>
