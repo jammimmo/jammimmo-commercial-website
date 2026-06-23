@@ -590,8 +590,14 @@ export default function EstimateTool({ lang, properties = [], hrefByRef = {} }: 
               <p className="font-serif text-2xl sm:text-[28px] leading-tight text-primary">
                 {/* dir=ltr keeps the Latin digits/currency in order inside RTL (ar) pages. */}
                 <span dir="ltr" className="inline-block">
-                  {formatFCFA((comps.estimate ?? comps.range)!.low, { suffix: false })} –{' '}
-                  {formatFCFA((comps.estimate ?? comps.range)!.high)}
+                  {(() => {
+                    const s = (comps.estimate ?? comps.range)!;
+                    // Collapse a degenerate band (e.g. only one comp had a known
+                    // surface → low === high) to a single figure instead of "X – X".
+                    return s.low === s.high
+                      ? formatFCFA(s.high)
+                      : `${formatFCFA(s.low, { suffix: false })} – ${formatFCFA(s.high)}`;
+                  })()}
                   {priceSuffix}
                 </span>
               </p>
