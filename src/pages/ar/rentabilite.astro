@@ -1,0 +1,58 @@
+---
+/**
+ * /rentabilite — outil investisseur « Rentabilité locative ».
+ *
+ * Page mince 100 % statique : délègue tout l'interactif à l'île React
+ * `RentabiliteTool` (client:load). Calcul pur côté client (src/lib/yield-calc),
+ * aucun fetch runtime, aucun secret. Capture WhatsApp via POST /api/leads.
+ *
+ * Les 6 fichiers (FR + en/ es/ it/ wo/ ar/) sont byte-identiques : getLang()
+ * dérive la langue depuis le préfixe d'URL.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import RentabiliteTool from '@/components/yield/RentabiliteTool.tsx';
+import Ornament from '@/components/decor/Ornament.astro';
+import { getLang, t } from '@/lib/i18n';
+
+export const prerender = true;
+const lang = getLang(Astro.url);
+---
+
+<BaseLayout
+  title={`${t('rentabilite.meta.title', lang)} — ${t('site.name', lang)}`}
+  description={t('rentabilite.meta.description', lang)}
+  solidNav
+>
+  <section class="relative py-16 sm:py-20 bg-card border-b border-clay overflow-hidden">
+    <div class="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
+      <div
+        class="absolute -top-24 left-1/2 -translate-x-1/2 w-[520px] h-[520px] rounded-full opacity-[0.12]"
+        style="background: radial-gradient(circle at 50% 30%, hsl(var(--secondary)), hsl(var(--ochre)) 45%, transparent 70%); filter: blur(8px);"
+      ></div>
+      <div
+        class="absolute inset-0 opacity-50"
+        style="background-image: var(--sahel-weave-bg); background-size: var(--sahel-weave-size); background-position: var(--sahel-weave-pos);"
+      ></div>
+    </div>
+    <div class="container max-w-3xl text-center relative z-10">
+      <p class="text-[11px] uppercase tracking-[0.18em] font-semibold text-secondary-strong mb-3">
+        {t('rentabilite.page.eyebrow', lang)}
+      </p>
+      <h1 class="font-serif font-light text-[clamp(36px,5vw,56px)] leading-tight tracking-tight">
+        {t('rentabilite.page.title', lang)}
+      </h1>
+      <div class="flex justify-center mt-5">
+        <Ornament />
+      </div>
+      <p class="mt-5 text-muted-foreground text-[16px] leading-relaxed">
+        {t('rentabilite.page.subtitle', lang)}
+      </p>
+    </div>
+  </section>
+
+  <section class="py-12 sm:py-16 bg-background">
+    <div class="container max-w-2xl">
+      <RentabiliteTool client:load lang={lang} />
+    </div>
+  </section>
+</BaseLayout>
