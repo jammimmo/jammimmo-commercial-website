@@ -760,5 +760,15 @@
   "safety.trust.point.seller": "Identità e mandato del venditore controllati",
   "safety.trust.point.nodouble": "Protetti contro le vendite multiple",
   "safety.trust.band": "Immobile verificato da Jamm Immobilier",
-  "listing.translate.seeTranslation": "Vedi la traduzione"
+  "listing.translate.seeTranslation": "Vedi la traduzione",
+  "estimate.comps.eyebrow": "Riferimento di mercato",
+  "estimate.comps.rangeLabel": "Forbice indicativa per il tuo immobile",
+  "estimate.comps.marketLabel": "Forbice degli immobili comparabili",
+  "estimate.comps.basis": "in base a",
+  "estimate.comps.basisListings": "immobili comparabili di Jamm",
+  "estimate.comps.scope.quartier": "in questa zona",
+  "estimate.comps.scope.type": "di questo tipo",
+  "estimate.comps.perMonth": "/ mese",
+  "estimate.comps.seeListings": "Vedi questi immobili comparabili",
+  "estimate.comps.disclaimer": "Indicativo — calcolato sugli annunci comparabili attuali di Jamm, non è una valutazione ufficiale. Per una cifra precisa e personalizzata, chiedi l'esperto gratuito qui sotto."
 }

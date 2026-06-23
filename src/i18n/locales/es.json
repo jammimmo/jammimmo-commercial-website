@@ -760,5 +760,15 @@
   "safety.trust.point.seller": "Identidad y mandato del vendedor comprobados",
   "safety.trust.point.nodouble": "Protegido contra ventas múltiples",
   "safety.trust.band": "Inmueble verificado por Jamm Immobilier",
-  "listing.translate.seeTranslation": "Ver la traducción"
+  "listing.translate.seeTranslation": "Ver la traducción",
+  "estimate.comps.eyebrow": "Referencia de mercado",
+  "estimate.comps.rangeLabel": "Horquilla orientativa para tu propiedad",
+  "estimate.comps.marketLabel": "Horquilla de bienes comparables",
+  "estimate.comps.basis": "según",
+  "estimate.comps.basisListings": "bienes comparables de Jamm",
+  "estimate.comps.scope.quartier": "en esta zona",
+  "estimate.comps.scope.type": "de este tipo",
+  "estimate.comps.perMonth": "/ mes",
+  "estimate.comps.seeListings": "Ver estos bienes comparables",
+  "estimate.comps.disclaimer": "Orientativo — calculado a partir de los anuncios comparables actuales de Jamm, no es una tasación oficial. Para una cifra precisa y personalizada, pide el experto gratuito más abajo."
 }

@@ -760,5 +760,15 @@
   "safety.trust.point.seller": "هوية البائع وتفويضه مُتحقق منهما",
   "safety.trust.point.nodouble": "حماية من البيع المزدوج",
   "safety.trust.band": "عقار موثّق من Jamm Immobilier",
-  "listing.translate.seeTranslation": "عرض الترجمة"
+  "listing.translate.seeTranslation": "عرض الترجمة",
+  "estimate.comps.eyebrow": "مرجع السوق",
+  "estimate.comps.rangeLabel": "نطاق تقديري لعقارك",
+  "estimate.comps.marketLabel": "نطاق العقارات المماثلة",
+  "estimate.comps.basis": "استنادًا إلى",
+  "estimate.comps.basisListings": "عقارات مماثلة لدى Jamm",
+  "estimate.comps.scope.quartier": "في هذا الحي",
+  "estimate.comps.scope.type": "من هذا النوع",
+  "estimate.comps.perMonth": "/ شهر",
+  "estimate.comps.seeListings": "عرض هذه العقارات المماثلة",
+  "estimate.comps.disclaimer": "تقديري — محسوب من إعلانات Jamm المماثلة حاليًا، وليس تقييمًا رسميًا. للحصول على رقم دقيق ومخصص، اطلب الخبير المجاني أدناه."
 }

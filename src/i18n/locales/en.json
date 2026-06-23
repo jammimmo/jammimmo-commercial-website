@@ -760,5 +760,15 @@
   "safety.trust.point.seller": "Seller identity & mandate checked",
   "safety.trust.point.nodouble": "Protected against double-selling",
   "safety.trust.band": "Property verified by Jamm Immobilier",
-  "listing.translate.seeTranslation": "View translation"
+  "listing.translate.seeTranslation": "View translation",
+  "estimate.comps.eyebrow": "Market benchmark",
+  "estimate.comps.rangeLabel": "Indicative range for your property",
+  "estimate.comps.marketLabel": "Comparable listings range",
+  "estimate.comps.basis": "based on",
+  "estimate.comps.basisListings": "comparable Jamm listings",
+  "estimate.comps.scope.quartier": "in this area",
+  "estimate.comps.scope.type": "of this type",
+  "estimate.comps.perMonth": "/ month",
+  "estimate.comps.seeListings": "See these comparable listings",
+  "estimate.comps.disclaimer": "Indicative — computed from Jamm's currently comparable listings, not an official valuation. For a precise, personalized figure, ask the free expert below."
 }
