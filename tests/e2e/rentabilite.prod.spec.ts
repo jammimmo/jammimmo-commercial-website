@@ -12,20 +12,29 @@ test.describe('Feature en prod — outil /rentabilite (calcul investisseur)', ()
     expect(resp?.status(), 'HTTP /rentabilite').toBeLessThan(400);
 
     const price = page.locator('#ry-price');
+    const rent = page.locator('#ry-rent');
     await expect(price).toBeVisible({ timeout: 15_000 });
 
-    // Garde-fou hydratation : on tape puis on vérifie que la valeur formatée prend
-    // (l'île client:load peut ne pas avoir attaché son onChange tout de suite).
+    // L'île est `client:load` : laisser l'hydratation se faire avant de taper
+    // (sur chromium desktop, `fill()` programmatique ne déclenche pas toujours
+    // le onChange d'un input contrôlé pendant la course d'hydratation). On tape
+    // au CLAVIER (pressSequentially = vrais events input que React traite) et on
+    // ré-essaie jusqu'à ce que le résultat live apparaisse. `exact` pour ne pas
+    // matcher le H1 « Calculez votre rentabilité locative ».
+    await page.waitForTimeout(2000);
     await expect(async () => {
+      await price.click();
       await price.fill('');
-      await price.pressSequentially('100000000', { delay: 10 });
-      await expect(price).toHaveValue(/100/);
-    }).toPass({ timeout: 15_000 });
-    await page.locator('#ry-rent').pressSequentially('1000000', { delay: 10 });
+      await price.pressSequentially('100000000', { delay: 12 });
+      await rent.click();
+      await rent.fill('');
+      await rent.pressSequentially('1000000', { delay: 12 });
+      await expect(page.getByText('Votre rentabilité', { exact: true })).toBeVisible({ timeout: 2500 });
+    }).toPass({ timeout: 25_000 });
 
-    // Résultat live : 12 M / 100 M = 12 % brut (déterministe).
-    await expect(page.getByText('Votre rentabilité')).toBeVisible();
-    await expect(page.getByText('12 %')).toBeVisible();
+    // Résultat live : 12 M / 100 M = 12 % brut (déterministe). `.first()` car
+    // brut ET net valent 12 % (pas de charges/taxe saisies ici).
+    await expect(page.getByText('12 %').first()).toBeVisible();
 
     // Pic d'intention → capture (un seul champ WhatsApp), SANS soumettre.
     await page.getByRole('button', { name: 'Être accompagné' }).click();
