@@ -1,0 +1,60 @@
+---
+/**
+ * « Outils gratuits » — vitrine des lead-magnets sur la home. Les outils ne
+ * vivaient que dans la nav/le footer ; cette section les expose à tout visiteur
+ * (découverte = entrée de tunnel). 4 cartes cliquables → les 4 outils gratuits.
+ */
+import { t, type Lang, localizedPath } from '@/lib/i18n';
+import { Calculator, Wallet, Compass, ShieldCheck, TrendingUp, ArrowRight } from 'lucide-react';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const tools = [
+  { key: 'estimate', href: '/estimation', icon: 'calc', tone: 'primary' },
+  { key: 'budget', href: '/budget', icon: 'wallet', tone: 'secondary' },
+  { key: 'match', href: '/trouver-mon-bien', icon: 'compass', tone: 'primary' },
+  { key: 'safety', href: '/securite-fonciere', icon: 'shield', tone: 'secondary' },
+  { key: 'yield', href: '/rentabilite', icon: 'trend', tone: 'primary' },
+] as const;
+---
+
+<section id="outils" class="py-20 lg:py-[110px] bg-card border-y border-clay">
+  <div class="container">
+    <div class="text-center max-w-2xl mx-auto mb-12 reveal">
+      <div class="inline-flex items-center gap-2 text-[12px] font-semibold tracking-wider uppercase text-secondary-strong">
+        {t('tools.tag', lang)}
+      </div>
+      <h2 class="font-serif font-light text-[clamp(32px,4.4vw,56px)] leading-tight tracking-tight mt-3">
+        {t('tools.title', lang)}
+      </h2>
+      <p class="text-muted-foreground leading-relaxed mt-4">{t('tools.subtitle', lang)}</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      {tools.map((tool, i) => (
+        <a
+          href={localizedPath(tool.href, lang)}
+          data-track={`tools.card.${tool.key}`}
+          class={`reveal ${i > 0 ? `d${Math.min(i, 3)}` : ''} group bg-background rounded-[22px] p-6 border border-clay flex flex-col hover:translate-y-[-6px] hover:shadow-[0_30px_60px_-30px_hsl(var(--ink)/.2)] hover:border-secondary/40 transition`}
+        >
+          <div class={`w-14 h-14 rounded-2xl grid place-items-center ${tool.tone === 'primary' ? 'bg-accent text-primary' : 'bg-secondary/15 text-secondary-strong'}`}>
+            {tool.icon === 'calc' && <Calculator className="w-6 h-6" strokeWidth={1.6} />}
+            {tool.icon === 'wallet' && <Wallet className="w-6 h-6" strokeWidth={1.6} />}
+            {tool.icon === 'compass' && <Compass className="w-6 h-6" strokeWidth={1.6} />}
+            {tool.icon === 'shield' && <ShieldCheck className="w-6 h-6" strokeWidth={1.6} />}
+            {tool.icon === 'trend' && <TrendingUp className="w-6 h-6" strokeWidth={1.6} />}
+          </div>
+          <h3 class="font-serif text-[21px] leading-snug tracking-tight mt-5 mb-2 sm:min-h-[3.25rem]">{t(`tools.${tool.key}.title`, lang)}</h3>
+          <p class="text-muted-foreground text-[14px] leading-relaxed flex-1">{t(`tools.${tool.key}.desc`, lang)}</p>
+          <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary mt-4 group-hover:gap-2.5 transition-all">
+            {t(`tools.${tool.key}.cta`, lang)}
+            <ArrowRight className="w-4 h-4" />
+          </span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>

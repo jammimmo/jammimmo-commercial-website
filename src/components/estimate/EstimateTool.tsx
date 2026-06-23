@@ -45,9 +45,20 @@ import { t, type Lang } from '@/lib/i18n';
 import { track } from '@/lib/analytics';
 import { SITE } from '@/lib/site-config';
 import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
+import { formatFCFA } from '@/lib/format';
+import { buildBiensLink } from '@/lib/biens-filter';
+import { estimateComps } from '@/lib/estimate-comps';
+import type { PublicProperty } from '@/types/property';
 
 interface Props {
   lang: Lang;
+  /**
+   * Real catalogue frozen at build (same source MatchTool uses) — powers the
+   * comparable-listings price range. OPTIONAL: when absent (or no comparable
+   * listing exists) the tool degrades to its original honest, no-number result.
+   */
+  properties?: PublicProperty[];
+  hrefByRef?: Record<string, string>;
 }
 
 /**
@@ -66,6 +77,18 @@ const PROPERTY_TYPES = [
   { key: 'immeuble', rooms: false, condition: true },
 ] as const;
 type PropertyTypeKey = (typeof PROPERTY_TYPES)[number]['key'];
+
+/** Map an estimation type key → the capitalized DB `type` value used across the
+ *  catalogue and the /biens `type` filter. Mirrors MatchTool/BudgetTool. */
+const TYPE_BIENS: Record<PropertyTypeKey, string> = {
+  appartement: 'Appartement',
+  maison: 'Maison',
+  villa: 'Villa',
+  terrain: 'Terrain',
+  bureau: 'Bureau',
+  commerce: 'Magasin',
+  immeuble: 'Immeuble',
+};
 
 const TRANSACTIONS = ['vente', 'location'] as const;
 type Transaction = (typeof TRANSACTIONS)[number];
@@ -107,7 +130,7 @@ const INITIAL: FormState = {
   condition: '',
 };
 
-export default function EstimateTool({ lang }: Props) {
+export default function EstimateTool({ lang, properties = [], hrefByRef = {} }: Props) {
   // `phase` drives the whole experience: the property wizard, then the honest
   // result, then the (single-field) contact capture, then the success panel.
   const [phase, setPhase] = useState<'wizard' | 'result' | 'capture' | 'done'>('wizard');
@@ -230,6 +253,44 @@ export default function EstimateTool({ lang }: Props) {
     const msg = `${t('estimate.wa.intro', lang)}\n\n${recap}`;
     return `${SITE.whatsappUrl}?text=${encodeURIComponent(msg)}`;
   }, [lang, recap]);
+
+  /**
+   * Comparable-listings price range from the REAL Jamm catalogue (frozen at
+   * build). Honest: same type + transaction, same quartier when enough comps
+   * exist, else widened to all listings of that type (labelled via `basis`).
+   * `basis: 'none'` (no comparable listing) → no number, and the result keeps
+   * its original honest "free expert valuation" shape.
+   */
+  const comps = useMemo(() => {
+    if (!form.type || !form.transaction || properties.length === 0) return null;
+    return estimateComps(properties, {
+      typeBiens: TYPE_BIENS[form.type],
+      transaction: form.transaction,
+      quartier: form.quartier,
+      surface: Number(form.surface) || 0,
+    });
+  }, [properties, form.type, form.transaction, form.quartier, form.surface]);
+
+  /** Cross-sell: the filtered /biens listing for these comparables. Only narrow
+   *  by quartier when the comps were actually quartier-scoped — when the pool
+   *  widened to all listings of that type, keep the link type-wide so it shows
+   *  the same set the panel summarized (coherence between panel and link). */
+  const compsBiensLink = useMemo(
+    () =>
+      buildBiensLink(
+        {
+          transaction:
+            form.transaction === 'vente' ? 'acheter' : form.transaction === 'location' ? 'louer' : '',
+          typeBiens: form.type ? TYPE_BIENS[form.type] : undefined,
+          zone: comps?.basis === 'quartier' ? form.quartier : undefined,
+        },
+        lang,
+      ),
+    [lang, form.transaction, form.type, form.quartier, comps],
+  );
+
+  /** Monthly suffix appended to rental amounts (vente shows the bare total). */
+  const priceSuffix = form.transaction === 'location' ? ` ${t('estimate.comps.perMonth', lang)}` : '';
 
   const phoneValid = isValidPhone(phone.trim());
 
@@ -517,6 +578,91 @@ export default function EstimateTool({ lang }: Props) {
               )}
             </dl>
           </div>
+
+          {/* Data-backed comparable-listings range — from the REAL Jamm
+              catalogue. Shown only when comparable listings exist; the expert
+              valuation below stays the precise, human figure. */}
+          {comps && comps.basis !== 'none' && (comps.estimate || comps.range) && (
+            <div className="mt-5 rounded-2xl border border-secondary/30 bg-secondary/5 p-5 sm:p-6">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-secondary-strong mb-1.5">
+                {t('estimate.comps.eyebrow', lang)}
+              </p>
+              <p className="font-serif text-2xl sm:text-[28px] leading-tight text-primary">
+                {/* dir=ltr keeps the Latin digits/currency in order inside RTL (ar) pages. */}
+                <span dir="ltr" className="inline-block">
+                  {(() => {
+                    const s = (comps.estimate ?? comps.range)!;
+                    // Collapse a degenerate band (e.g. only one comp had a known
+                    // surface → low === high) to a single figure instead of "X – X".
+                    return s.low === s.high
+                      ? formatFCFA(s.high)
+                      : `${formatFCFA(s.low, { suffix: false })} – ${formatFCFA(s.high)}`;
+                  })()}
+                  {priceSuffix}
+                </span>
+              </p>
+              <p className="text-muted-foreground text-xs mt-1.5">
+                {comps.estimate ? t('estimate.comps.rangeLabel', lang) : t('estimate.comps.marketLabel', lang)}
+                {' · '}
+                {t('estimate.comps.basis', lang)} {comps.count} {t('estimate.comps.basisListings', lang)}{' '}
+                {t(`estimate.comps.scope.${comps.basis}`, lang)}
+              </p>
+
+              {comps.comps.length > 0 && (
+                <ul className="mt-4 space-y-2">
+                  {comps.comps.map((c) => {
+                    const href = hrefByRef[c.reference];
+                    const row = (
+                      <>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-foreground">{c.title}</span>
+                          {/* Surface + price/m² so a higher total reads as a bigger
+                              property, reconciling each row with the headline band. */}
+                          <span dir="ltr" className="block text-[11px] text-muted-foreground">
+                            {c.surface > 0 ? `${c.surface} m²` : '—'}
+                            {c.pricePerM2 ? ` · ${formatFCFA(c.pricePerM2, { suffix: false })}/m²` : ''}
+                          </span>
+                        </span>
+                        <span dir="ltr" className="shrink-0 font-semibold text-foreground whitespace-nowrap">
+                          {formatFCFA(c.price)}
+                          {priceSuffix}
+                        </span>
+                      </>
+                    );
+                    return (
+                      <li key={c.reference}>
+                        {href ? (
+                          <a
+                            href={href}
+                            className="flex items-center justify-between gap-3 rounded-lg border border-clay bg-card px-3 py-2 text-sm hover:border-secondary/50 transition"
+                          >
+                            {row}
+                          </a>
+                        ) : (
+                          <div className="flex items-center justify-between gap-3 rounded-lg border border-clay bg-card px-3 py-2 text-sm">
+                            {row}
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+
+              <a
+                href={compsBiensLink}
+                data-track="estimate.comps.seeListings"
+                className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-secondary transition"
+              >
+                {t('estimate.comps.seeListings', lang)}
+                <ArrowRight className="w-4 h-4" />
+              </a>
+
+              <p className="text-muted-foreground text-[11px] mt-3 leading-relaxed">
+                {t('estimate.comps.disclaimer', lang)}
+              </p>
+            </div>
+          )}
 
           {/* 3 value-drivers — honest, no invented price. */}
           <div className="mt-5">

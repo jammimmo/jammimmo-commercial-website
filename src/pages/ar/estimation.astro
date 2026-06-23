@@ -10,16 +10,29 @@
  * arrive directement sur le formulaire multi-étapes (gratuit, sans contact).
  * La capture (1 champ WhatsApp) n'apparaît qu'APRÈS le résultat, dans l'île.
  *
- * Les 3 fichiers /estimation (FR, en/, wo/) sont byte-identiques : getLang()
- * dérive la langue depuis le préfixe d'URL.
+ * Les annonces RÉELLES sont récupérées AU BUILD (listPublicProperties, comme
+ * /biens & /trouver-mon-bien) et passées en prop : l'outil affiche alors une
+ * fourchette de prix basée sur les biens COMPARABLES réellement chez Jamm
+ * (jamais une grille inventée). Isolation Tier-3 : donnée figée au build,
+ * aucun fetch runtime, aucun secret, filtrage côté client.
+ *
+ * Les 6 fichiers /estimation (FR + en/ es/ it/ wo/ ar/) sont byte-identiques :
+ * getLang() dérive la langue depuis le préfixe d'URL.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import EstimateTool from '@/components/estimate/EstimateTool.tsx';
 import Ornament from '@/components/decor/Ornament.astro';
-import { getLang, t } from '@/lib/i18n';
+import { listPublicProperties } from '@/lib/supabase.build';
+import { getLang, t, localizedPath } from '@/lib/i18n';
 
 export const prerender = true;
 const lang = getLang(Astro.url);
+
+// Annonces figées au BUILD → prop de l'île (fourchette de comparables).
+const properties = await listPublicProperties({ limit: 200 });
+const hrefByRef = Object.fromEntries(
+  properties.map((p) => [p.reference, localizedPath(`/biens/${p.reference.toLowerCase()}`, lang)]),
+);
 ---
 
 <BaseLayout
@@ -57,7 +70,7 @@ const lang = getLang(Astro.url);
 
   <section class="py-12 sm:py-16 bg-background">
     <div class="container max-w-2xl">
-      <EstimateTool client:load lang={lang} />
+      <EstimateTool client:load lang={lang} properties={properties} hrefByRef={hrefByRef} />
     </div>
   </section>
 </BaseLayout>

@@ -83,7 +83,20 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
   const filtered = useMemo(() => {
     const result = properties.filter((p) => {
       if (filters.type && p.type !== filters.type) return false;
-      if (filters.transaction && p.transaction_type !== filters.transaction) return false;
+      // Inclusive of the dual « Vente & Location » listings: a Vente (resp.
+      // Location) filter must also match them — mirrors estimate-comps /
+      // match-filter transactionMatches, so the tools' cross-sell links surface
+      // the same listings the tools counted as comps/matches.
+      if (filters.transaction) {
+        const tt = p.transaction_type;
+        const ok =
+          filters.transaction === 'Vente'
+            ? tt === 'Vente' || tt === 'Vente & Location'
+            : filters.transaction === 'Location'
+              ? tt === 'Location' || tt === 'Vente & Location'
+              : tt === filters.transaction;
+        if (!ok) return false;
+      }
       if (filters.city && p.city !== filters.city) return false;
       if (filters.priceMin && p.price < filters.priceMin) return false;
       if (filters.priceMax && filters.priceMax > 0 && p.price > filters.priceMax) return false;

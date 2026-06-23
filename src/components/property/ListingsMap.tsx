@@ -48,7 +48,6 @@ export default function ListingsMap({ properties, activeRef, onPinClick }: Props
     Promise.all([
       import('react-leaflet'),
       import('leaflet'),
-      // @ts-expect-error CSS side-effect import
       import('leaflet/dist/leaflet.css'),
     ]).then(([rl, l]) => {
       if (!cancelled) {

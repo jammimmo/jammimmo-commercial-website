@@ -410,6 +410,8 @@ const trLabels = {
               <button
                 type="button"
                 data-tr-toggle
+                data-tr-to-original={trLabels.toOriginal}
+                data-tr-to-translated={trLabels.toTranslated}
                 class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-secondary underline underline-offset-2"
               >
                 <Languages className="w-3.5 h-3.5" /><span data-tr-toggle-label>{trLabels.toOriginal}</span>
@@ -655,7 +657,8 @@ const trLabels = {
     const lb = document.getElementById('video-lightbox');
     if (!lb) return;
     const frame = lb.querySelector('[data-video-frame]');
-    function open(id) {
+    if (!frame) return;
+    function open(id: string | null) {
       if (!id) return;
       const f = document.createElement('iframe');
       f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?rel=0&modestbranding=1&autoplay=1&playsinline=1';
@@ -664,20 +667,22 @@ const trLabels = {
       f.allowFullscreen = true;
       f.referrerPolicy = 'strict-origin-when-cross-origin';
       f.className = 'absolute inset-0 w-full h-full block';
-      frame.replaceChildren(f);
-      lb.hidden = false;
+      frame!.replaceChildren(f);
+      lb!.hidden = false;
       document.body.style.overflow = 'hidden';
     }
     function close() {
-      lb.hidden = true;
-      frame.replaceChildren();
+      lb!.hidden = true;
+      frame!.replaceChildren();
       document.body.style.overflow = '';
     }
     document.addEventListener('click', function (e) {
-      const btn = e.target && e.target.closest ? e.target.closest('[data-video-open]') : null;
+      const target = e.target as HTMLElement | null;
+      const btn = target && target.closest ? target.closest('[data-video-open]') : null;
       if (btn) open(btn.getAttribute('data-video-id'));
     });
-    lb.querySelector('[data-video-close]').addEventListener('click', close);
+    const closeBtn = lb.querySelector('[data-video-close]');
+    if (closeBtn) closeBtn.addEventListener('click', close);
     lb.addEventListener('click', function (e) { if (e.target === lb) close(); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !lb.hidden) close(); });
   })();
@@ -709,7 +714,7 @@ const trLabels = {
   }
 </style>
 
-<script define:vars={{ propertyId: p.id, trLabels }}>
+<script define:vars={{ propertyId: p.id }}>
   if ('requestIdleCallback' in window) {
     window.requestIdleCallback(() => {
       fetch('/api/views', {
@@ -764,6 +769,12 @@ const trLabels = {
     fields.forEach(function (el) { el.setAttribute('data-tr-translated', el.textContent); });
     var badge = document.querySelector('[data-tr-badge]');
     var tlabel = toggle.querySelector('[data-tr-toggle-label]');
+    // Localized labels travel from the build (i18n) to the browser via data
+    // attributes — the frontmatter `trLabels` const is server-only.
+    var trLabels = {
+      toOriginal: toggle.getAttribute('data-tr-to-original') || '',
+      toTranslated: toggle.getAttribute('data-tr-to-translated') || '',
+    };
     var state = 'tr'; // traduit par défaut
     function apply() {
       fields.forEach(function (el) {

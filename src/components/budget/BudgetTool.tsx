@@ -48,10 +48,11 @@ import {
   Sparkles,
   Building2,
 } from 'lucide-react';
-import { t, type Lang, localizedPath } from '@/lib/i18n';
+import { t, type Lang } from '@/lib/i18n';
 import { track } from '@/lib/analytics';
 import { SITE } from '@/lib/site-config';
 import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
+import { buildBiensLink } from '@/lib/biens-filter';
 
 interface Props {
   lang: Lang;
@@ -215,16 +216,14 @@ export default function BudgetTool({ lang }: Props) {
    * type already narrow it; the agent refines the rest. For a purchase the
    * total budget maps cleanly to priceMax.
    */
-  const biensLink = useMemo(() => {
-    const params = new URLSearchParams();
-    params.set('transaction', form.transaction === 'acheter' ? 'Vente' : 'Location');
-    if (form.transaction === 'acheter' && budgetNumber > 0) {
-      params.set('priceMax', String(budgetNumber));
-    }
-    if (typeMeta) params.set('type', typeMeta.biens);
-    if (form.zone.trim()) params.set('q', form.zone.trim());
-    return `${localizedPath('/biens', lang)}?${params.toString()}`;
-  }, [lang, form.transaction, form.zone, budgetNumber, typeMeta]);
+  const biensLink = useMemo(
+    () =>
+      buildBiensLink(
+        { transaction: form.transaction, typeBiens: typeMeta?.biens, budgetNumber, zone: form.zone },
+        lang,
+      ),
+    [lang, form.transaction, form.zone, budgetNumber, typeMeta],
+  );
 
   const phoneValid = isValidPhone(phone.trim());
 

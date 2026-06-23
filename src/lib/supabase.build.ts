@@ -95,6 +95,14 @@ function maskRow(p: DbProperty): PublicProperty {
   };
 }
 
+// SELECT only the columns `maskRow` actually projects into PublicProperty.
+// Sensitive admin columns (caution, avance, commission_amount,
+// negotiable_price/floor price, accessibility) and bookkeeping columns
+// (is_public, created_at) are intentionally NOT selected: maskRow never
+// emitted them, and selecting them coupled the public site to columns the
+// estate-flow team needs to REVOKE from the `anon` role. Keeping this list
+// tight lets that REVOKE land without breaking the build. is_public/status
+// are still usable in WHERE filters without being in the projection.
 const PUBLIC_COLUMNS = `
   id, reference, title, type, transaction_type, status,
   city, quartier, address, gps,
@@ -103,9 +111,7 @@ const PUBLIC_COLUMNS = `
   images, video_links,
   attributes, commodities, nearby_commerce, documents,
   flux_passage, tags, description,
-  is_public, published_at, created_at, updated_at,
-  caution, avance, commission_amount, negotiable_price,
-  accessibility
+  published_at, updated_at
 `
   .replace(/\s+/g, ' ')
   .trim();
@@ -147,7 +153,7 @@ export async function listPublicProperties(
     console.warn('[supabase.build] listPublicProperties failed:', error.message);
     return [];
   }
-  return (data ?? []).map((row) => maskRow(row as DbProperty));
+  return (data ?? []).map((row) => maskRow(row as unknown as DbProperty));
 }
 
 export async function getPublicPropertyByRef(ref: string): Promise<PublicProperty | null> {
@@ -160,7 +166,7 @@ export async function getPublicPropertyByRef(ref: string): Promise<PublicPropert
     .eq('status', 'Disponible')
     .maybeSingle();
   if (error || !data) return null;
-  return maskRow(data as DbProperty);
+  return maskRow(data as unknown as DbProperty);
 }
 
 export async function findSimilar(p: PublicProperty, n: number = 3): Promise<PublicProperty[]> {
@@ -175,7 +181,7 @@ export async function findSimilar(p: PublicProperty, n: number = 3): Promise<Pub
     .neq('id', p.id)
     .limit(n);
   if (error || !data) return [];
-  return data.map((row) => maskRow(row as DbProperty));
+  return data.map((row) => maskRow(row as unknown as DbProperty));
 }
 
 export async function listAllPublicRefs(): Promise<Array<{ reference: string; updated_at: string }>> {

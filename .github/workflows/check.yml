@@ -21,6 +21,12 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Typecheck (astro check)
+        run: pnpm check
+
+      - name: Unit tests (vitest)
+        run: pnpm test
+
       - name: Build (smoke — admin credentials optional on fork PRs)
         env:
           ADMIN_SUPABASE_URL: ${{ secrets.ADMIN_SUPABASE_URL }}

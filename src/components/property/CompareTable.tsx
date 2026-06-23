@@ -4,7 +4,9 @@ import { t, type Lang, localizedPath } from '@/lib/i18n';
 import { readCompare, COMPARE_KEY, clearCompare } from '@/lib/compare';
 import { formatRentalPrice } from '@/lib/format';
 import { formatPublicRef } from '@/lib/reference';
+import { typeLabel, transactionLabel } from '@/lib/status';
 import type { PublicProperty } from '@/types/property';
+import RecallCta from './RecallCta';
 
 interface Props {
   lang: Lang;
@@ -71,15 +73,15 @@ export default function CompareTable({ lang }: Props) {
   }
 
   const rows: Array<[string, (p: PublicProperty) => React.ReactNode]> = [
-    ['Référence', (p) => formatPublicRef(p.reference)],
-    ['Type', (p) => p.type],
-    ['Transaction', (p) => p.transaction_type],
-    ['Ville', (p) => p.city],
-    ['Quartier', (p) => p.quartier],
-    ['Prix', (p) => formatRentalPrice(p.price, p.transaction_type)],
-    ['Surface', (p) => (p.surface > 0 ? `${p.surface} m²` : '—')],
-    ['Chambres', (p) => (p.bedrooms > 0 ? String(p.bedrooms) : '—')],
-    ['Commodités', (p) => (p.commodities.length > 0 ? p.commodities.slice(0, 5).join(', ') : '—')],
+    [t('compare.row.reference', lang), (p) => formatPublicRef(p.reference)],
+    [t('property.facts.type', lang), (p) => typeLabel(p.type, lang)],
+    [t('compare.row.transaction', lang), (p) => transactionLabel(p.transaction_type, lang)],
+    [t('compare.row.city', lang), (p) => p.city],
+    [t('estimate.label.quartier', lang), (p) => p.quartier],
+    [t('compare.row.price', lang), (p) => formatRentalPrice(p.price, p.transaction_type)],
+    [t('property.facts.surface', lang), (p) => (p.surface > 0 ? `${p.surface} m²` : '—')],
+    [t('property.facts.bedrooms', lang), (p) => (p.bedrooms > 0 ? String(p.bedrooms) : '—')],
+    [t('property.detail.commodities', lang), (p) => (p.commodities.length > 0 ? p.commodities.slice(0, 5).join(', ') : '—')],
   ];
 
   return (
@@ -89,10 +91,15 @@ export default function CompareTable({ lang }: Props) {
           onClick={clearCompare}
           className="text-sm text-muted-foreground hover:text-terra"
         >
-          Vider la sélection
+          {t('compare.clear', lang)}
         </button>
       </div>
 
+      {/* The fixed-width comparison grid scrolls horizontally on narrow screens
+          instead of overflowing the page (which widened the body and exposed the
+          off-canvas mobile drawer). */}
+      <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="min-w-[520px] space-y-6">
       {/* Headers */}
       <div
         className="grid gap-4"
@@ -134,6 +141,14 @@ export default function CompareTable({ lang }: Props) {
           </div>
         ))}
       </div>
+      </div>
+      </div>
+
+      <RecallCta
+        lang={lang}
+        keyPrefix="page.compare.recall"
+        items={data.map((p) => ({ reference: p.reference, title: p.title }))}
+      />
     </div>
   );
 }

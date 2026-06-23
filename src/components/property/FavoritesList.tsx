@@ -4,6 +4,7 @@ import { t, type Lang, localizedPath } from '@/lib/i18n';
 import { FAVORITES_KEY, readFavorites, clearFavorites } from '@/lib/favorites';
 import type { PublicProperty } from '@/types/property';
 import MiniCard from './MiniCard';
+import RecallCta from './RecallCta';
 
 interface Props {
   lang: Lang;
@@ -118,6 +119,11 @@ export default function FavoritesList({ lang }: Props) {
           />
         ))}
       </div>
+      <RecallCta
+        lang={lang}
+        keyPrefix="page.favorites.recall"
+        items={data.map((p) => ({ reference: p.reference, title: p.title }))}
+      />
     </>
   );
 }
