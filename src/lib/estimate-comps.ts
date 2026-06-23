@@ -102,7 +102,10 @@ export function estimateComps(
   const inQuartier = zoneQ
     ? sameTypeTx.filter((p) => {
         const q = norm(p.quartier);
-        return q.includes(zoneQ) || zoneQ.includes(q) || norm(p.city).includes(zoneQ);
+        // Guard the reverse-substring branch against a blank quartier:
+        // `''.includes` is always true, which would pull listings with an empty
+        // quartier into every search. The forward branch and city match still apply.
+        return q.includes(zoneQ) || (q !== '' && zoneQ.includes(q)) || norm(p.city).includes(zoneQ);
       })
     : [];
 

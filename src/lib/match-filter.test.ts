@@ -94,4 +94,12 @@ describe('rankMatches', () => {
     const out = rankMatches([b, a], { transaction: 'acheter', zone: 'medina' });
     expect(out[0]!.reference).toBe('A');
   });
+
+  it('keeps a stable order for equal score AND equal updated_at (symmetric comparator)', () => {
+    const x = makeProp({ reference: 'X', updated_at: '2026-01-01' });
+    const y = makeProp({ reference: 'Y', updated_at: '2026-01-01' });
+    // No type/budget/zone → both score 0; same date → true tie → input order preserved.
+    expect(rankMatches([x, y], { transaction: 'acheter' }).map((p) => p.reference)).toEqual(['X', 'Y']);
+    expect(rankMatches([y, x], { transaction: 'acheter' }).map((p) => p.reference)).toEqual(['Y', 'X']);
+  });
 });

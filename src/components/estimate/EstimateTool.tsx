@@ -271,7 +271,10 @@ export default function EstimateTool({ lang, properties = [], hrefByRef = {} }: 
     });
   }, [properties, form.type, form.transaction, form.quartier, form.surface]);
 
-  /** Cross-sell: the filtered /biens listing for these comparables. */
+  /** Cross-sell: the filtered /biens listing for these comparables. Only narrow
+   *  by quartier when the comps were actually quartier-scoped — when the pool
+   *  widened to all listings of that type, keep the link type-wide so it shows
+   *  the same set the panel summarized (coherence between panel and link). */
   const compsBiensLink = useMemo(
     () =>
       buildBiensLink(
@@ -279,11 +282,11 @@ export default function EstimateTool({ lang, properties = [], hrefByRef = {} }: 
           transaction:
             form.transaction === 'vente' ? 'acheter' : form.transaction === 'location' ? 'louer' : '',
           typeBiens: form.type ? TYPE_BIENS[form.type] : undefined,
-          zone: form.quartier,
+          zone: comps?.basis === 'quartier' ? form.quartier : undefined,
         },
         lang,
       ),
-    [lang, form.transaction, form.type, form.quartier],
+    [lang, form.transaction, form.type, form.quartier, comps],
   );
 
   /** Monthly suffix appended to rental amounts (vente shows the bare total). */
@@ -585,9 +588,12 @@ export default function EstimateTool({ lang, properties = [], hrefByRef = {} }: 
                 {t('estimate.comps.eyebrow', lang)}
               </p>
               <p className="font-serif text-2xl sm:text-[28px] leading-tight text-primary">
-                {formatFCFA((comps.estimate ?? comps.range)!.low, { suffix: false })} –{' '}
-                {formatFCFA((comps.estimate ?? comps.range)!.high)}
-                {priceSuffix}
+                {/* dir=ltr keeps the Latin digits/currency in order inside RTL (ar) pages. */}
+                <span dir="ltr" className="inline-block">
+                  {formatFCFA((comps.estimate ?? comps.range)!.low, { suffix: false })} –{' '}
+                  {formatFCFA((comps.estimate ?? comps.range)!.high)}
+                  {priceSuffix}
+                </span>
               </p>
               <p className="text-muted-foreground text-xs mt-1.5">
                 {comps.estimate ? t('estimate.comps.rangeLabel', lang) : t('estimate.comps.marketLabel', lang)}
@@ -602,8 +608,16 @@ export default function EstimateTool({ lang, properties = [], hrefByRef = {} }: 
                     const href = hrefByRef[c.reference];
                     const row = (
                       <>
-                        <span className="truncate text-foreground">{c.title}</span>
-                        <span className="shrink-0 font-semibold text-foreground">
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-foreground">{c.title}</span>
+                          {/* Surface + price/m² so a higher total reads as a bigger
+                              property, reconciling each row with the headline band. */}
+                          <span dir="ltr" className="block text-[11px] text-muted-foreground">
+                            {c.surface > 0 ? `${c.surface} m²` : '—'}
+                            {c.pricePerM2 ? ` · ${formatFCFA(c.pricePerM2, { suffix: false })}/m²` : ''}
+                          </span>
+                        </span>
+                        <span dir="ltr" className="shrink-0 font-semibold text-foreground whitespace-nowrap">
                           {formatFCFA(c.price)}
                           {priceSuffix}
                         </span>

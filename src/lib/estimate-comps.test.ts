@@ -91,4 +91,27 @@ describe('estimateComps', () => {
     expect(r.range).not.toBeNull();
     expect(r.perM2).not.toBeNull();
   });
+
+  it('keeps the small quartier pool (basis "quartier") when comps are scarce everywhere', () => {
+    // 2 same-type/tx in the queried quartier, and the type-wide pool is also < minComps.
+    const tiny: PublicProperty[] = [
+      makeProp({ reference: 'Y1', type: 'Bureau', transaction_type: 'Vente', quartier: 'Yoff', surface: 80, price: 60_000_000 }),
+      makeProp({ reference: 'Y2', type: 'Bureau', transaction_type: 'Vente', quartier: 'Yoff', surface: 100, price: 80_000_000 }),
+    ];
+    const r = estimateComps(tiny, { typeBiens: 'Bureau', transaction: 'vente', quartier: 'Yoff', surface: 90 });
+    expect(r.basis).toBe('quartier');
+    expect(r.count).toBe(2);
+    expect(r.range).not.toBeNull();
+  });
+
+  it('does not pull a blank-quartier listing into the quartier pool', () => {
+    // A listing with an empty quartier must not match every zone via ''.includes.
+    const withBlank: PublicProperty[] = [
+      ...catalogue.filter((p) => ['A', 'B', 'C'].includes(p.reference)),
+      makeProp({ reference: 'BLANK', type: 'Appartement', transaction_type: 'Vente', quartier: '', surface: 100, price: 90_000_000 }),
+    ];
+    const r = estimateComps(withBlank, { typeBiens: 'Appartement', transaction: 'vente', quartier: 'Almadies', surface: 120 });
+    expect(r.basis).toBe('quartier');
+    expect(r.count).toBe(3); // A, B, C only — BLANK excluded from the quartier pool
+  });
 });

@@ -47,7 +47,7 @@ const tools = [
             {tool.icon === 'shield' && <ShieldCheck className="w-6 h-6" strokeWidth={1.6} />}
             {tool.icon === 'trend' && <TrendingUp className="w-6 h-6" strokeWidth={1.6} />}
           </div>
-          <h3 class="font-serif text-[21px] tracking-tight mt-5 mb-2">{t(`tools.${tool.key}.title`, lang)}</h3>
+          <h3 class="font-serif text-[21px] leading-snug tracking-tight mt-5 mb-2 sm:min-h-[3.25rem]">{t(`tools.${tool.key}.title`, lang)}</h3>
           <p class="text-muted-foreground text-[14px] leading-relaxed flex-1">{t(`tools.${tool.key}.desc`, lang)}</p>
           <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary mt-4 group-hover:gap-2.5 transition-all">
             {t(`tools.${tool.key}.cta`, lang)}

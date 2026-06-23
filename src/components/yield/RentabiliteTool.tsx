@@ -355,10 +355,11 @@ function MoneyField({
           id={id}
           type="text"
           inputMode="numeric"
+          dir="ltr"
           value={group(value)}
           onChange={(e) => onChange(digitsOnly(e.target.value))}
           placeholder="0"
-          className="w-full h-11 pl-3.5 pr-14 rounded-xl border border-input bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full h-11 pl-3.5 pr-14 rounded-xl border border-input bg-card text-sm text-start focus:outline-none focus:ring-2 focus:ring-ring"
         />
         <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">FCFA</span>
       </div>
@@ -371,7 +372,8 @@ function Stat({ label, value, big, accent }: { label: string; value: string; big
     <div>
       <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className={(big ? 'font-serif text-2xl sm:text-[26px] ' : 'text-base font-semibold ') + (accent ? 'text-secondary-strong' : 'text-foreground')}>
-        {value}
+        {/* dir=ltr keeps Latin digits/percent/currency in order inside RTL (ar). */}
+        <span dir="ltr" className="inline-block">{value}</span>
       </p>
     </div>
   );

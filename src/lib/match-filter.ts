@@ -63,7 +63,13 @@ export function rankMatches(
       if (zoneQ && (norm(p.quartier).includes(zoneQ) || norm(p.city).includes(zoneQ))) score += 3;
       return { p, score };
     })
-    .sort((a, b) => b.score - a.score || (b.p.updated_at > a.p.updated_at ? 1 : -1))
+    // Symmetric comparator: equal score → fresher first; true tie (same score
+    // AND same updated_at) → 0 so the sort stays stable/consistent.
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        (a.p.updated_at < b.p.updated_at ? 1 : a.p.updated_at > b.p.updated_at ? -1 : 0),
+    )
     .slice(0, limit)
     .map((s) => s.p);
 }
