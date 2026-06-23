@@ -36,11 +36,13 @@ import {
   Sparkles,
   Search,
 } from 'lucide-react';
-import { t, type Lang, localizedPath } from '@/lib/i18n';
+import { t, type Lang } from '@/lib/i18n';
 import { track } from '@/lib/analytics';
 import { SITE } from '@/lib/site-config';
 import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
 import { formatRentalPrice } from '@/lib/format';
+import { rankMatches } from '@/lib/match-filter';
+import { buildBiensLink } from '@/lib/biens-filter';
 import type { PublicProperty } from '@/types/property';
 
 interface Props {
@@ -80,14 +82,6 @@ const digitsOnly = (v: string) => v.replace(/\D/g, '');
 const formatMoney = (digits: string) =>
   digits ? Number(digits).toLocaleString('fr-FR').replace(/ /g, ' ') : '';
 
-/** Accent-insensitive contains, for the free-text zone match. */
-const norm = (s: string) =>
-  s
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .trim();
-
 type StepId = 'transaction' | 'type' | 'bedrooms' | 'budget' | 'zone';
 const STEP_ORDER: StepId[] = ['transaction', 'type', 'bedrooms', 'budget', 'zone'];
 const TOTAL_STEPS = STEP_ORDER.length; // stable denominator — always 5
@@ -100,11 +94,6 @@ interface FormState {
   zone: string;
 }
 const INITIAL: FormState = { transaction: '', type: '', bedrooms: '', budget: '', zone: '' };
-
-function transactionMatches(p: PublicProperty, tr: Transaction): boolean {
-  if (tr === 'acheter') return p.transaction_type === 'Vente' || p.transaction_type === 'Vente & Location';
-  return p.transaction_type === 'Location' || p.transaction_type === 'Vente & Location';
-}
 
 export default function MatchTool({ lang, properties, hrefByRef }: Props) {
   const [phase, setPhase] = useState<'wizard' | 'result' | 'capture' | 'done'>('wizard');
@@ -151,20 +140,17 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
    */
   const matches = useMemo(() => {
     if (!form.transaction) return [];
-    const tr = form.transaction;
-    const zoneQ = norm(form.zone);
-    const scored = properties
-      .filter((p) => transactionMatches(p, tr))
-      .map((p) => {
-        let score = 0;
-        if (typeMeta && p.type === typeMeta.biens) score += 3;
-        if (form.bedrooms && p.bedrooms >= Number(form.bedrooms)) score += 2;
-        if (budgetNumber > 0 && p.price > 0 && p.price <= budgetNumber) score += 2;
-        if (zoneQ && (norm(p.quartier).includes(zoneQ) || norm(p.city).includes(zoneQ))) score += 3;
-        return { p, score };
-      })
-      .sort((a, b) => b.score - a.score || (b.p.updated_at > a.p.updated_at ? 1 : -1));
-    return scored.slice(0, 3).map((s) => s.p);
+    return rankMatches(
+      properties,
+      {
+        transaction: form.transaction,
+        typeBiens: typeMeta?.biens,
+        bedrooms: form.bedrooms,
+        budgetNumber,
+        zone: form.zone,
+      },
+      3,
+    );
   }, [properties, form.transaction, typeMeta, form.bedrooms, budgetNumber, form.zone]);
 
   // Human labels.
@@ -200,14 +186,14 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
   );
 
   /** Link to the full filtered listing on /biens (same mapping as BudgetTool). */
-  const biensLink = useMemo(() => {
-    const params = new URLSearchParams();
-    if (form.transaction) params.set('transaction', form.transaction === 'acheter' ? 'Vente' : 'Location');
-    if (form.transaction === 'acheter' && budgetNumber > 0) params.set('priceMax', String(budgetNumber));
-    if (typeMeta) params.set('type', typeMeta.biens);
-    if (form.zone.trim()) params.set('q', form.zone.trim());
-    return `${localizedPath('/biens', lang)}?${params.toString()}`;
-  }, [lang, form.transaction, budgetNumber, typeMeta, form.zone]);
+  const biensLink = useMemo(
+    () =>
+      buildBiensLink(
+        { transaction: form.transaction, typeBiens: typeMeta?.biens, budgetNumber, zone: form.zone },
+        lang,
+      ),
+    [lang, form.transaction, budgetNumber, typeMeta, form.zone],
+  );
 
   const phoneValid = isValidPhone(phone.trim());
 

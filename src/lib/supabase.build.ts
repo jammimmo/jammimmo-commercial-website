@@ -153,7 +153,7 @@ export async function listPublicProperties(
     console.warn('[supabase.build] listPublicProperties failed:', error.message);
     return [];
   }
-  return (data ?? []).map((row) => maskRow(row as DbProperty));
+  return (data ?? []).map((row) => maskRow(row as unknown as DbProperty));
 }
 
 export async function getPublicPropertyByRef(ref: string): Promise<PublicProperty | null> {
@@ -166,7 +166,7 @@ export async function getPublicPropertyByRef(ref: string): Promise<PublicPropert
     .eq('status', 'Disponible')
     .maybeSingle();
   if (error || !data) return null;
-  return maskRow(data as DbProperty);
+  return maskRow(data as unknown as DbProperty);
 }
 
 export async function findSimilar(p: PublicProperty, n: number = 3): Promise<PublicProperty[]> {
@@ -181,7 +181,7 @@ export async function findSimilar(p: PublicProperty, n: number = 3): Promise<Pub
     .neq('id', p.id)
     .limit(n);
   if (error || !data) return [];
-  return data.map((row) => maskRow(row as DbProperty));
+  return data.map((row) => maskRow(row as unknown as DbProperty));
 }
 
 export async function listAllPublicRefs(): Promise<Array<{ reference: string; updated_at: string }>> {

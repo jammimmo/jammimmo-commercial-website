@@ -55,86 +55,35 @@ import {
 import { t, type Lang } from '@/lib/i18n';
 import { track } from '@/lib/analytics';
 import { SITE } from '@/lib/site-config';
+import {
+  SAFETY_QUESTIONS,
+  SAFETY_TOTAL_STEPS,
+  scoreSafety,
+  type SafetyQuestionId,
+  type SafetyAnswers,
+  type RiskLevel,
+} from '@/lib/safety-score';
 
 interface Props {
   lang: Lang;
 }
 
 /**
- * The quiz. Each question has weighted options: risk 0 = reassuring, 1 = minor
- * caution, 2 = caution, 3 = red flag. The weights encode real Senegalese land
- * fraud patterns (vente multiple, coxeur sans mandat, papier simple vs titre
- * foncier, prix anormalement bas…). The TEXT of every question/option/flag
- * lives in i18n (`safety.q.*`, `safety.opt.*`, `safety.flag.*`) — this array is
- * the pure scoring model only.
- *
- * `icon` is rendered in the question legend. `flag` (when present) is shown on
- * the result screen as a concrete point de vigilance for that answer; risk-0
- * options have no flag (nothing to warn about).
+ * The scoring MODEL (question ids + weighted option keys + the vert/orange/rouge
+ * thresholds) lives in the pure, unit-tested `@/lib/safety-score` module. Here
+ * we keep only the per-question ICON shown in the legend — the question/option
+ * TEXT comes from i18n (`safety.q.*`, `safety.opt.*`, `safety.flag.*`).
  */
-const QUESTIONS = [
-  {
-    id: 'doc',
-    icon: FileText,
-    options: [
-      { key: 'tf', risk: 0 },
-      { key: 'bail', risk: 1 },
-      { key: 'delib', risk: 2 },
-      { key: 'papier', risk: 3 },
-      { key: 'aucun', risk: 3 },
-    ],
-  },
-  {
-    id: 'original',
-    icon: Eye,
-    options: [
-      { key: 'oui', risk: 0 },
-      { key: 'copie', risk: 2 },
-      { key: 'non', risk: 3 },
-    ],
-  },
-  {
-    id: 'vendeur',
-    icon: UserCheck,
-    options: [
-      { key: 'verifie', risk: 0 },
-      { key: 'pas', risk: 2 },
-      { key: 'different', risk: 3 },
-    ],
-  },
-  {
-    id: 'interlocuteur',
-    icon: Users,
-    options: [
-      { key: 'proprio', risk: 0 },
-      { key: 'mandataire', risk: 1 },
-      { key: 'coxeur', risk: 3 },
-    ],
-  },
-  {
-    id: 'prix',
-    icon: TrendingDown,
-    options: [
-      { key: 'marche', risk: 0 },
-      { key: 'bas', risk: 1 },
-      { key: 'tropbas', risk: 3 },
-    ],
-  },
-  {
-    id: 'visite',
-    icon: MapPin,
-    options: [
-      { key: 'bornage', risk: 0 },
-      { key: 'visite', risk: 1 },
-      { key: 'non', risk: 2 },
-    ],
-  },
-] as const;
+const QUESTION_ICONS: Record<SafetyQuestionId, typeof FileText> = {
+  doc: FileText,
+  original: Eye,
+  vendeur: UserCheck,
+  interlocuteur: Users,
+  prix: TrendingDown,
+  visite: MapPin,
+};
 
-type QuestionId = (typeof QUESTIONS)[number]['id'];
-const TOTAL_STEPS = QUESTIONS.length; // stable denominator — always 6
-
-type RiskLevel = 'vert' | 'orange' | 'rouge';
+const TOTAL_STEPS = SAFETY_TOTAL_STEPS; // stable denominator — always 6
 
 /** Per-level result styling — tokens confirmed in tailwind.config (emerald /
  *  ochre / terra). Kept honest: the label is a *vigilance* level, not a verdict. */
@@ -173,13 +122,11 @@ const isValidPhone = (v: string) => {
   return phoneSn.test(v) || phoneLoose.test(v);
 };
 
-type Answers = Partial<Record<QuestionId, string>>;
-
 export default function SafetyTool({ lang }: Props) {
   // `phase` drives the whole experience: the quiz, then the honest result, then
   // the (single-field) contact capture, then the success panel.
   const [phase, setPhase] = useState<'wizard' | 'result' | 'capture' | 'done'>('wizard');
-  const [answers, setAnswers] = useState<Answers>({});
+  const [answers, setAnswers] = useState<SafetyAnswers>({});
   const [stepIndex, setStepIndex] = useState(0);
 
   // Contact capture (shown ONLY after the result — pic d'intention).
@@ -189,7 +136,7 @@ export default function SafetyTool({ lang }: Props) {
   const [submitState, setSubmitState] = useState<'idle' | 'sending' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const currentQuestion = QUESTIONS[Math.min(stepIndex, TOTAL_STEPS - 1)];
+  const currentQuestion = SAFETY_QUESTIONS[Math.min(stepIndex, TOTAL_STEPS - 1)]!;
   const isLastStep = stepIndex >= TOTAL_STEPS - 1;
   const progress = Math.round(((stepIndex + 1) / TOTAL_STEPS) * 100);
 
@@ -211,7 +158,7 @@ export default function SafetyTool({ lang }: Props) {
     setStepIndex((i) => Math.max(i - 1, 0));
   }
 
-  function pick(qid: QuestionId, optKey: string) {
+  function pick(qid: SafetyQuestionId, optKey: string) {
     setAnswers((a) => ({ ...a, [qid]: optKey }));
   }
 
@@ -222,26 +169,13 @@ export default function SafetyTool({ lang }: Props) {
    * Pure function of the answers — no server, no randomness, no invented number.
    */
   const { level, flags, answeredLabels } = useMemo(() => {
-    let sum = 0;
-    let dangerCount = 0;
-    const fl: string[] = [];
-    const labels: Array<{ q: string; a: string }> = [];
-    for (const q of QUESTIONS) {
-      const optKey = answers[q.id];
-      const opt = q.options.find((o) => o.key === optKey);
-      if (!opt) continue;
-      sum += opt.risk;
-      if (opt.risk === 3) dangerCount += 1;
-      labels.push({
-        q: t(`safety.q.${q.id}`, lang),
-        a: t(`safety.opt.${q.id}.${opt.key}`, lang),
-      });
-      // risk-0 answers are reassuring → no point de vigilance to surface.
-      if (opt.risk > 0) fl.push(t(`safety.flag.${q.id}.${opt.key}`, lang));
-    }
-    const lvl: RiskLevel =
-      dangerCount >= 2 || sum >= 9 ? 'rouge' : dangerCount >= 1 || sum >= 4 ? 'orange' : 'vert';
-    return { level: lvl, flags: fl, answeredLabels: labels };
+    const res = scoreSafety(answers);
+    const labels = res.answered.map(({ qid, optKey }) => ({
+      q: t(`safety.q.${qid}`, lang),
+      a: t(`safety.opt.${qid}.${optKey}`, lang),
+    }));
+    const fl = res.flags.map(({ qid, optKey }) => t(`safety.flag.${qid}.${optKey}`, lang));
+    return { level: res.level as RiskLevel, flags: fl, answeredLabels: labels };
   }, [answers, lang]);
 
   /** Full diagnostic recap — REUSED as the lead `message` AND the WhatsApp text. */
@@ -333,7 +267,7 @@ export default function SafetyTool({ lang }: Props) {
     );
   }
 
-  const QIcon = currentQuestion.icon;
+  const QIcon = QUESTION_ICONS[currentQuestion.id];
   const ResultIcon = LEVEL_STYLE[level].icon;
 
   return (

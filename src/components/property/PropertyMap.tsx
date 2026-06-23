@@ -43,7 +43,6 @@ export default function PropertyMap({ gps, title, quartier, city, className }: P
     Promise.all([
       import('react-leaflet'),
       import('leaflet'),
-      // @ts-expect-error CSS side-effect import; resolved by Vite
       import('leaflet/dist/leaflet.css'),
     ]).then(([rl, l]) => {
       if (!cancelled) {

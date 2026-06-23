@@ -7,7 +7,13 @@ interface Props {
    * the heavy map deps in the lazy island chunk (only loaded when a map is on
    * screen). Must be rendered as a child of `<MapContainer>` so the context exists.
    */
-  useMap: () => { addLayer?: unknown; removeLayer: (l: unknown) => void; hasLayer?: (l: unknown) => boolean } & Record<string, unknown>;
+  // Typed loosely on purpose: this is the dynamic-injection boundary that
+  // avoids a static react-leaflet/leaflet import (keeps the heavy map deps in
+  // the lazy chunk). react-leaflet's `useMap` returns a Leaflet `Map` whose
+  // method signatures don't structurally unify with a hand-written shape under
+  // strictFunctionTypes, so we accept it as-is and use it duck-typed below.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  useMap: () => any;
   /** MapLibre GL style URL (e.g. OpenFreeMap Liberty). */
   styleUrl: string;
   attribution: string;
