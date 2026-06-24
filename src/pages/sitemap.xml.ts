@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { getCollection } from 'astro:content';
 import { listAllPublicRefs } from '@/lib/supabase.build';
 import { QUARTIERS } from '@/lib/quartiers';
 
@@ -90,6 +91,24 @@ export const GET: APIRoute = async ({ site }) => {
     <lastmod>${now}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+  </url>`);
+  }
+
+  // Guides — FR-primary editorial (content collection). Served at /en /wo via
+  // i18n fallback, canonical to the FR URL → single FR <url> each, no alternates.
+  const guides = await getCollection('guides');
+  blocks.push(`  <url>
+    <loc>${origin}/guides/</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>`);
+  for (const g of guides) {
+    blocks.push(`  <url>
+    <loc>${origin}/guides/${g.slug}/</loc>
+    <lastmod>${g.data.updated ?? g.data.date}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>`);
   }
 

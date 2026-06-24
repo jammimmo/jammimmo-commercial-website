@@ -55,6 +55,13 @@ Repères factuels (sourcés) que Jamm met à disposition. Monnaie : franc CFA (F
 - Sécurité foncière : privilégier un bien sous **titre foncier** (TF) ; vérifier le titre à la Conservation foncière, se méfier des actes sous seing privé et des ventes sans titre.
 - Chaque annonce publiée sur jammimmo.com est vérifiée par l'agence avant mise en ligne.
 
+## Guides
+Guides pratiques et sourcés (français) :
+- [Frais d'acquisition immobilière au Sénégal](https://jammimmo.com/guides/frais-acquisition-senegal/) : droits, notaire, publicité foncière, TVA + exemple chiffré
+- [Sécurité foncière : vérifier un titre foncier et éviter les arnaques](https://jammimmo.com/guides/securite-fonciere-titre-foncier/)
+- [Acheter un bien immobilier au Sénégal depuis la diaspora](https://jammimmo.com/guides/acheter-immobilier-diaspora-senegal/)
+- [Comment estimer le prix d'un bien immobilier à Dakar](https://jammimmo.com/guides/estimer-prix-bien-dakar/)
+
 ## Légal
 - [Mentions légales](https://jammimmo.com/mentions-legales/)
 - [Politique de confidentialité](https://jammimmo.com/confidentialite/)

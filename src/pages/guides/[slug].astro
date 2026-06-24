@@ -1,0 +1,182 @@
+---
+/**
+ * /guides/<slug> — a single editorial guide (Astro content collection).
+ * French-primary; served at /en/ /wo/ via i18n fallback, canonical to the FR URL.
+ * Emits Article + (optional) FAQPage + BreadcrumbList JSON-LD and links back to
+ * the matching tool, /biens and related quartier hubs.
+ */
+import { getCollection, getEntry } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import JsonLdBreadcrumb from '@/components/seo/JsonLdBreadcrumb.astro';
+import JsonLdFaq from '@/components/seo/JsonLdFaq.astro';
+import Ornament from '@/components/decor/Ornament.astro';
+import { getQuartier } from '@/lib/quartiers';
+import { localizedPath } from '@/lib/i18n';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const guides = await getCollection('guides');
+  return guides.map((g) => ({ params: { slug: g.slug } }));
+}
+
+const { slug } = Astro.params;
+const entry = await getEntry('guides', slug!);
+if (!entry) return Astro.redirect('/guides', 307);
+const { Content } = await entry.render();
+const d = entry.data;
+
+const lang = 'fr' as const; // guides are FR-primary
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com';
+const canonical = `${siteUrl}/guides/${entry.slug}/`;
+
+// Manual FR date formatting — deterministic, no Intl/Date locale-data reliance
+// (the CF Pages build Node silently no-ops some ICU data; see format.ts).
+const MONTHS_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const dateFmt = (iso: string) => {
+  const [y, m, dd] = iso.split('-').map(Number);
+  return `${dd} ${MONTHS_FR[(m ?? 1) - 1]} ${y}`;
+};
+
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: d.title,
+  description: d.description,
+  datePublished: d.date,
+  dateModified: d.updated ?? d.date,
+  author: { '@type': 'Organization', name: d.author, '@id': `${siteUrl}/#organization` },
+  publisher: { '@id': `${siteUrl}/#organization` },
+  mainEntityOfPage: canonical,
+  image: `${siteUrl}/og-default.png`,
+  inLanguage: 'fr-SN',
+};
+
+const relatedQ = (d.relatedQuartiers ?? [])
+  .map((s) => getQuartier(s))
+  .filter((q): q is NonNullable<typeof q> => Boolean(q));
+
+const proseClass = [
+  '[&>h2]:font-serif [&>h2]:text-[26px] sm:[&>h2]:text-[30px] [&>h2]:mt-10 [&>h2]:mb-3 [&>h2]:leading-tight [&>h2]:tracking-tight',
+  '[&>h3]:font-serif [&>h3]:text-[20px] [&>h3]:mt-7 [&>h3]:mb-2',
+  '[&>p]:text-[16px] [&>p]:text-muted-foreground [&>p]:leading-relaxed [&>p]:mb-4',
+  '[&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-5 [&>ul]:text-muted-foreground [&>ul>li]:mb-1.5 [&>ul>li]:leading-relaxed',
+  '[&_strong]:text-foreground [&_strong]:font-semibold',
+  '[&_a]:text-primary [&_a]:font-medium [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-secondary-strong',
+  '[&_table]:w-full [&_table]:my-6 [&_table]:text-sm [&_table]:border [&_table]:border-clay [&_table]:rounded-xl [&_table]:overflow-hidden',
+  '[&_th]:text-left [&_th]:font-semibold [&_th]:bg-card [&_th]:border-b [&_th]:border-clay [&_th]:py-2.5 [&_th]:px-3.5',
+  '[&_td]:border-b [&_td]:border-clay/50 [&_td]:py-2.5 [&_td]:px-3.5',
+  '[&_tr:last-child>td]:border-0',
+  '[&_em]:not-italic [&_em]:text-muted-foreground [&_em]:text-[13px] [&_em]:block [&_em]:mt-6 [&_em]:pt-4 [&_em]:border-t [&_em]:border-clay',
+].join(' ');
+---
+
+<BaseLayout title={`${d.title} — Jamm Immobilier`} description={d.description} type="article" canonical={canonical} solidNav>
+  <JsonLdBreadcrumb
+    slot="head"
+    lang={lang}
+    items={[{ name: 'Accueil', path: '/' }, { name: 'Guides', path: '/guides' }, { name: d.title, path: `/guides/${entry.slug}` }]}
+  />
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(articleLd)} />
+
+  <article>
+    {/* Header */}
+    <header class="relative py-14 sm:py-20 bg-card border-b border-clay overflow-hidden">
+      <div class="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
+        <div
+          class="absolute -top-24 left-1/2 -translate-x-1/2 w-[520px] h-[520px] rounded-full opacity-[0.10]"
+          style="background: radial-gradient(circle at 50% 30%, hsl(var(--secondary)), hsl(var(--ochre)) 45%, transparent 70%); filter: blur(8px);"
+        ></div>
+      </div>
+      <div class="container max-w-3xl relative z-10">
+        <nav class="text-[13px] text-muted-foreground mb-4" aria-label="Fil d'Ariane">
+          <a href={localizedPath('/', lang)} class="hover:text-primary">Accueil</a>
+          <span class="mx-1.5">/</span>
+          <a href={localizedPath('/guides', lang)} class="hover:text-primary">Guides</a>
+        </nav>
+        <p class="text-[11px] uppercase tracking-[0.18em] font-semibold text-secondary-strong mb-3">{d.category}</p>
+        <h1 class="font-serif font-light text-[clamp(30px,4.6vw,50px)] leading-tight tracking-tight">{d.title}</h1>
+        <p class="mt-4 text-muted-foreground text-[16px] leading-relaxed">{d.description}</p>
+        <p class="mt-5 text-[13px] text-muted-foreground">
+          Par <span class="font-semibold text-foreground">{d.author}</span> · {dateFmt(d.updated ?? d.date)}
+        </p>
+      </div>
+    </header>
+
+    {/* Body */}
+    <div class="py-12 sm:py-16 bg-background">
+      <div class={`container max-w-3xl ${proseClass}`}>
+        <Content />
+      </div>
+    </div>
+  </article>
+
+  {/* Related tool CTA */}
+  {d.relatedTool && (
+    <section class="pb-4 bg-background">
+      <div class="container max-w-3xl">
+        <a
+          href={localizedPath(d.relatedTool.href, lang)}
+          data-track="guide.toolCta"
+          class="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-secondary/30 bg-secondary/5 p-6 hover:border-secondary/50 transition"
+        >
+          <div>
+            <p class="text-[11px] uppercase tracking-wider font-semibold text-secondary-strong">Outil gratuit</p>
+            <p class="font-serif text-xl mt-1">{d.relatedTool.label}</p>
+          </div>
+          <span class="inline-flex items-center gap-2 h-11 px-6 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm shadow-lg group-hover:translate-y-[-1px] transition-transform shrink-0">
+            {d.relatedTool.cta}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" class="rtl-flip"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+          </span>
+        </a>
+      </div>
+    </section>
+  )}
+
+  {/* Visible FAQ (+ FAQPage schema) */}
+  {d.faq.length > 0 && (
+    <section class="py-12 sm:py-16 bg-card border-y border-clay" aria-labelledby="guide-faq">
+      <div class="container max-w-3xl">
+        <h2 id="guide-faq" class="font-serif font-light text-[clamp(24px,3.2vw,34px)] leading-tight tracking-tight">Questions fréquentes</h2>
+        <dl class="mt-7 divide-y divide-clay">
+          {d.faq.map((f) => (
+            <div class="py-5">
+              <dt class="font-serif text-[19px] sm:text-[21px] leading-snug">{f.q}</dt>
+              <dd class="mt-2 text-muted-foreground leading-relaxed">{f.a}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </section>
+    <JsonLdFaq items={d.faq} />
+  )}
+
+  {/* Internal links: related quartiers + browse listings */}
+  <section class="py-12 bg-background">
+    <div class="container max-w-3xl">
+      <div class="flex justify-center mb-8"><Ornament /></div>
+      {relatedQ.length > 0 && (
+        <div class="mb-8">
+          <p class="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-3">Quartiers liés</p>
+          <div class="flex flex-wrap gap-2">
+            {relatedQ.map((q) => (
+              <a
+                href={localizedPath(`/immobilier/${q.slug}`, lang)}
+                class="px-3.5 py-2 rounded-full text-[13px] font-medium bg-card border border-clay hover:bg-accent hover:text-accent-foreground hover:border-primary transition"
+              >{q.name}</a>
+            ))}
+          </div>
+        </div>
+      )}
+      <div class="flex flex-wrap gap-3">
+        <a href={localizedPath('/biens', lang)} class="inline-flex items-center gap-2 h-12 px-7 rounded-full bg-primary text-primary-foreground font-semibold text-[15px] shadow hover:translate-y-[-1px] transition">
+          Voir les annonces
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" class="rtl-flip"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+        </a>
+        <a href={localizedPath('/guides', lang)} class="inline-flex items-center gap-2 h-12 px-6 rounded-full border border-input bg-card font-semibold text-[15px] hover:bg-muted transition">
+          Tous les guides
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

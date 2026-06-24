@@ -1,0 +1,99 @@
+---
+/**
+ * /guides — editorial hub listing the sourced guides. French-primary; emits
+ * CollectionPage + ItemList + BreadcrumbList JSON-LD. Served at /en/ /wo/ via
+ * i18n fallback, canonical to the FR URL.
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import JsonLdBreadcrumb from '@/components/seo/JsonLdBreadcrumb.astro';
+import Ornament from '@/components/decor/Ornament.astro';
+import { localizedPath } from '@/lib/i18n';
+
+export const prerender = true;
+
+const lang = 'fr' as const;
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com';
+
+const guides = (await getCollection('guides')).sort(
+  (a, b) => a.data.order - b.data.order || (a.data.date < b.data.date ? 1 : a.data.date > b.data.date ? -1 : 0),
+);
+
+const MONTHS_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const dateFmt = (iso: string) => {
+  const [y, m, dd] = iso.split('-').map(Number);
+  return `${dd} ${MONTHS_FR[(m ?? 1) - 1]} ${y}`;
+};
+
+const collectionLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Guides immobiliers — Jamm Immobilier',
+  url: `${siteUrl}/guides/`,
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: guides.length,
+    itemListElement: guides.map((g, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${siteUrl}/guides/${g.slug}/`,
+      name: g.data.title,
+    })),
+  },
+};
+---
+
+<BaseLayout
+  title="Guides immobiliers au Sénégal — Jamm Immobilier"
+  description="Guides pratiques et sourcés pour acheter, louer ou investir dans l'immobilier au Sénégal : frais d'acquisition, sécurité foncière, achat depuis la diaspora, estimation de prix."
+  canonical={`${siteUrl}/guides/`}
+  solidNav
+>
+  <JsonLdBreadcrumb slot="head" lang={lang} items={[{ name: 'Accueil', path: '/' }, { name: 'Guides', path: '/guides' }]} />
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(collectionLd)} />
+
+  <section class="relative py-16 sm:py-20 bg-card border-b border-clay overflow-hidden">
+    <div class="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
+      <div
+        class="absolute -top-24 left-1/2 -translate-x-1/2 w-[520px] h-[520px] rounded-full opacity-[0.12]"
+        style="background: radial-gradient(circle at 50% 30%, hsl(var(--secondary)), hsl(var(--ochre)) 45%, transparent 70%); filter: blur(8px);"
+      ></div>
+    </div>
+    <div class="container max-w-3xl text-center relative z-10">
+      <p class="text-[11px] uppercase tracking-[0.18em] font-semibold text-secondary-strong mb-3">Ressources</p>
+      <h1 class="font-serif font-light text-[clamp(36px,5vw,56px)] leading-tight tracking-tight">Guides immobiliers</h1>
+      <div class="flex justify-center mt-5"><Ornament /></div>
+      <p class="mt-5 text-muted-foreground text-[16px] leading-relaxed">
+        Des guides pratiques et sourcés pour acheter, louer et investir au Sénégal en toute confiance.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-12 sm:py-16 bg-background">
+    <div class="container max-w-5xl">
+      {guides.length === 0 ? (
+        <p class="text-center text-muted-foreground">Les premiers guides arrivent bientôt.</p>
+      ) : (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {guides.map((g) => (
+            <a
+              href={localizedPath(`/guides/${g.slug}`, lang)}
+              class="group flex flex-col bg-card rounded-[22px] p-6 border border-clay hover:translate-y-[-6px] hover:shadow-[0_30px_60px_-30px_hsl(var(--ink)/.2)] hover:border-secondary/40 transition"
+            >
+              <p class="text-[11px] uppercase tracking-wider font-semibold text-secondary-strong">{g.data.category}</p>
+              <h2 class="font-serif text-[22px] leading-snug tracking-tight mt-2 mb-2">{g.data.title}</h2>
+              <p class="text-muted-foreground text-[14px] leading-relaxed flex-1">{g.data.description}</p>
+              <div class="mt-4 flex items-center justify-between">
+                <span class="text-[12px] text-muted-foreground">{dateFmt(g.data.date)}</span>
+                <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary group-hover:gap-2.5 transition-all">
+                  Lire le guide
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" class="rtl-flip"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>
