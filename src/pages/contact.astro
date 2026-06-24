@@ -1,12 +1,18 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ContactSection from '@/components/home/ContactSection.astro';
+import JsonLdBreadcrumb from '@/components/seo/JsonLdBreadcrumb.astro';
 import { getLang, t } from '@/lib/i18n';
 
 export const prerender = true;
 const lang = getLang(Astro.url);
 ---
 
-<BaseLayout title={`${t('page.contact.title', lang)} — ${t('site.name', lang)}`} solidNav>
+<BaseLayout
+  title={`${t('page.contact.title', lang)} — ${t('site.name', lang)}`}
+  description={t('page.contact.description', lang)}
+  solidNav
+>
+  <JsonLdBreadcrumb slot="head" lang={lang} items={[{ name: t('breadcrumb.home', lang), path: '/' }, { name: t('nav.contact', lang), path: '/contact' }]} />
   <ContactSection lang={lang} />
 </BaseLayout>

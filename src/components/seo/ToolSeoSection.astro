@@ -1,0 +1,47 @@
+---
+/**
+ * Server-rendered FAQ + context section for a funnel tool page. Renders VISIBLE
+ * Q&A prose (so non-JS AI crawlers and classic search can read the agency's
+ * sourced facts) AND the matching FAQPage JSON-LD (same text — Google strips
+ * schema whose answers aren't on-page). Sits BELOW the interactive island, so
+ * it never touches the tool's UX.
+ *
+ * Content is i18n (toolseo.<slug>.*) and the item count comes from the
+ * tool-faq registry. See src/lib/tool-faq.ts.
+ */
+import { t, type Lang } from '@/lib/i18n';
+import { toolFaqKeys } from '@/lib/tool-faq';
+import JsonLdFaq from '@/components/seo/JsonLdFaq.astro';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+}
+const { lang, slug } = Astro.props;
+
+const intro = t(`toolseo.${slug}.intro`, lang);
+const items = toolFaqKeys(slug).map(({ q, a }) => ({ q: t(q, lang), a: t(a, lang) }));
+---
+
+{items.length > 0 && (
+  <section class="py-12 sm:py-16 bg-card border-t border-clay" aria-labelledby="tool-faq-heading">
+    <div class="container max-w-3xl">
+      <h2 id="tool-faq-heading" class="font-serif font-light text-[clamp(26px,3.4vw,38px)] leading-tight tracking-tight">
+        {t('toolseo.faqTitle', lang)}
+      </h2>
+      {intro && intro !== `toolseo.${slug}.intro` && (
+        <p class="mt-4 text-muted-foreground leading-relaxed">{intro}</p>
+      )}
+      <dl class="mt-8 divide-y divide-clay">
+        {items.map((it) => (
+          <div class="py-5">
+            <dt class="font-serif text-[19px] sm:text-[21px] leading-snug">{it.q}</dt>
+            <dd class="mt-2 text-muted-foreground leading-relaxed">{it.a}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <JsonLdFaq items={items} />
+)}

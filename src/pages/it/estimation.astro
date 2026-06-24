@@ -20,6 +20,8 @@
  * getLang() dérive la langue depuis le préfixe d'URL.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import ToolSeoSection from '@/components/seo/ToolSeoSection.astro';
+import JsonLdBreadcrumb from '@/components/seo/JsonLdBreadcrumb.astro';
 import EstimateTool from '@/components/estimate/EstimateTool.tsx';
 import Ornament from '@/components/decor/Ornament.astro';
 import { listPublicProperties } from '@/lib/supabase.build';
@@ -73,4 +75,7 @@ const hrefByRef = Object.fromEntries(
       <EstimateTool client:load lang={lang} properties={properties} hrefByRef={hrefByRef} />
     </div>
   </section>
+
+  <JsonLdBreadcrumb slot="head" lang={lang} items={[{ name: t('breadcrumb.home', lang), path: '/' }, { name: t('nav.estimate', lang), path: '/estimation' }]} />
+  <ToolSeoSection lang={lang} slug="estimation" />
 </BaseLayout>

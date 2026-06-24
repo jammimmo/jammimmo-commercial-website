@@ -5,12 +5,17 @@ import { QUARTIERS } from '@/lib/quartiers';
 export const prerender = true;
 
 const STATIC_PATHS = [
-  '/', '/biens/', '/immobilier/', '/contact/', '/comparer/',
+  '/', '/biens/', '/immobilier/', '/contact/',
+  // Owner-acquisition + B2B landing pages (exist in 6 langs, were nav-only).
+  '/proprietaires/', '/partenaires/',
   // Funnel tools (free lead-magnets) — prerendered, localized × 6 languages.
   // Previously absent from the sitemap: the whole tool funnel was uncrawlable.
   '/estimation/', '/budget/', '/trouver-mon-bien/', '/securite-fonciere/',
   '/rentabilite/', '/frais-acquisition/',
 ];
+// NOTE: /comparer and /favoris are intentionally NOT here — they're per-user
+// (localStorage) dead-ends, robots-blocked. Listing them would self-contradict
+// robots.txt and trigger GSC "Submitted URL blocked by robots.txt".
 /**
  * Legal pages — French canonical only. Astro's i18n fallback serves the same
  * FR markup at /en/* and /wo/*, but those alias URLs carry a canonical to

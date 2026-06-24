@@ -1,12 +1,18 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ListingsContent from '@/components/property/ListingsContent.astro';
+import JsonLdBreadcrumb from '@/components/seo/JsonLdBreadcrumb.astro';
 import { getLang, t } from '@/lib/i18n';
 export const prerender = true;
 
 const lang = getLang(Astro.url);
 ---
 
-<BaseLayout title={`${t('page.listings.title', lang)} — ${t('site.name', lang)}`} solidNav>
+<BaseLayout
+  title={`${t('page.listings.title', lang)} — ${t('site.name', lang)}`}
+  description={t('page.listings.description', lang)}
+  solidNav
+>
+  <JsonLdBreadcrumb slot="head" lang={lang} items={[{ name: t('breadcrumb.home', lang), path: '/' }, { name: t('nav.listings', lang), path: '/biens' }]} />
   <ListingsContent />
 </BaseLayout>

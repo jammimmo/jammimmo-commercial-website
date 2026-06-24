@@ -31,9 +31,14 @@ if (!property) {
 const similar = await findSimilar(property, 3);
 
 const seoTitle = propertySeoTitle(property, lang);
-const seoDescription = metaDescription(property.commercial_message, property.description);
+// Fall back to the SEO title when a listing has neither commercial_message nor
+// description (else we'd emit an empty <meta name="description">).
+const seoDescription = metaDescription(property.commercial_message, property.description) || seoTitle;
 const seoImage = property.images[0];
 const canonical = `${Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com'}${Astro.url.pathname}`;
+// Preload the hero photo (LCP) so the browser starts fetching it in parallel
+// with the gallery island's JS instead of waiting for hydration to discover it.
+const lcpImage = /^https?:\/\//.test(seoImage ?? '') ? seoImage : undefined;
 ---
 
 <BaseLayout
@@ -46,6 +51,7 @@ const canonical = `${Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammi
   hideWhatsappFab
 >
   <slot slot="head">
+    {lcpImage && <link rel="preload" as="image" href={lcpImage} fetchpriority="high" />}
     <JsonLdProperty property={property} url={canonical} lang={lang} />
   </slot>
   <DetailContent property={property} similar={similar} lang={lang} />

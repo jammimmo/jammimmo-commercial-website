@@ -15,6 +15,8 @@
  * langue depuis le préfixe d'URL.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import ToolSeoSection from '@/components/seo/ToolSeoSection.astro';
+import JsonLdBreadcrumb from '@/components/seo/JsonLdBreadcrumb.astro';
 import SafetyTool from '@/components/safety/SafetyTool.tsx';
 import Ornament from '@/components/decor/Ornament.astro';
 import { getLang, t } from '@/lib/i18n';
@@ -61,4 +63,7 @@ const lang = getLang(Astro.url);
       <SafetyTool client:load lang={lang} />
     </div>
   </section>
+
+  <JsonLdBreadcrumb slot="head" lang={lang} items={[{ name: t('breadcrumb.home', lang), path: '/' }, { name: t('nav.safety', lang), path: '/securite-fonciere' }]} />
+  <ToolSeoSection lang={lang} slug="securite-fonciere" />
 </BaseLayout>

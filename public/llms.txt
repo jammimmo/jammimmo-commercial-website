@@ -1,6 +1,6 @@
 # Jamm Immobilier
 
-> Agence immobilière sénégalaise basée à Dakar (Sacré-Cœur 3). Vente, location, gestion locative et accompagnement de projet immobilier — de Dakar à Saly, Mbour, Thiès et Saint-Louis. Chaque annonce est vérifiée par l'agence avant publication. Site trilingue : français, anglais, wolof.
+> Agence immobilière sénégalaise basée à Dakar (Sacré-Cœur 3). Vente, location, gestion locative et accompagnement de projet immobilier — de Dakar à Saly, Mbour, Thiès et Saint-Louis. Chaque annonce est vérifiée par l'agence avant publication. Site disponible en 6 langues (français, anglais, wolof, espagnol, italien, arabe) avec des outils gratuits d'estimation, de budget, de rentabilité et de calcul des frais d'acquisition.
 
 ## À propos
 - Nom : Jamm Immobilier
@@ -9,12 +9,24 @@
 - E-mail : contact@jammimmo.com
 - Zones couvertes : Dakar (Almadies, Ngor, Ouakam, Mermoz, Point E, Fann, Plateau, Sacré-Cœur, Yoff, Grand Yoff, Liberté, Parcelles Assainies), Saly, Mbour, Thiès, Saint-Louis
 - Services : vente, location, gestion locative, conseil et accompagnement (y compris pour la diaspora)
+- Langues : français (par défaut), anglais (/en/), wolof (/wo/), espagnol (/es/), italien (/it/), arabe (/ar/, lecture de droite à gauche)
 
 ## Pages principales
 - [Accueil](https://jammimmo.com/) : présentation de l'agence et biens en vedette
 - [Toutes les annonces](https://jammimmo.com/biens/) : catalogue filtrable (vente/location, type, ville, budget) avec carte
 - [Immobilier par quartier](https://jammimmo.com/immobilier/) : pages dédiées par quartier de Dakar
+- [Vendre / confier un bien](https://jammimmo.com/proprietaires/) : mandats de vente, location et gestion locative pour propriétaires
+- [Partenaires](https://jammimmo.com/partenaires/) : collaboration avec agents, apporteurs d'affaires et promoteurs
 - [Contact](https://jammimmo.com/contact/) : formulaire, téléphone, adresse et itinéraire
+
+## Outils gratuits
+Outils interactifs gratuits, sans inscription, pour préparer un projet immobilier au Sénégal :
+- [Estimer mon bien](https://jammimmo.com/estimation/) : fourchette de prix basée sur des biens comparables réels du catalogue Jamm, puis avis d'un expert
+- [Définir mon budget](https://jammimmo.com/budget/) : ce que votre budget permet d'acheter ou de louer, et les biens correspondants
+- [Calculer la rentabilité locative](https://jammimmo.com/rentabilite/) : rendement brut, net et retour sur investissement d'un projet locatif
+- [Calculer les frais d'acquisition](https://jammimmo.com/frais-acquisition/) : frais de notaire, droits d'enregistrement et publicité foncière à prévoir en plus du prix
+- [Vérifier la sécurité foncière](https://jammimmo.com/securite-fonciere/) : auto-diagnostic anti-arnaque (titre foncier, bail) + vérification par un expert
+- [Trouver mon bien](https://jammimmo.com/trouver-mon-bien/) : quiz de 60 secondes qui propose 3 biens réels correspondant à la recherche
 
 ## Quartiers (Dakar)
 - [Sacré-Cœur](https://jammimmo.com/immobilier/sacre-coeur/)
@@ -30,6 +42,19 @@
 - [Liberté](https://jammimmo.com/immobilier/liberte/)
 - [Parcelles Assainies](https://jammimmo.com/immobilier/parcelles-assainies/)
 
+## Faits & barèmes — acheter au Sénégal
+Repères factuels (sourcés) que Jamm met à disposition. Monnaie : franc CFA (FCFA / XOF).
+
+- Frais d'acquisition à la charge de l'ACHETEUR (revente d'un bien titré) : compter environ **7 à 12 % du prix en plus du prix** (≈ 8 % typique). Détail :
+  - Droits d'enregistrement : **5 % du prix** (Code Général des Impôts, art. 472 ; taux ramené de 10 % à 5 % par la loi 2015-06, inchangé en 2024-2026).
+  - Publicité foncière (conservation foncière) : **~1 % du prix + ~6 500 FCFA** de droit fixe.
+  - Honoraires du notaire : **barème dégressif par tranche** — 4,5 % jusqu'à 20 M, 3 % de 20 à 80 M, 1,5 % de 80 à 300 M, 0,75 % au-delà (Décret 2006-1366, art. 150).
+  - TVA : **18 %** sur les honoraires du notaire (pas sur le prix).
+  - La taxe de plus-value est à la charge du VENDEUR, jamais de l'acheteur.
+- Rentabilité locative : rendement brut = (loyer mensuel × 12) ÷ prix d'achat ; rendement net = après charges, taxe et vacance locative.
+- Sécurité foncière : privilégier un bien sous **titre foncier** (TF) ; vérifier le titre à la Conservation foncière, se méfier des actes sous seing privé et des ventes sans titre.
+- Chaque annonce publiée sur jammimmo.com est vérifiée par l'agence avant mise en ligne.
+
 ## Légal
 - [Mentions légales](https://jammimmo.com/mentions-legales/)
 - [Politique de confidentialité](https://jammimmo.com/confidentialite/)
@@ -37,5 +62,6 @@
 
 ## Notes
 - Plan du site : https://jammimmo.com/sitemap.xml
-- Langues : FR (par défaut), EN (/en/), WO (/wo/)
-- Les annonces sont vérifiées par l'agence ; les prix sont en FCFA (XOF).
+- 6 langues : FR (par défaut), EN (/en/), WO (/wo/), ES (/es/), IT (/it/), AR (/ar/, RTL)
+- Les prix sont en FCFA (XOF). Les annonces sont vérifiées par l'agence avant publication.
+- Dernière mise à jour : 2026-06-24

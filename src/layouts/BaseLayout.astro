@@ -5,7 +5,7 @@ import Footer from '@/components/layout/Footer.astro';
 import WhatsAppFab from '@/components/layout/WhatsAppFab.astro';
 import SeoTags from '@/components/seo/SeoTags.astro';
 import JsonLdOrg from '@/components/seo/JsonLdOrg.astro';
-import { getLang, getDir, t } from '@/lib/i18n';
+import { getLang, getDir, t, PREFIXED_LANGS } from '@/lib/i18n';
 
 interface Props {
   title?: string;
@@ -17,6 +17,8 @@ interface Props {
   solidNav?: boolean;
   /** Masque le FAB WhatsApp global (ex. fiche bien : a déjà sa barre CTA collante). */
   hideWhatsappFab?: boolean;
+  /** Emit `noindex, follow` (404, per-user dead-end pages). */
+  noindex?: boolean;
 }
 
 const lang = getLang(Astro.url);
@@ -28,6 +30,7 @@ const {
   canonical,
   solidNav,
   hideWhatsappFab,
+  noindex,
 } = Astro.props;
 
 // Search-engine + analytics verification — empty strings disable each.
@@ -45,8 +48,11 @@ const analyticsEndpoint = (import.meta.env.PUBLIC_ANALYTICS_ENDPOINT ?? '').repl
 const clarityProjectId = import.meta.env.PUBLIC_CLARITY_PROJECT_ID ?? '';
 const clarityEnabled = !!clarityProjectId;
 
-// Only emit the global Organization+WebSite JSON-LD on root-shaped pages.
-const isHome = ['/', '/en', '/en/', '/wo', '/wo/'].includes(Astro.url.pathname);
+// Only emit the WebSite+SearchAction JSON-LD on root-shaped pages — derived
+// from PREFIXED_LANGS so every locale homepage (incl. es/it/ar) qualifies and
+// a future 7th language can't silently regress.
+const homePaths = new Set(['/', ...PREFIXED_LANGS.flatMap((l) => [`/${l}`, `/${l}/`])]);
+const isHome = homePaths.has(Astro.url.pathname);
 ---
 
 <!doctype html>
@@ -70,7 +76,7 @@ const isHome = ['/', '/en', '/en/', '/wo', '/wo/'].includes(Astro.url.pathname);
         from going stale across builds. */}
     <link rel="preconnect" href="https://pub-15cb63d8148e4d51807e901562b85914.r2.dev" />
 
-    <SeoTags lang={lang} title={title} description={description} image={image} type={type} canonical={canonical} />
+    <SeoTags lang={lang} title={title} description={description} image={image} type={type} canonical={canonical} noindex={noindex} />
 
     {/* Search-engine ownership verification */}
     {gscVerification && <meta name="google-site-verification" content={gscVerification} />}
