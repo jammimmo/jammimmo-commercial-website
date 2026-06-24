@@ -87,9 +87,14 @@ test.describe('Sélecteur de langue (îlot React) — navigue vers la locale', (
       'Le switcher React est dans le header desktop ; le mobile passe par le menu — testé en desktop.',
     );
     await page.goto('/');
-    await page.locator('button[aria-label="Change language"]:visible').first().click();
+    // Le switcher est un îlot `client:idle` : sur une preview froide il peut ne
+    // pas être hydraté au moment du clic → on ré-essaie l'ouverture jusqu'à ce
+    // que l'option apparaisse (même garde-fou que les outils client:load).
     const es = page.locator('a[role="option"][href="/es"]');
-    await expect(es).toBeVisible();
+    await expect(async () => {
+      await page.locator('button[aria-label="Change language"]:visible').first().click();
+      await expect(es).toBeVisible({ timeout: 1500 });
+    }).toPass({ timeout: 15_000 });
     await es.click();
     await expect(page).toHaveURL(/\/es(\/|$)/);
     await expect(page.getByText('Inmobiliaria, con total tranquilidad', { exact: false }).first()).toBeAttached();
