@@ -2,10 +2,10 @@
 /**
  * « Outils gratuits » — vitrine des lead-magnets sur la home. Les outils ne
  * vivaient que dans la nav/le footer ; cette section les expose à tout visiteur
- * (découverte = entrée de tunnel). 4 cartes cliquables → les 4 outils gratuits.
+ * (découverte = entrée de tunnel). 6 cartes cliquables → les 6 outils gratuits.
  */
 import { t, type Lang, localizedPath } from '@/lib/i18n';
-import { Calculator, Wallet, Compass, ShieldCheck, TrendingUp, ArrowRight } from 'lucide-react';
+import { Calculator, Wallet, Compass, ReceiptText, ShieldCheck, TrendingUp, ArrowRight } from 'lucide-react';
 
 interface Props {
   lang: Lang;
@@ -16,8 +16,9 @@ const tools = [
   { key: 'estimate', href: '/estimation', icon: 'calc', tone: 'primary' },
   { key: 'budget', href: '/budget', icon: 'wallet', tone: 'secondary' },
   { key: 'match', href: '/trouver-mon-bien', icon: 'compass', tone: 'primary' },
-  { key: 'safety', href: '/securite-fonciere', icon: 'shield', tone: 'secondary' },
-  { key: 'yield', href: '/rentabilite', icon: 'trend', tone: 'primary' },
+  { key: 'frais', href: '/frais-acquisition', icon: 'receipt', tone: 'secondary' },
+  { key: 'safety', href: '/securite-fonciere', icon: 'shield', tone: 'primary' },
+  { key: 'yield', href: '/rentabilite', icon: 'trend', tone: 'secondary' },
 ] as const;
 ---
 
@@ -33,7 +34,7 @@ const tools = [
       <p class="text-muted-foreground leading-relaxed mt-4">{t('tools.subtitle', lang)}</p>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {tools.map((tool, i) => (
         <a
           href={localizedPath(tool.href, lang)}
@@ -44,6 +45,7 @@ const tools = [
             {tool.icon === 'calc' && <Calculator className="w-6 h-6" strokeWidth={1.6} />}
             {tool.icon === 'wallet' && <Wallet className="w-6 h-6" strokeWidth={1.6} />}
             {tool.icon === 'compass' && <Compass className="w-6 h-6" strokeWidth={1.6} />}
+            {tool.icon === 'receipt' && <ReceiptText className="w-6 h-6" strokeWidth={1.6} />}
             {tool.icon === 'shield' && <ShieldCheck className="w-6 h-6" strokeWidth={1.6} />}
             {tool.icon === 'trend' && <TrendingUp className="w-6 h-6" strokeWidth={1.6} />}
           </div>

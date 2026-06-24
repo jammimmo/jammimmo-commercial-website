@@ -4,7 +4,13 @@ import { QUARTIERS } from '@/lib/quartiers';
 
 export const prerender = true;
 
-const STATIC_PATHS = ['/', '/biens/', '/immobilier/', '/contact/', '/comparer/'];
+const STATIC_PATHS = [
+  '/', '/biens/', '/immobilier/', '/contact/', '/comparer/',
+  // Funnel tools (free lead-magnets) — prerendered, localized × 6 languages.
+  // Previously absent from the sitemap: the whole tool funnel was uncrawlable.
+  '/estimation/', '/budget/', '/trouver-mon-bien/', '/securite-fonciere/',
+  '/rentabilite/', '/frais-acquisition/',
+];
 /**
  * Legal pages — French canonical only. Astro's i18n fallback serves the same
  * FR markup at /en/* and /wo/*, but those alias URLs carry a canonical to
