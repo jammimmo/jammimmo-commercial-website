@@ -1,0 +1,31 @@
+---
+/**
+ * Reusable FAQPage JSON-LD. Give it an ordered list of { q, a } pairs (plain
+ * text, the SAME text that is rendered visibly on the page — Google strips
+ * FAQ schema whose answers aren't on-page). Emits a schema.org FAQPage.
+ *
+ * FAQPage is one of the highest-ROI levers for both classic rich results and
+ * GENERATIVE-ENGINE citation (ChatGPT / Perplexity / Google AI Overviews quote
+ * clean Q&A). Pair it with a visible <FaqSection> rendering the same items.
+ */
+interface QA {
+  q: string;
+  a: string;
+}
+interface Props {
+  items: QA[];
+}
+const { items } = Astro.props;
+
+const faq = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items.map((it) => ({
+    '@type': 'Question',
+    name: it.q,
+    acceptedAnswer: { '@type': 'Answer', text: it.a },
+  })),
+};
+---
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(faq)}></script>

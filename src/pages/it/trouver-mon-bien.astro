@@ -11,6 +11,8 @@
  * langue depuis le préfixe d'URL.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import ToolSeoSection from '@/components/seo/ToolSeoSection.astro';
+import JsonLdBreadcrumb from '@/components/seo/JsonLdBreadcrumb.astro';
 import MatchTool from '@/components/match/MatchTool.tsx';
 import Ornament from '@/components/decor/Ornament.astro';
 import { listPublicProperties } from '@/lib/supabase.build';
@@ -64,4 +66,7 @@ const hrefByRef = Object.fromEntries(
       <MatchTool client:load lang={lang} properties={properties} hrefByRef={hrefByRef} />
     </div>
   </section>
+
+  <JsonLdBreadcrumb slot="head" lang={lang} items={[{ name: t('breadcrumb.home', lang), path: '/' }, { name: t('nav.match', lang), path: '/trouver-mon-bien' }]} />
+  <ToolSeoSection lang={lang} slug="trouver-mon-bien" />
 </BaseLayout>

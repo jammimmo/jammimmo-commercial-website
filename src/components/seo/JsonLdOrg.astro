@@ -24,7 +24,10 @@ interface Props {
 const { lang, includeWebsite = false } = Astro.props;
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com';
-const inLanguage = lang === 'fr' ? 'fr-SN' : lang === 'en' ? 'en-US' : 'wo-SN';
+// BCP-47 tags for all 6 site languages (es/it/ar previously fell through to
+// 'wo-SN', mislabelling those homepages as Wolof to Google + AI engines).
+const LD_LANG = { fr: 'fr-SN', en: 'en-US', wo: 'wo-SN', es: 'es-ES', it: 'it-IT', ar: 'ar-SN' } as const;
+const inLanguage = LD_LANG[lang] ?? 'fr-SN';
 
 const graph = {
   '@context': 'https://schema.org',
@@ -40,7 +43,7 @@ const graph = {
       email: SITE.email,
       priceRange: '$$',
       currenciesAccepted: 'XOF',
-      knowsLanguage: ['fr', 'en', 'wo'],
+      knowsLanguage: ['fr', 'en', 'wo', 'es', 'it', 'ar'],
       areaServed: [
         { '@type': 'Country', name: 'Sénégal' },
         { '@type': 'City', name: 'Dakar' },
@@ -76,7 +79,7 @@ const graph = {
           contactType: 'customer service',
           telephone: SITE.phoneE164,
           email: SITE.email,
-          availableLanguage: ['French', 'English', 'Wolof'],
+          availableLanguage: ['French', 'English', 'Wolof', 'Spanish', 'Italian', 'Arabic'],
           areaServed: 'SN',
         },
       ],

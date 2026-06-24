@@ -11,6 +11,8 @@
  * dérive la langue depuis le préfixe d'URL.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import ToolSeoSection from '@/components/seo/ToolSeoSection.astro';
+import JsonLdBreadcrumb from '@/components/seo/JsonLdBreadcrumb.astro';
 import FraisAcquisitionTool from '@/components/frais/FraisAcquisitionTool.tsx';
 import Ornament from '@/components/decor/Ornament.astro';
 import { getLang, t } from '@/lib/i18n';
@@ -56,4 +58,7 @@ const lang = getLang(Astro.url);
       <FraisAcquisitionTool client:load lang={lang} />
     </div>
   </section>
+
+  <JsonLdBreadcrumb slot="head" lang={lang} items={[{ name: t('breadcrumb.home', lang), path: '/' }, { name: t('nav.frais', lang), path: '/frais-acquisition' }]} />
+  <ToolSeoSection lang={lang} slug="frais-acquisition" />
 </BaseLayout>

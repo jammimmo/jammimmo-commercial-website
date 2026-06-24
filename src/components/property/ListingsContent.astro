@@ -13,6 +13,29 @@ const cities = [...new Set(properties.map((p) => p.city).filter(Boolean))].sort(
 const hrefByRef = Object.fromEntries(
   properties.map((p) => [p.reference, localizedPath(`/biens/${p.reference.toLowerCase()}`, lang)]),
 );
+
+// CollectionPage + ItemList JSON-LD for the catalogue (mirrors the proven
+// QuartierContent pattern) so the listings page is structured data, not just a
+// React island — crawlable by classic search AND AI answer engines.
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com';
+const listingsLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: t('page.listings.title', lang),
+  url: `${siteUrl}${localizedPath('/biens', lang)}/`,
+  ...(properties.length > 0 && {
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: properties.length,
+      itemListElement: properties.map((p, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `${siteUrl}${hrefByRef[p.reference]}`,
+        name: p.title,
+      })),
+    },
+  }),
+};
 ---
 
 <section class="bg-card border-b border-clay py-10 sm:py-14">
@@ -69,3 +92,5 @@ const hrefByRef = Object.fromEntries(
 </noscript>
 
 <CompareBar client:idle lang={lang} />
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(listingsLd)}></script>

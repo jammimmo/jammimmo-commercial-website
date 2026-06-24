@@ -1,5 +1,5 @@
 ---
-import { buildHreflangLinks, type Lang } from '@/lib/i18n';
+import { buildHreflangLinks, LANGS, type Lang } from '@/lib/i18n';
 
 interface Props {
   lang: Lang;
@@ -9,6 +9,8 @@ interface Props {
   imageAlt?: string;
   type?: 'website' | 'article';
   canonical?: string;
+  /** Emit `noindex, follow` instead of indexable robots (404, dead-end pages). */
+  noindex?: boolean;
 }
 
 const {
@@ -19,7 +21,14 @@ const {
   imageAlt = 'Jamm Immobilier',
   type = 'website',
   canonical,
+  noindex = false,
 } = Astro.props;
+
+/** Open Graph locales for all 6 languages. NB: og:locale follows Facebook's
+ *  own supported-locale list (NOT strict ISO-3166) — `ar_AR` is Facebook's
+ *  generic Arabic and is the recognized value (locked by the multilang-rtl
+ *  e2e). JSON-LD `inLanguage` separately uses BCP-47 `ar-SN`. */
+const OG_LOCALE = { fr: 'fr_SN', en: 'en_US', wo: 'wo_SN', es: 'es_ES', it: 'it_IT', ar: 'ar_AR' } as const;
 
 const siteOrigin = Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com';
 
@@ -57,7 +66,8 @@ const hreflangs = buildHreflangLinks(Astro.url.pathname, siteOrigin).map((h) => 
 <meta property="og:image:alt" content={imageAlt} />
 <meta property="og:url" content={fullCanonical} />
 <meta property="og:site_name" content="Jamm Immobilier" />
-<meta property="og:locale" content={({ fr: 'fr_SN', en: 'en_US', wo: 'wo_SN', es: 'es_ES', it: 'it_IT', ar: 'ar_AR' } as const)[lang] ?? 'fr_SN'} />
+<meta property="og:locale" content={OG_LOCALE[lang] ?? 'fr_SN'} />
+{LANGS.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={OG_LOCALE[l]} />)}
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />
@@ -66,5 +76,10 @@ const hreflangs = buildHreflangLinks(Astro.url.pathname, siteOrigin).map((h) => 
 <meta name="twitter:image:alt" content={imageAlt} />
 
 <meta name="theme-color" content="#2632A0" />
-<meta name="robots" content="index, follow" />
+<meta
+  name="robots"
+  content={noindex
+    ? 'noindex, follow'
+    : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'}
+/>
 <meta name="format-detection" content="telephone=no" />

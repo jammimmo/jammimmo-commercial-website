@@ -1,0 +1,38 @@
+---
+/**
+ * Reusable BreadcrumbList JSON-LD. Give it an ordered list of crumbs
+ * ({ name, path }) and the active lang; it localizes each path and emits a
+ * schema.org BreadcrumbList so Google can render the breadcrumb trail in the
+ * SERP and AI engines understand the page's place in the site hierarchy.
+ *
+ * Property + quartier pages already emit their own breadcrumb inline; this
+ * component covers the rest (tools, /immobilier, /contact, owner/partner).
+ */
+import { localizedPath, type Lang } from '@/lib/i18n';
+
+interface Crumb {
+  name: string;
+  /** Unlocalized path (e.g. '/biens'); localized + trailing-slashed here. */
+  path: string;
+}
+interface Props {
+  lang: Lang;
+  items: Crumb[];
+}
+const { lang, items } = Astro.props;
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com';
+const withSlash = (u: string) => (u.endsWith('/') ? u : `${u}/`);
+
+const breadcrumb = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: c.name,
+    item: withSlash(`${siteUrl}${localizedPath(c.path, lang)}`),
+  })),
+};
+---
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumb)}></script>

@@ -1,16 +1,15 @@
-# Jamm Immobilier vitrine — last reviewed 2026-05-29
+# Jamm Immobilier vitrine — last reviewed 2026-06-24
 User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /comparer
-Disallow: /en/comparer
-Disallow: /wo/comparer
+Disallow: /*/comparer
 Disallow: /favoris
-Disallow: /en/favoris
-Disallow: /wo/favoris
+Disallow: /*/favoris
 
 # /comparer and /favoris are per-user (localStorage state). No SEO value,
-# saves crawl budget.
+# saves crawl budget. The `/*/` wildcard covers every locale prefix
+# (en/wo/es/it/ar) so the localized dead-ends don't leak into the crawl.
 
 # --- AI answer engines (GEO) ---------------------------------------------
 # Explicitly welcome the major generative / AI-search crawlers so the agency
