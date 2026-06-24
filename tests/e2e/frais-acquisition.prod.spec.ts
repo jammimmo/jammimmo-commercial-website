@@ -38,9 +38,11 @@ test.describe('Feature en prod — outil /frais-acquisition (coût total d\'acha
 
     // Budget total = prix + frais (chiffre unique même en sous-chaîne).
     await expect(page.getByText('109 546 500 FCFA')).toBeVisible();
-    // Le détail itémisé est présent (chaque ligne avec son intitulé).
-    await expect(page.getByText('Droits d\'enregistrement')).toBeVisible();
-    await expect(page.getByText('Honoraires du notaire')).toBeVisible();
+    // Le détail itémisé est présent. `exact` cible le libellé feuille : sans lui,
+    // getByText matche aussi les conteneurs parents (libellé + note + montant),
+    // ce qui viole le strict-mode (3 éléments).
+    await expect(page.getByText('Droits d\'enregistrement', { exact: true })).toBeVisible();
+    await expect(page.getByText('Honoraires du notaire', { exact: true })).toBeVisible();
 
     // Pic d'intention → capture (un seul champ WhatsApp), SANS soumettre.
     await page.getByRole('button', { name: 'Être accompagné' }).click();
