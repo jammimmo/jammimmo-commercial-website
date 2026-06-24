@@ -24,9 +24,11 @@ const {
   noindex = false,
 } = Astro.props;
 
-/** Open Graph locales for all 6 languages. `ar_SN` (not `ar_AR` — AR is not a
- *  valid ISO-3166 region, so scrapers silently drop it). */
-const OG_LOCALE = { fr: 'fr_SN', en: 'en_US', wo: 'wo_SN', es: 'es_ES', it: 'it_IT', ar: 'ar_SN' } as const;
+/** Open Graph locales for all 6 languages. NB: og:locale follows Facebook's
+ *  own supported-locale list (NOT strict ISO-3166) — `ar_AR` is Facebook's
+ *  generic Arabic and is the recognized value (locked by the multilang-rtl
+ *  e2e). JSON-LD `inLanguage` separately uses BCP-47 `ar-SN`. */
+const OG_LOCALE = { fr: 'fr_SN', en: 'en_US', wo: 'wo_SN', es: 'es_ES', it: 'it_IT', ar: 'ar_AR' } as const;
 
 const siteOrigin = Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com';
 
