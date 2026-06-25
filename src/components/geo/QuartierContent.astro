@@ -1,7 +1,7 @@
 ---
 import type { PublicProperty } from '@/types/property';
 import type { Quartier } from '@/lib/quartiers';
-import { QUARTIERS } from '@/lib/quartiers';
+import { QUARTIERS, pickL10n } from '@/lib/quartiers';
 import PropertyCard from '@/components/property/PropertyCard.astro';
 import PropertyMap from '@/components/property/PropertyMap.tsx';
 import { t, type Lang, localizedPath } from '@/lib/i18n';
@@ -19,13 +19,13 @@ const { quartier: q, properties, lang, canonical } = Astro.props;
 const tpl = (key: string, vars: Record<string, string>) =>
   Object.entries(vars).reduce((s, [k, v]) => s.replaceAll(`{${k}}`, v), t(key, lang));
 
-const blurb = q.intro[lang === 'en' ? 'en' : 'fr'];
-const highlights = q.highlights[lang === 'en' ? 'en' : 'fr'];
+const blurb = pickL10n(q.intro, lang);
+const highlights = pickL10n(q.highlights, lang);
 const p = (path: string) => localizedPath(path, lang);
 
 // Quartier-specific FAQ + a generic trust FAQ → FAQPage schema.
 const faqs = [
-  { q: q.faq.q[lang === 'en' ? 'en' : 'fr'], a: q.faq.a[lang === 'en' ? 'en' : 'fr'] },
+  { q: pickL10n(q.faq.q, lang), a: pickL10n(q.faq.a, lang) },
   { q: t('geo.faq.generic.q', lang), a: t('geo.faq.generic.a', lang) },
 ];
 

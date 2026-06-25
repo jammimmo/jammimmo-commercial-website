@@ -1,0 +1,602 @@
+{
+  "sacre-coeur": {
+    "es": {
+      "intro": "Barrio céntrico y residencial de Dakar, Sacré-Cœur combina edificios modernos, comercios de proximidad y un acceso rápido a la VDN y al Plateau. Es uno de los sectores más buscados tanto para el alquiler de apartamentos familiares como para la inversión en alquiler. La sede de Jamm Immobilier se encuentra aquí, en Sacré-Cœur 3.",
+      "highlights": [
+        "Céntrico y bien comunicado",
+        "Apartamentos familiares",
+        "Comercios de proximidad",
+        "Fuerte demanda de alquiler"
+      ],
+      "meta": "Apartamentos, oficinas y locales comerciales en venta o alquiler en Sacré-Cœur, Dakar. Anuncios verificados por Jamm Immobilier.",
+      "faqQ": "¿Por qué invertir en Sacré-Cœur?",
+      "faqA": "Su centralidad, la fuerte demanda de alquiler y la proximidad a los grandes ejes (VDN, Plateau) hacen de él un barrio donde los inmuebles se alquilan rápido y conservan bien su valor."
+    },
+    "it": {
+      "intro": "Quartiere centrale e residenziale di Dakar, Sacré-Cœur unisce palazzi moderni, negozi di prossimità e un accesso rapido alla VDN e al Plateau. È una delle zone più ricercate sia per l'affitto di appartamenti familiari sia per l'investimento a reddito. La sede di Jamm Immobilier si trova qui, a Sacré-Cœur 3.",
+      "highlights": [
+        "Centrale e ben collegato",
+        "Appartamenti familiari",
+        "Negozi di prossimità",
+        "Forte potenziale locativo"
+      ],
+      "meta": "Appartamenti, uffici e negozi in vendita o in affitto a Sacré-Cœur, Dakar. Annunci verificati da Jamm Immobilier.",
+      "faqQ": "Perché investire a Sacré-Cœur?",
+      "faqA": "La sua centralità, la domanda locativa costante e la vicinanza ai grandi assi (VDN, Plateau) ne fanno un quartiere dove gli immobili si affittano in fretta e mantengono bene il loro valore."
+    },
+    "ar": {
+      "intro": "حيٌّ مركزي وسكني في داكار، يجمع Sacré-Cœur بين العمارات الحديثة والمتاجر القريبة والوصول السريع إلى طريق VDN ووسط بلاتو. وهو من أكثر المناطق طلباً لإيجار الشقق العائلية وللاستثمار التأجيري على حدٍّ سواء. ومقرّ Jamm Immobilier يقع هنا، في Sacré-Cœur 3.",
+      "highlights": [
+        "مركزي وحسن الربط",
+        "شقق عائلية",
+        "متاجر قريبة",
+        "طلب تأجيري قوي"
+      ],
+      "meta": "شقق ومكاتب ومحلات تجارية للبيع أو الإيجار في Sacré-Cœur، داكار. إعلانات تحقق منها Jamm Immobilier.",
+      "faqQ": "لماذا الاستثمار في Sacré-Cœur؟",
+      "faqA": "موقعه المركزي والطلب التأجيري المستمر وقربه من المحاور الكبرى (VDN وبلاتو) تجعل منه حيّاً تُؤجَّر فيه العقارات بسرعة وتحافظ على قيمتها جيداً."
+    },
+    "wo": {
+      "intro": "Sacré-Cœur benn gox bu nekk ci diggu Dakar la, te gox bu nit ñi dëkk ci. Dafa boole immeuble yu bees, butik yu nekk ci wet gi ak yoon wu gaaw ci VDN ak Plateau. Mooy benn ci gox yi gën a soxla ngir luwe appartement yu njaboot ak ngir investissement locatif. Siège bu Jamm Immobilier mungi fi, ci Sacré-Cœur 3.",
+      "highlights": [
+        "Ci diggu te yoon yu baax",
+        "Appartement yu njaboot",
+        "Butik yu jege",
+        "Soxla luwe bu réy"
+      ],
+      "meta": "Appartement, biro ak butik yu jaay walla yu luwaa ci Sacré-Cœur, Dakar. Annonces yu Jamm Immobilier saytu.",
+      "faqQ": "Lu tax nga war a investir ci Sacré-Cœur?",
+      "faqA": "Ndax mungi ci diggu bi, soxla luwe bi dafa sax, te mu jege yoon yu mag yi (VDN, Plateau) — loolu moo tax kër yi gaaw lañuy luwaa te ñu denc seen njëg bu baax."
+    }
+  },
+  "almadies": {
+    "es": {
+      "intro": "Punta más occidental de Dakar y de África continental, las Almadies son el barrio de alta gama por excelencia: villas con piscina, residencias cerradas, restaurantes frente al mar y proximidad al aeropuerto histórico. Una dirección codiciada por las familias acomodadas y la diáspora.",
+      "highlights": [
+        "Alta gama",
+        "Villas con piscina",
+        "Frente al mar",
+        "Residencias cerradas"
+      ],
+      "meta": "Villas, apartamentos de lujo y residencias cerradas en las Almadies, Dakar. Anuncios verificados por Jamm Immobilier.",
+      "faqQ": "¿Qué tipo de inmuebles hay en las Almadies?",
+      "faqA": "Principalmente villas con piscina, apartamentos de lujo y residencias cerradas. Es el segmento premium del mercado de Dakar, con acabados y equipamientos de alta gama."
+    },
+    "it": {
+      "intro": "Punta più occidentale di Dakar e dell'Africa continentale, le Almadies sono il quartiere di pregio per eccellenza: ville con piscina, residenze sicure, ristoranti sul mare e vicinanza al vecchio aeroporto. Un indirizzo amato dalle famiglie benestanti e dalla diaspora.",
+      "highlights": [
+        "Di pregio",
+        "Ville con piscina",
+        "Sul mare",
+        "Residenze sicure"
+      ],
+      "meta": "Ville, appartamenti di pregio e residenze sicure alle Almadies, Dakar. Annunci verificati da Jamm Immobilier.",
+      "faqQ": "Che tipo di immobili si trovano alle Almadies?",
+      "faqA": "Principalmente ville con piscina, appartamenti di pregio e residenze sicure. È il segmento premium del mercato di Dakar, con finiture e servizi di alto livello."
+    },
+    "ar": {
+      "intro": "في أقصى غرب داكار وأفريقيا القارية، يُعدّ حي Almadies الحيَّ الراقي بامتياز: فيلات بمسابح وإقامات مؤمّنة ومطاعم على ضفاف البحر وقرب من المطار التاريخي. عنوان مرغوب لدى الأسر الميسورة وأبناء المغتربين.",
+      "highlights": [
+        "راقٍ",
+        "فيلات بمسابح",
+        "على ضفاف البحر",
+        "إقامات مؤمّنة"
+      ],
+      "meta": "فيلات وشقق فاخرة وإقامات مؤمّنة في Almadies، داكار. إعلانات تحقق منها Jamm Immobilier.",
+      "faqQ": "ما نوع العقارات المتوفرة في Almadies؟",
+      "faqA": "بصفة أساسية فيلات بمسابح وشقق فاخرة وإقامات مؤمّنة. إنه الشريحة الراقية من سوق داكار، بتجهيزات وخدمات راقية."
+    },
+    "wo": {
+      "intro": "Almadies mooy catu Dakar bu jëm sowwu, te it catu Afrik bu suuf. Mooy gox bi gën a haut de gamme: villa yu am piscine, résidence yu ñu wóoral, restaurant yu nekk ci tefes gi ak jegeñaale aéroport bu yàgg bi. Benn adresse bu njaboot yu am alal ak diaspora yi bëgg.",
+      "highlights": [
+        "Haut de gamme",
+        "Villa yu am piscine",
+        "Ci tefes gi",
+        "Résidence yu wóor"
+      ],
+      "meta": "Villa, appartement yu standing ak résidence yu wóor ci Almadies, Dakar. Annonces yu Jamm Immobilier saytu.",
+      "faqQ": "Ban xeeti kër ngay gis ci Almadies?",
+      "faqA": "Lu ëpp mooy villa yu am piscine, appartement yu standing ak résidence yu wóor. Mooy wàll bu gën a kawe ci marché bu Dakar, ak finition ak équipement yu haut de gamme."
+    }
+  },
+  "ngor": {
+    "es": {
+      "intro": "Entre pueblo de pescadores auténtico y residencias contemporáneas, Ngor ofrece un entorno costero único frente a la isla del mismo nombre. El barrio resulta atractivo para segundas residencias, alquileres de corta duración y villas con vistas al mar.",
+      "highlights": [
+        "Vistas al mar",
+        "Entorno costero",
+        "Segundas residencias",
+        "Alquiler de corta duración"
+      ],
+      "meta": "Villas con vistas al mar, apartamentos y segundas residencias en Ngor, Dakar. Anuncios verificados por Jamm Immobilier.",
+      "faqQ": "¿Es Ngor adecuado para una segunda residencia?",
+      "faqA": "Sin duda: el entorno costero y la cercanía de la playa y de la isla de Ngor lo convierten en una opción muy apreciada para una segunda residencia o un inmueble de alquiler de corta duración."
+    },
+    "it": {
+      "intro": "Tra autentico villaggio di pescatori e residenze contemporanee, Ngor offre una cornice balneare unica di fronte all'isola omonima. Il quartiere attrae per le seconde case, gli affitti brevi e le ville con vista mare.",
+      "highlights": [
+        "Vista mare",
+        "Cornice balneare",
+        "Seconde case",
+        "Affitti brevi"
+      ],
+      "meta": "Ville con vista mare, appartamenti e seconde case a Ngor, Dakar. Annunci verificati da Jamm Immobilier.",
+      "faqQ": "Ngor è adatto per una seconda casa?",
+      "faqA": "Assolutamente: la cornice balneare e la vicinanza alla spiaggia e all'isola di Ngor ne fanno una scelta amata per una seconda casa o un immobile da affitto breve."
+    },
+    "ar": {
+      "intro": "بين قرية صيد أصيلة وإقامات معاصرة، يقدّم Ngor إطار حياة شاطئياً فريداً يطل على الجزيرة التي تحمل الاسم نفسه. يستهوي الحيُّ من يبحثون عن إقامات ثانوية وإيجارات قصيرة الأمد وفيلات بإطلالة على البحر.",
+      "highlights": [
+        "إطلالة على البحر",
+        "إطار شاطئي",
+        "إقامات ثانوية",
+        "إيجار قصير الأمد"
+      ],
+      "meta": "فيلات بإطلالة بحرية وشقق وإقامات ثانوية في Ngor، داكار. إعلانات تحقق منها Jamm Immobilier.",
+      "faqQ": "هل يصلح Ngor لإقامة ثانوية؟",
+      "faqA": "بالتأكيد: الإطار الشاطئي وقرب الشاطئ وجزيرة Ngor تجعل منه خياراً مرغوباً لإقامة ثانوية أو عقار للإيجار القصير الأمد."
+    },
+    "wo": {
+      "intro": "Diggante dëkku nappkat bu dëggu ak résidence yu bees, Ngor dafa am benn cadre bu balnéaire bu wuute, mu jakkaarlook duun bi ñu turaale niki moom. Gox bi dafay neex ngir résidence secondaire, location courte durée ak villa yu gis géej.",
+      "highlights": [
+        "Gis géej",
+        "Cadre balnéaire",
+        "Résidence secondaire",
+        "Location courte durée"
+      ],
+      "meta": "Villa yu gis géej, appartement ak résidence secondaire ci Ngor, Dakar. Annonces yu Jamm Immobilier saytu.",
+      "faqQ": "Ndax Ngor baax na ngir benn résidence secondaire?",
+      "faqA": "Waaw lool: cadre balnéaire bi, jegeñaale tefes gi ak duun bu Ngor moo tax mu nekk benn tànneef bu neex ngir résidence secondaire walla benn kër bu location courte durée."
+    }
+  },
+  "mermoz": {
+    "es": {
+      "intro": "Mermoz es un barrio residencial céntrico, apreciado por su relativa tranquilidad, su proximidad a la Universidad Cheikh Anta Diop y su acceso directo a la Corniche Oeste. Ideal para apartamentos familiares y oficinas.",
+      "highlights": [
+        "Residencial y tranquilo",
+        "Cerca de la Corniche",
+        "Cerca de la universidad",
+        "Apartamentos y oficinas"
+      ],
+      "meta": "Apartamentos y oficinas en venta o alquiler en Mermoz, Dakar. Anuncios verificados por Jamm Immobilier.",
+      "faqQ": "¿Está Mermoz bien comunicado?",
+      "faqA": "Sí: el barrio da acceso a la Corniche Oeste y a la VDN, y se mantiene cerca tanto del Plateau como de las Almadies, lo que lo convierte en un punto de anclaje céntrico en Dakar."
+    },
+    "it": {
+      "intro": "Mermoz è un quartiere residenziale centrale, apprezzato per la sua relativa tranquillità, la vicinanza all'Università Cheikh Anta Diop e l'accesso diretto alla Corniche Ouest. Ideale per appartamenti familiari e uffici.",
+      "highlights": [
+        "Residenziale e tranquillo",
+        "Vicino alla Corniche",
+        "Vicino all'università",
+        "Appartamenti e uffici"
+      ],
+      "meta": "Appartamenti e uffici in vendita o in affitto a Mermoz, Dakar. Annunci verificati da Jamm Immobilier.",
+      "faqQ": "Mermoz è ben collegato?",
+      "faqA": "Sì: il quartiere dà accesso alla Corniche Ouest e alla VDN, e resta vicino sia al Plateau sia alle Almadies, il che ne fa un punto di riferimento centrale a Dakar."
+    },
+    "ar": {
+      "intro": "Mermoz حيٌّ سكني مركزي، يُقدَّر لهدوئه النسبي وقربه من جامعة Cheikh Anta Diop ووصوله المباشر إلى Corniche الغربية. مثالي للشقق العائلية والمكاتب.",
+      "highlights": [
+        "سكني وهادئ",
+        "قرب Corniche",
+        "قرب الجامعة",
+        "شقق ومكاتب"
+      ],
+      "meta": "شقق ومكاتب للبيع أو الإيجار في Mermoz، داكار. إعلانات تحقق منها Jamm Immobilier.",
+      "faqQ": "هل Mermoz حسن الربط؟",
+      "faqA": "نعم: يتيح الحيُّ الوصول إلى Corniche الغربية وطريق VDN، ويبقى قريباً من بلاتو وAlmadies، ما يجعله نقطة ارتكاز مركزية في داكار."
+    },
+    "wo": {
+      "intro": "Mermoz benn gox bu nekk ci diggu Dakar la, gox bu nit ñi dëkk ci, ñu koy bëgg ndax dafa dal, mu jege Université Cheikh Anta Diop te am yoon wu gaaw ci Corniche Ouest. Baax na lool ngir appartement yu njaboot ak biro.",
+      "highlights": [
+        "Dëkkuwaay bu dal",
+        "Jege Corniche",
+        "Jege université",
+        "Appartement ak biro"
+      ],
+      "meta": "Appartement ak biro yu jaay walla yu luwaa ci Mermoz, Dakar. Annonces yu Jamm Immobilier saytu.",
+      "faqQ": "Ndax Mermoz am na yoon yu baax?",
+      "faqA": "Waaw: gox bi dafa am yoon wu gaaw ci Corniche Ouest ak VDN, te mu des jege Plateau ak Almadies — loolu moo ko def benn point bu nekk ci diggu Dakar."
+    }
+  },
+  "point-e": {
+    "es": {
+      "intro": "Barrio residencial arbolado y muy valorado, el Point E acoge numerosas sedes, despachos y embajadas. Sus calles tranquilas y sus edificios de calidad lo convierten en una apuesta segura tanto para oficinas como para apartamentos de calidad.",
+      "highlights": [
+        "Residencial arbolado",
+        "Barrio de oficinas",
+        "Edificios de calidad",
+        "Apuesta segura"
+      ],
+      "meta": "Apartamentos de calidad y oficinas en venta o alquiler en el Point E, Dakar. Anuncios verificados por Jamm Immobilier.",
+      "faqQ": "¿Es el Point E adecuado para oficinas?",
+      "faqA": "Es uno de los barrios de oficinas más consolidados de Dakar, con numerosos despachos, sedes y embajadas, en un entorno tranquilo y céntrico."
+    },
+    "it": {
+      "intro": "Quartiere residenziale alberato e ricercato, il Point E ospita numerose sedi, studi professionali e ambasciate. Le sue strade tranquille e i suoi palazzi di pregio ne fanno un valore sicuro sia per gli uffici sia per gli appartamenti di qualità.",
+      "highlights": [
+        "Residenziale alberato",
+        "Quartiere di uffici",
+        "Palazzi di pregio",
+        "Valore sicuro"
+      ],
+      "meta": "Appartamenti di pregio e uffici in vendita o in affitto al Point E, Dakar. Annunci verificati da Jamm Immobilier.",
+      "faqQ": "Il Point E è adatto per gli uffici?",
+      "faqA": "È uno dei quartieri di uffici più affermati di Dakar, con numerosi studi, sedi e ambasciate, in un contesto tranquillo e centrale."
+    },
+    "ar": {
+      "intro": "حيٌّ سكني مشجّر ومرغوب، يحتضن Point E العديد من المقرّات والمكاتب والسفارات. شوارعه الهادئة وعماراته الفاخرة تجعل منه قيمة آمنة للمكاتب والشقق عالية الجودة على حدٍّ سواء.",
+      "highlights": [
+        "سكني مشجّر",
+        "حيُّ مكاتب",
+        "عمارات فاخرة",
+        "قيمة آمنة"
+      ],
+      "meta": "شقق فاخرة ومكاتب للبيع أو الإيجار في Point E، داكار. إعلانات تحقق منها Jamm Immobilier.",
+      "faqQ": "هل يصلح Point E للمكاتب؟",
+      "faqA": "إنه من أعرق أحياء المكاتب في داكار، ويضم العديد من المكاتب والمقرّات والسفارات، في بيئة هادئة ومركزية."
+    },
+    "wo": {
+      "intro": "Point E benn gox bu am garab bu ñu bëgg la, te gox bu nit ñi dëkk ci. Dafa am bari siège, cabinet ak ambassade. Mbedd yu dal yi ak immeuble yu standing yi moo ko def benn valeur bu wóor, ngir biro ak appartement yu rafet.",
+      "highlights": [
+        "Gox bu am garab",
+        "Gox biro",
+        "Immeuble yu standing",
+        "Valeur bu wóor"
+      ],
+      "meta": "Appartement yu standing ak biro yu jaay walla yu luwaa ci Point E, Dakar. Annonces yu Jamm Immobilier saytu.",
+      "faqQ": "Ndax Point E baax na ngir biro?",
+      "faqA": "Mooy benn ci gox yi gën a am biro yu yàgg ci Dakar, ak bari cabinet, siège ak ambassade, ci benn cadre bu dal te nekk ci diggu bi."
+    }
+  },
+  "fann": {
+    "es": {
+      "intro": "Fann Résidence es uno de los barrios más prestigiosos de Dakar: fachada sobre la Corniche, villas y residencias de lujo, proximidad a las embajadas, al hospital de Fann y a la universidad. Una dirección de prestigio, muy solicitada.",
+      "highlights": [
+        "Prestigio",
+        "Fachada sobre la Corniche",
+        "Cerca de embajadas",
+        "Villas y residencias"
+      ],
+      "meta": "Villas y apartamentos de prestigio en venta o alquiler en Fann, Dakar. Anuncios verificados por Jamm Immobilier.",
+      "faqQ": "¿Es Fann un barrio de alta gama?",
+      "faqA": "Sí, Fann Résidence figura entre las direcciones más prestigiosas de Dakar, con sus villas frente a la Corniche y su proximidad al barrio diplomático."
+    },
+    "it": {
+      "intro": "Fann Résidence è uno dei quartieri più prestigiosi di Dakar: affaccio sulla Corniche, ville e residenze di pregio, vicinanza alle ambasciate, all'ospedale di Fann e all'università. Un indirizzo di prestigio, molto ricercato.",
+      "highlights": [
+        "Prestigio",
+        "Affaccio sulla Corniche",
+        "Vicino alle ambasciate",
+        "Ville e residenze"
+      ],
+      "meta": "Ville e appartamenti di prestigio in vendita o in affitto a Fann, Dakar. Annunci verificati da Jamm Immobilier.",
+      "faqQ": "Fann è un quartiere di pregio?",
+      "faqA": "Sì, Fann Résidence è tra gli indirizzi più prestigiosi di Dakar, con le sue ville affacciate sulla Corniche e la vicinanza al quartiere diplomatico."
+    },
+    "ar": {
+      "intro": "Fann Résidence من أرقى أحياء داكار: واجهة على Corniche وفيلات وإقامات فاخرة وقرب من السفارات ومستشفى Fann والجامعة. عنوان مرموق ومطلوب بشدة.",
+      "highlights": [
+        "مرموق",
+        "واجهة على Corniche",
+        "قرب السفارات",
+        "فيلات وإقامات"
+      ],
+      "meta": "فيلات وشقق مرموقة للبيع أو الإيجار في Fann، داكار. إعلانات تحقق منها Jamm Immobilier.",
+      "faqQ": "هل Fann حيٌّ راقٍ؟",
+      "faqA": "نعم، يُعدّ Fann Résidence من أرقى عناوين داكار، بفيلاته المطلّة على Corniche وقربه من الحي الدبلوماسي."
+    },
+    "wo": {
+      "intro": "Fann Résidence mooy benn ci gox yi gën a am prestige ci Dakar: ci kanamu Corniche, villa ak résidence yu standing, jegeñaale ambassade yi, hôpital bu Fann ak université bi. Benn adresse bu prestige, ñu koy bëgg lool.",
+      "highlights": [
+        "Prestige",
+        "Ci kanamu Corniche",
+        "Jege ambassade",
+        "Villa ak résidence"
+      ],
+      "meta": "Villa ak appartement yu prestige yu jaay walla yu luwaa ci Fann, Dakar. Annonces yu Jamm Immobilier saytu.",
+      "faqQ": "Ndax Fann benn gox bu haut de gamme la?",
+      "faqA": "Waaw, Fann Résidence mungi ci adresse yi gën a am prestige ci Dakar, ak villa yi nekk ci kanamu Corniche ak jegeñaale gox bu diplomatique bi."
+    }
+  },
+  "plateau": {
+    "es": {
+      "intro": "Corazón histórico y administrativo de Dakar, el Plateau concentra la mayor parte de las oficinas, bancos, ministerios y comercios del centro de la ciudad. Es el barrio de referencia para los locales comerciales, las oficinas y los edificios de renta.",
+      "highlights": [
+        "Centro de la ciudad",
+        "Distrito de negocios",
+        "Oficinas y comercios",
+        "Edificios de renta"
+      ],
+      "meta": "Oficinas, locales comerciales y edificios en venta o alquiler en el Plateau, centro de Dakar. Anuncios verificados por Jamm Immobilier.",
+      "faqQ": "¿Qué tipo de inmuebles se buscan en el Plateau?",
+      "faqA": "Principalmente oficinas, locales comerciales y edificios de renta, ya que el Plateau es el centro administrativo y de negocios de Dakar."
+    },
+    "it": {
+      "intro": "Cuore storico e amministrativo di Dakar, il Plateau concentra la maggior parte degli uffici, delle banche, dei ministeri e dei negozi del centro città. È il quartiere di riferimento per locali commerciali, uffici e immobili a reddito.",
+      "highlights": [
+        "Centro città",
+        "Quartiere degli affari",
+        "Uffici e negozi",
+        "Immobili a reddito"
+      ],
+      "meta": "Uffici, negozi e palazzi in vendita o in affitto al Plateau, centro di Dakar. Annunci verificati da Jamm Immobilier.",
+      "faqQ": "Che tipo di immobili si cercano al Plateau?",
+      "faqA": "Principalmente uffici, locali commerciali e immobili a reddito, dato che il Plateau è il centro amministrativo e degli affari di Dakar."
+    },
+    "ar": {
+      "intro": "القلب التاريخي والإداري لداكار، يجمع Plateau معظم مكاتب وسط المدينة وبنوكها ووزاراتها ومتاجرها. إنه الحيُّ المرجعي للمحلات التجارية والمكاتب والعمارات الاستثمارية.",
+      "highlights": [
+        "وسط المدينة",
+        "حيُّ الأعمال",
+        "مكاتب ومتاجر",
+        "عمارات استثمارية"
+      ],
+      "meta": "مكاتب ومحلات وعمارات للبيع أو الإيجار في Plateau، وسط داكار. إعلانات تحقق منها Jamm Immobilier.",
+      "faqQ": "ما نوع العقارات المطلوبة في Plateau؟",
+      "faqA": "بصفة أساسية مكاتب ومحلات تجارية وعمارات استثمارية، كون Plateau المركز الإداري والتجاري لداكار."
+    },
+    "wo": {
+      "intro": "Xolu Dakar bu yàgg te bu administratif, Plateau dafa boole li ëpp ci biro yi, banque yi, ministère yi ak butik yi ci centre-ville. Mooy gox bu njëkk ngir local commercial, biro ak immeuble de rapport.",
+      "highlights": [
+        "Centre-ville",
+        "Gox affaires yi",
+        "Biro ak butik",
+        "Immeuble de rapport"
+      ],
+      "meta": "Biro, butik ak immeuble yu jaay walla yu luwaa ci Plateau, diggu Dakar. Annonces yu Jamm Immobilier saytu.",
+      "faqQ": "Ban xeeti kër ñuy wut ci Plateau?",
+      "faqA": "Lu ëpp mooy biro, local commercial ak immeuble de rapport, ndax Plateau mooy xolu administratif ak affaires bu Dakar."
+    }
+  },
+  "yoff": {
+    "es": {
+      "intro": "Barrio costero en plena expansión al norte de Dakar, Yoff combina las tradiciones lébou, una larga playa y nuevas promociones residenciales. Su proximidad al aeropuerto histórico y a la VDN lo convierten en un sector dinámico para la vivienda y la inversión.",
+      "highlights": [
+        "Frente al mar",
+        "En plena expansión",
+        "Promociones nuevas",
+        "Cerca de la VDN"
+      ],
+      "meta": "Apartamentos, villas y terrenos en venta o alquiler en Yoff, Dakar. Anuncios verificados por Jamm Immobilier.",
+      "faqQ": "¿Es Yoff un buen sector para invertir?",
+      "faqA": "Yoff vive un fuerte desarrollo residencial y disfruta de una ubicación costera cercana a la VDN, lo que sostiene la demanda y el potencial de revalorización."
+    },
+    "it": {
+      "intro": "Quartiere balneare in pieno sviluppo nel nord di Dakar, Yoff unisce tradizioni Lébou, una lunga spiaggia e nuovi progetti residenziali. La vicinanza al vecchio aeroporto e alla VDN ne fa una zona dinamica per l'abitare e l'investimento.",
+      "highlights": [
+        "Sul mare",
+        "In pieno sviluppo",
+        "Progetti nuovi",
+        "Vicino alla VDN"
+      ],
+      "meta": "Appartamenti, ville e terreni in vendita o in affitto a Yoff, Dakar. Annunci verificati da Jamm Immobilier.",
+      "faqQ": "Yoff è una buona zona in cui investire?",
+      "faqA": "Yoff sta vivendo un forte sviluppo residenziale e gode di una posizione balneare vicina alla VDN, fattori che sostengono la domanda e il potenziale di rivalutazione."
+    },
+    "ar": {
+      "intro": "حيٌّ شاطئي صاعد بقوة شمال داكار، يمزج Yoff بين تقاليد الليبو وشاطئ طويل وبرامج سكنية جديدة. قربه من المطار التاريخي وطريق VDN يجعله منطقة ديناميكية للسكن والاستثمار.",
+      "highlights": [
+        "على ضفاف البحر",
+        "صاعد بقوة",
+        "برامج جديدة",
+        "قرب VDN"
+      ],
+      "meta": "شقق وفيلات وأراضٍ للبيع أو الإيجار في Yoff، داكار. إعلانات تحقق منها Jamm Immobilier.",
+      "faqQ": "هل Yoff منطقة جيدة للاستثمار؟",
+      "faqA": "يشهد Yoff نمواً سكنياً قوياً ويتمتع بموقع شاطئي قرب طريق VDN، ما يدعم الطلب وإمكانات ارتفاع القيمة."
+    },
+    "wo": {
+      "intro": "Benn gox bu balnéaire buy yokku ci penku Dakar, Yoff dafa boole aada yu Lébou yi, tefes bu gudd ak programme yu bees yu dëkkuwaay. Jegeñaale aéroport bu yàgg bi ak VDN moo ko def benn gox bu am doole ngir dëkkuwaay ak investissement.",
+      "highlights": [
+        "Ci tefes gi",
+        "Buy yokku",
+        "Programme yu bees",
+        "Jege VDN"
+      ],
+      "meta": "Appartement, villa ak tool yu jaay walla yu luwaa ci Yoff, Dakar. Annonces yu Jamm Immobilier saytu.",
+      "faqQ": "Ndax Yoff baax na ngir investir?",
+      "faqA": "Yoff dafa am benn développement bu réy ci dëkkuwaay, te mungi ci tefes gi jege VDN — loolu moo tax soxla bi sax te njëg bi mën a yokku."
+    }
+  },
+  "grand-yoff": {
+    "es": {
+      "intro": "Grand Yoff es un barrio popular y densamente poblado, atravesado por la nueva línea de BRT y bordeado por la Route des Niayes. Muy comercial, ofrece oportunidades accesibles en apartamentos, comercios y locales de actividad.",
+      "highlights": [
+        "Popular y comercial",
+        "Sobre la línea BRT",
+        "Precios accesibles",
+        "Comercios y locales"
+      ],
+      "meta": "Apartamentos, comercios y locales de actividad en Grand Yoff, Dakar. Anuncios verificados por Jamm Immobilier.",
+      "faqQ": "¿Por qué elegir Grand Yoff?",
+      "faqA": "Por su dinamismo comercial, sus precios más accesibles que los de los barrios de lujo y su conexión con la nueva línea de BRT, que mejora notablemente la movilidad."
+    },
+    "it": {
+      "intro": "Grand Yoff è un quartiere popolare e densamente abitato, attraversato dalla nuova linea BRT e costeggiato dalla Route des Niayes. Molto commerciale, offre opportunità accessibili in appartamenti, negozi e locali per attività.",
+      "highlights": [
+        "Popolare e commerciale",
+        "Sulla linea BRT",
+        "Prezzi accessibili",
+        "Negozi e locali"
+      ],
+      "meta": "Appartamenti, negozi e locali per attività a Grand Yoff, Dakar. Annunci verificati da Jamm Immobilier.",
+      "faqQ": "Perché scegliere Grand Yoff?",
+      "faqA": "Per il suo dinamismo commerciale, i prezzi più accessibili rispetto ai quartieri di pregio e il collegamento con la nuova linea BRT, che migliora notevolmente la mobilità."
+    },
+    "ar": {
+      "intro": "Grand Yoff حيٌّ شعبي مكتظ بالسكان، يخترقه خط BRT الجديد وتحدّه Route des Niayes. حيٌّ تجاري بامتياز، يتيح فرصاً في المتناول من شقق ومتاجر ومحلات نشاط.",
+      "highlights": [
+        "شعبي وتجاري",
+        "على خط BRT",
+        "أسعار في المتناول",
+        "متاجر ومحلات"
+      ],
+      "meta": "شقق ومتاجر ومحلات نشاط في Grand Yoff، داكار. إعلانات تحقق منها Jamm Immobilier.",
+      "faqQ": "لماذا اختيار Grand Yoff؟",
+      "faqA": "لحيويته التجارية وأسعاره الأكثر يُسراً مقارنة بالأحياء الراقية، ولخدمته بخط BRT الجديد الذي يحسّن التنقّل بقوة."
+    },
+    "wo": {
+      "intro": "Grand Yoff benn gox bu populaire la, bu nit ñu bare dëkk ci, voie bu bees bu BRT bi jaar ci, te Route des Niayes wër ko. Dafa am butik yu bare, te am opportunité yu yomb ngir appartement, magasin ak local d'activité.",
+      "highlights": [
+        "Populaire te am butik",
+        "Ci voie BRT",
+        "Njëg yu yomb",
+        "Magasin ak local"
+      ],
+      "meta": "Appartement, magasin ak local d'activité ci Grand Yoff, Dakar. Annonces yu Jamm Immobilier saytu.",
+      "faqQ": "Lu tax nga tànn Grand Yoff?",
+      "faqA": "Ndax mu am doole ci commerce, njëg yu gën a yomb ci gox yu standing yi, ak voie BRT bu bees bi buy yokk dox-dox bi bu baax."
+    }
+  },
+  "liberte": {
+    "es": {
+      "intro": "De Liberté 1 a 6, este amplio sector residencial céntrico de Dakar es uno de los más demandados para el alquiler familiar. Bien comunicado y cerca de todo, ofrece una gran variedad de apartamentos a precios diversos.",
+      "highlights": [
+        "Céntrico y residencial",
+        "Alquiler familiar",
+        "Bien comunicado",
+        "Gran variedad"
+      ],
+      "meta": "Apartamentos en venta o alquiler en Liberté (1 a 6), Dakar. Anuncios verificados por Jamm Immobilier.",
+      "faqQ": "¿Es Liberté adecuado para familias?",
+      "faqA": "Sí, es uno de los sectores más apreciados para el alquiler familiar en Dakar, gracias a su centralidad, su buena comunicación y su amplio parque de apartamentos."
+    },
+    "it": {
+      "intro": "Dalle Liberté 1 alla 6, questa vasta area residenziale centrale di Dakar è una delle più richieste per l'affitto familiare. Ben collegata e vicina a tutto, offre un'ampia scelta di appartamenti a prezzi differenziati.",
+      "highlights": [
+        "Centrale e residenziale",
+        "Affitto familiare",
+        "Ben collegato",
+        "Ampia scelta"
+      ],
+      "meta": "Appartamenti in vendita o in affitto a Liberté (da 1 a 6), Dakar. Annunci verificati da Jamm Immobilier.",
+      "faqQ": "Liberté è adatto alle famiglie?",
+      "faqA": "Sì, è una delle zone più richieste per l'affitto familiare a Dakar, grazie alla sua centralità, ai collegamenti e all'ampio patrimonio di appartamenti."
+    },
+    "ar": {
+      "intro": "من Liberté 1 إلى 6، يُعدّ هذا القطاع السكني المركزي الواسع في داكار من أكثر المناطق طلباً للإيجار العائلي. حسن الربط وقريب من كل شيء، ويوفّر تشكيلة واسعة من الشقق بأسعار متنوعة.",
+      "highlights": [
+        "مركزي وسكني",
+        "إيجار عائلي",
+        "حسن الربط",
+        "تشكيلة واسعة"
+      ],
+      "meta": "شقق للبيع أو الإيجار في Liberté (1 إلى 6)، داكار. إعلانات تحقق منها Jamm Immobilier.",
+      "faqQ": "هل Liberté مناسب للأسر؟",
+      "faqA": "نعم، إنه من أكثر القطاعات رواجاً للإيجار العائلي في داكار، بفضل موقعه المركزي وحسن ربطه ورصيده الواسع من الشقق."
+    },
+    "wo": {
+      "intro": "Liberté 1 ba 6, gox bii bu réy bu nekk ci diggu Dakar, gox bu nit ñi dëkk ci, mooy benn ci yi gën a soxla ngir luwe njaboot. Am na yoon yu baax te jege lépp, dafa am benn tànneef bu yaa ci appartement ak njëg yu wuute.",
+      "highlights": [
+        "Ci diggu te dëkkuwaay",
+        "Luwe njaboot",
+        "Yoon yu baax",
+        "Tànneef bu yaa"
+      ],
+      "meta": "Appartement yu jaay walla yu luwaa ci Liberté (1 ba 6), Dakar. Annonces yu Jamm Immobilier saytu.",
+      "faqQ": "Ndax Liberté baax na ngir njaboot?",
+      "faqA": "Waaw, mooy benn ci gox yi gën a soxla ngir luwe njaboot ci Dakar, ndax mungi ci diggu bi, am yoon yu baax te am bari appartement."
+    }
+  },
+  "parcelles-assainies": {
+    "es": {
+      "intro": "Amplio barrio residencial organizado en unidades, las Parcelles Assainies ofrecen una de las mejores relaciones calidad-precio de Dakar. Familiar y bien equipado, el sector atrae a compradores por primera vez e inversores que buscan precios accesibles.",
+      "highlights": [
+        "Buena relación calidad-precio",
+        "Familiar",
+        "Compradores por primera vez",
+        "Bien equipado"
+      ],
+      "meta": "Apartamentos, casas y terrenos en las Parcelles Assainies, Dakar. Anuncios verificados por Jamm Immobilier.",
+      "faqQ": "¿Son accesibles las Parcelles Assainies?",
+      "faqA": "Es uno de los sectores con mejor relación calidad-precio de Dakar, especialmente adecuado para compradores por primera vez y presupuestos contenidos."
+    },
+    "it": {
+      "intro": "Vasto quartiere residenziale organizzato in unità, le Parcelles Assainies offrono uno dei migliori rapporti qualità-prezzo di Dakar. A misura di famiglia e ben servito, il quartiere attira chi acquista per la prima volta e gli investitori in cerca di accessibilità.",
+      "highlights": [
+        "Ottimo rapporto qualità-prezzo",
+        "A misura di famiglia",
+        "Primo acquisto",
+        "Ben servito"
+      ],
+      "meta": "Appartamenti, case e terreni alle Parcelles Assainies, Dakar. Annunci verificati da Jamm Immobilier.",
+      "faqQ": "Le Parcelles Assainies sono accessibili?",
+      "faqA": "È una delle zone con il miglior rapporto qualità-prezzo di Dakar, particolarmente adatta a chi acquista per la prima volta e ai budget contenuti."
+    },
+    "ar": {
+      "intro": "حيٌّ سكني واسع منظّم في وحدات، تقدّم Parcelles Assainies واحداً من أفضل معدلات الجودة مقابل السعر في داكار. عائلي وحسن التجهيز، يستقطب المشترين لأول مرة والمستثمرين الباحثين عن اليُسر.",
+      "highlights": [
+        "جودة مقابل سعر جيدة",
+        "عائلي",
+        "مشترون لأول مرة",
+        "حسن التجهيز"
+      ],
+      "meta": "شقق ومنازل وأراضٍ في Parcelles Assainies، داكار. إعلانات تحقق منها Jamm Immobilier.",
+      "faqQ": "هل Parcelles Assainies في المتناول؟",
+      "faqA": "إنه من القطاعات التي تقدّم أفضل نسبة جودة مقابل سعر في داكار، ويناسب بصفة خاصة المشترين لأول مرة والميزانيات المضبوطة."
+    },
+    "wo": {
+      "intro": "Benn gox bu réy bu dëkkuwaay bu ñu séddale ci unité yi, Parcelles Assainies dafa am benn ci rapport qualité-prix yi gën a baax ci Dakar. Gox bu njaboot te bu am équipement, dafay woo primo-accédant yi ak investisseur yi buy wut lu yomb.",
+      "highlights": [
+        "Rapport qualité-prix bu baax",
+        "Bu njaboot",
+        "Primo-accédant",
+        "Am équipement"
+      ],
+      "meta": "Appartement, kër ak tool ci Parcelles Assainies, Dakar. Annonces yu Jamm Immobilier saytu.",
+      "faqQ": "Ndax Parcelles Assainies yomb na?",
+      "faqA": "Mooy benn ci gox yi gën a am rapport qualité-prix bu baax ci Dakar, baax na lool ngir primo-accédant yi ak ñi am budget bu xate."
+    }
+  },
+  "ouakam": {
+    "es": {
+      "intro": "Al pie del faro de las Mamelles y de la Mezquita de la Divinidad, Ouakam es un barrio en plena transformación, entre pueblo lébou y nuevas residencias. Su fachada litoral y su centralidad lo convierten en un sector muy codiciado.",
+      "highlights": [
+        "Fachada litoral",
+        "En transformación",
+        "Céntrico",
+        "Nuevas residencias"
+      ],
+      "meta": "Apartamentos, villas y terrenos en Ouakam, Dakar. Anuncios verificados por Jamm Immobilier.",
+      "faqQ": "¿Está Ouakam bien ubicado?",
+      "faqA": "Muy bien: el barrio combina una fachada litoral, la proximidad a las Almadies y a la Corniche, y un acceso rápido al resto de Dakar."
+    },
+    "it": {
+      "intro": "Ai piedi del faro delle Mamelles e della Moschea della Divinità, Ouakam è un quartiere in piena trasformazione, tra villaggio Lébou e nuove residenze. L'affaccio sulla costa e la centralità ne fanno una zona molto ambita.",
+      "highlights": [
+        "Affaccio sulla costa",
+        "In trasformazione",
+        "Centrale",
+        "Nuove residenze"
+      ],
+      "meta": "Appartamenti, ville e terreni a Ouakam, Dakar. Annunci verificati da Jamm Immobilier.",
+      "faqQ": "Ouakam è ben posizionato?",
+      "faqA": "Molto bene: il quartiere unisce un affaccio sulla costa, la vicinanza alle Almadies e alla Corniche, e un accesso rapido al resto di Dakar."
+    },
+    "ar": {
+      "intro": "عند سفح منارة Mamelles ومسجد الإلهية، يُعدّ Ouakam حيّاً في تحوّل كامل، بين قرية الليبو والإقامات الجديدة. واجهته الساحلية وموقعه المركزي يجعلانه قطاعاً مرغوباً بشدة.",
+      "highlights": [
+        "واجهة ساحلية",
+        "في تحوّل",
+        "مركزي",
+        "إقامات جديدة"
+      ],
+      "meta": "شقق وفيلات وأراضٍ في Ouakam، داكار. إعلانات تحقق منها Jamm Immobilier.",
+      "faqQ": "هل Ouakam حسن الموقع؟",
+      "faqA": "حسن الموقع جداً: يجمع الحيُّ بين واجهة ساحلية وقرب من Almadies وCorniche ووصول سريع إلى بقية داكار."
+    },
+    "wo": {
+      "intro": "Ci tànku phare bu Mamelles ak Jakka bu Divinité bi, Ouakam benn gox la buy soppeeku, diggante dëkku Lébou ak résidence yu bees. Façade littorale bi ak nekkam ci diggu bi moo ko def benn gox bu ñu bëgg lool.",
+      "highlights": [
+        "Façade littorale",
+        "Buy soppeeku",
+        "Ci diggu bi",
+        "Résidence yu bees"
+      ],
+      "meta": "Appartement, villa ak tool ci Ouakam, Dakar. Annonces yu Jamm Immobilier saytu.",
+      "faqQ": "Ndax Ouakam bérabam baax na?",
+      "faqA": "Baax na lool: gox bi dafa boole façade littorale, jegeñaale Almadies ak Corniche, ak yoon wu gaaw ci des bu Dakar."
+    }
+  }
+}

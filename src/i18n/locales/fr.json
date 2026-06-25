@@ -936,5 +936,15 @@
   "toolseo.trouver-mon-bien.a1": "Le quiz de 60 secondes de Jamm croise vos critères avec le catalogue et propose 3 biens réels correspondants, avec un conseiller pour la suite des démarches.",
   "toolseo.trouver-mon-bien.q2": "Les annonces de Jamm sont-elles vérifiées ?",
   "toolseo.trouver-mon-bien.a2": "Oui, chaque annonce publiée est vérifiée par l'agence avant mise en ligne, ce qui réduit fortement le risque d'arnaque pour l'acheteur ou le locataire.",
-  "nav.guides": "Guides"
+  "nav.guides": "Guides",
+  "guides.eyebrow": "Ressources",
+  "guides.hubTitle": "Guides immobiliers",
+  "guides.hubSubtitle": "Des guides pratiques et sourcés pour acheter, louer et investir au Sénégal en toute confiance.",
+  "guides.metaTitle": "Guides immobiliers au Sénégal — Jamm Immobilier",
+  "guides.metaDescription": "Guides pratiques et sourcés pour acheter, louer ou investir dans l’immobilier au Sénégal : frais d’acquisition, sécurité foncière, achat depuis la diaspora, estimation de prix.",
+  "guides.by": "Par",
+  "guides.freeTool": "Outil gratuit",
+  "guides.relatedQuartiers": "Quartiers liés",
+  "guides.allGuides": "Tous les guides",
+  "guides.readGuide": "Lire le guide"
 }

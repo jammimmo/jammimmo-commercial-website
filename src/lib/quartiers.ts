@@ -11,10 +11,16 @@
  */
 
 import type { LatLng } from './gps';
+import type { Lang } from './i18n';
+import translations from '@/data/quartier-translations.json';
+
+/** A field localized across the 6 site languages. fr/en are authored inline
+ *  below; es/it/ar/wo are merged from quartier-translations.json at load. */
+export type L10n<T> = { fr: T; en: T } & Partial<Record<Lang, T>>;
 
 export interface QuartierFaq {
-  q: { fr: string; en: string };
-  a: { fr: string; en: string };
+  q: L10n<string>;
+  a: L10n<string>;
 }
 
 export interface Quartier {
@@ -26,13 +32,18 @@ export interface Quartier {
   /** Extra DB `quartier` spellings that map to this hub (normalized match). */
   aliases?: string[];
   /** Lead paragraph — unique per quartier. */
-  intro: { fr: string; en: string };
+  intro: L10n<string>;
   /** 4 short positioning chips. */
-  highlights: { fr: string[]; en: string[] };
+  highlights: L10n<string[]>;
   /** SEO meta description (≤155 chars). */
-  meta: { fr: string; en: string };
+  meta: L10n<string>;
   /** One quartier-specific FAQ (a generic pair is appended at render time). */
   faq: QuartierFaq;
+}
+
+/** Pick a localized value, falling back to French if a translation is absent. */
+export function pickL10n<T>(map: L10n<T>, lang: Lang): T {
+  return (map[lang] ?? map.fr) as T;
 }
 
 export const QUARTIERS: Quartier[] = [
@@ -343,6 +354,24 @@ export const QUARTIERS: Quartier[] = [
     },
   },
 ];
+
+// Merge the es/it/ar/wo translations (authored by translation agents, kept in a
+// separate JSON so this file stays readable) into each quartier's inline fr/en.
+type QTr = { intro: string; highlights: string[]; meta: string; faqQ: string; faqA: string };
+const TR = translations as Record<string, Partial<Record<Lang, QTr>>>;
+for (const q of QUARTIERS) {
+  const tr = TR[q.slug];
+  if (!tr) continue;
+  for (const lang of ['es', 'it', 'ar', 'wo'] as const) {
+    const t = tr[lang];
+    if (!t) continue;
+    q.intro[lang] = t.intro;
+    q.highlights[lang] = t.highlights;
+    q.meta[lang] = t.meta;
+    q.faq.q[lang] = t.faqQ;
+    q.faq.a[lang] = t.faqA;
+  }
+}
 
 const QUARTIER_BY_SLUG = new Map(QUARTIERS.map((q) => [q.slug, q]));
 
