@@ -184,13 +184,23 @@ export async function findSimilar(p: PublicProperty, n: number = 3): Promise<Pub
   return data.map((row) => maskRow(row as unknown as DbProperty));
 }
 
-export async function listAllPublicRefs(): Promise<Array<{ reference: string; updated_at: string }>> {
+export async function listAllPublicRefs(): Promise<
+  Array<{ reference: string; updated_at: string; images: string[] }>
+> {
   if (!ADMIN_URL || !ADMIN_KEY) return [];
   const { data, error } = await client()
     .from('properties')
-    .select('reference, updated_at')
+    .select('reference, updated_at, images')
     .eq('is_public', true)
     .eq('status', 'Disponible');
   if (error || !data) return [];
-  return data as Array<{ reference: string; updated_at: string }>;
+  // Keep only absolute https image URLs (Google's image sitemap rejects
+  // schemeless ones) and cap per listing to keep the sitemap lean.
+  return (data as Array<{ reference: string; updated_at: string; images: unknown }>).map((r) => ({
+    reference: r.reference,
+    updated_at: r.updated_at,
+    images: (Array.isArray(r.images) ? r.images : [])
+      .filter((i): i is string => typeof i === 'string' && /^https?:\/\//i.test(i))
+      .slice(0, 10),
+  }));
 }

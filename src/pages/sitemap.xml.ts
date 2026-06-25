@@ -37,6 +37,9 @@ const LANGS: ReadonlyArray<{ prefix: string; hreflang: string }> = [
  * every other language version + `x-default` pointing at the FR canonical.
  * Pages with a `lastmod` (properties) emit it; static pages can pass `null`.
  */
+/** Escape a URL for inclusion in XML text (R2 URLs can carry `&`). */
+const xmlEsc = (u: string) => u.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
 function urlBlock(
   origin: string,
   buildHref: (prefix: string) => string,
@@ -44,18 +47,22 @@ function urlBlock(
   lastmod: string | null,
   priority: string,
   changefreq: string,
+  images: string[] = [],
 ): string {
   const alternates = LANGS.map(
     (l) =>
       `    <xhtml:link rel="alternate" hreflang="${l.hreflang}" href="${origin}${buildHref(l.prefix)}"/>`,
   ).join('\n');
   const xDefault = `    <xhtml:link rel="alternate" hreflang="x-default" href="${origin}${buildHref('')}"/>`;
+  const imageNodes = images
+    .map((src) => `    <image:image><image:loc>${xmlEsc(src)}</image:loc></image:image>`)
+    .join('\n');
   return `  <url>
     <loc>${origin}${buildHref(currentPrefix)}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ''}
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
 ${alternates}
-${xDefault}
+${xDefault}${imageNodes ? `\n${imageNodes}` : ''}
   </url>`;
 }
 
@@ -94,22 +101,20 @@ export const GET: APIRoute = async ({ site }) => {
   </url>`);
   }
 
-  // Guides — FR-primary editorial (content collection). Served at /en /wo via
-  // i18n fallback, canonical to the FR URL → single FR <url> each, no alternates.
-  const guides = await getCollection('guides');
-  blocks.push(`  <url>
-    <loc>${origin}/guides/</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>`);
-  for (const g of guides) {
-    blocks.push(`  <url>
-    <loc>${origin}/guides/${g.slug}/</loc>
-    <lastmod>${g.data.updated ?? g.data.date}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>`);
+  // Guides — editorial content collection, now localized in all 6 languages
+  // (src/content/guides/<slug>/<lang>.md). Emit each guide × language with full
+  // hreflang alternates, like the other localized pages.
+  const guideEntries = await getCollection('guides');
+  const guideSlugs = [...new Set(guideEntries.map((g) => g.slug.split('/')[0]))];
+  for (const l of LANGS) {
+    blocks.push(urlBlock(origin, (prefix) => `${prefix}/guides/`, l.prefix, now, '0.7', 'weekly'));
+  }
+  for (const slug of guideSlugs) {
+    const fr = guideEntries.find((g) => g.slug === `${slug}/fr`);
+    const lastmod = fr?.data.updated ?? fr?.data.date ?? now;
+    for (const l of LANGS) {
+      blocks.push(urlBlock(origin, (prefix) => `${prefix}/guides/${slug}/`, l.prefix, lastmod, '0.6', 'monthly'));
+    }
   }
 
   // Geo landing pages (quartier hubs) × each language.
@@ -128,7 +133,8 @@ export const GET: APIRoute = async ({ site }) => {
     }
   }
 
-  // Property detail pages × each language.
+  // Property detail pages × each language. The listing photos are attached
+  // (image sitemap) to the FR canonical URL only, to keep the file lean.
   for (const r of refs) {
     const slug = r.reference.trim().toLowerCase();
     for (const l of LANGS) {
@@ -140,6 +146,7 @@ export const GET: APIRoute = async ({ site }) => {
           r.updated_at ?? now,
           '0.7',
           'weekly',
+          l.prefix === '' ? r.images : [],
         ),
       );
     }
@@ -148,7 +155,8 @@ export const GET: APIRoute = async ({ site }) => {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset
   xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  xmlns:xhtml="http://www.w3.org/1999/xhtml"
+  xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${blocks.join('\n')}
 </urlset>`;
 

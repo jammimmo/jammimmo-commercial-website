@@ -936,5 +936,15 @@
   "toolseo.trouver-mon-bien.a1": "يُقاطع اختبار Jamm الذي يستغرق 60 ثانية معاييرك مع الفهرس ويقترح 3 عقارات حقيقية مطابقة، مع مستشار يرافقك في الخطوات التالية.",
   "toolseo.trouver-mon-bien.q2": "هل إعلانات Jamm موثَّقة؟",
   "toolseo.trouver-mon-bien.a2": "نعم، كل إعلان منشور تتحقق منه الوكالة قبل نشره، ما يقلّص بشدة خطر الاحتيال على المشتري أو المستأجر.",
-  "nav.guides": "أدلة"
+  "nav.guides": "أدلة",
+  "guides.eyebrow": "موارد",
+  "guides.hubTitle": "أدلة عقارية",
+  "guides.hubSubtitle": "أدلة عملية وموثّقة للشراء والإيجار والاستثمار في السنغال بثقة.",
+  "guides.metaTitle": "أدلة عقارية في السنغال — Jamm Immobilier",
+  "guides.metaDescription": "أدلة عملية وموثّقة للشراء أو الإيجار أو الاستثمار العقاري في السنغال: رسوم الاقتناء، الأمن العقاري، الشراء من المهجر، تقدير الأسعار.",
+  "guides.by": "بقلم",
+  "guides.freeTool": "أداة مجانية",
+  "guides.relatedQuartiers": "أحياء ذات صلة",
+  "guides.allGuides": "كل الأدلة",
+  "guides.readGuide": "اقرأ الدليل"
 }
