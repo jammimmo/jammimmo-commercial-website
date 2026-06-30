@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PublicProperty } from '@/types/property';
-import { parseGps } from '@/lib/gps';
 import { STREETS_VECTOR, SATELLITE, MAP_BASE_OPTIONS } from '@/lib/map-tiles';
 import VectorBasemap from './VectorBasemap';
 
@@ -35,10 +34,15 @@ export default function ListingsMap({ properties, activeRef, onPinClick }: Props
   const [L, setL] = useState<Leaflet | null>(null);
   const [tileStyle, setTileStyle] = useState<'streets' | 'satellite'>('streets');
 
+  // Place each price pin on the privacy-safe DECOY centre (#724972), never the
+  // exact GPS — the exact point is no longer present in the public bundle.
   const placed = useMemo(
     () =>
       properties
-        .map((p) => ({ p, coords: parseGps(p.gps) }))
+        .map((p) => ({
+          p,
+          coords: p.geo ? { lat: p.geo.centerLat, lng: p.geo.centerLng } : null,
+        }))
         .filter((x): x is { p: PublicProperty; coords: { lat: number; lng: number } } => !!x.coords),
     [properties],
   );

@@ -15,7 +15,7 @@ function makeProp(p: Partial<PublicProperty>): PublicProperty {
     city: p.city ?? 'Dakar',
     quartier: p.quartier ?? 'Almadies',
     address: '',
-    gps: null,
+    geo: null,
     price: p.price ?? 0,
     negotiable: false,
     commercial_message: '',

@@ -2,41 +2,56 @@ import { useEffect, useState } from 'react';
 import { parseGps, type LatLng } from '@/lib/gps';
 import { approximateLocation } from '@/lib/dakar-geo';
 import { STREETS_VECTOR, MAP_BASE_OPTIONS } from '@/lib/map-tiles';
+import type { GpsZone } from '@/types/property';
 import VectorBasemap from './VectorBasemap';
 
 interface Props {
-  gps: string | null;
+  /**
+   * Privacy-safe fuzzed zone of a listing (#724972) — a DECOY centre + radius.
+   * When present we draw a circle, never a pin. The exact point is never here.
+   */
+  geo?: GpsZone | null;
+  /**
+   * Exact coordinates — ONLY for the agency's own office (a public address).
+   * Never a listing's exact GPS. Drawn as a precise pin.
+   */
+  gps?: string | null;
   title: string;
-  /** Used to derive an approximate-area map when `gps` is missing. */
+  /** Used to derive an approximate-area map when there is no zone/gps. */
   quartier?: string | null;
   city?: string | null;
   className?: string;
 }
 
 /**
- * Lazy-loaded Leaflet map for the property detail page.
+ * Lazy-loaded Leaflet map for the property detail page (and the agency office).
  *
- * Three states, in priority order:
- *   1. Exact GPS  → precise brand pin at the coordinates.
- *   2. No GPS but a known quartier/city → approximate-area view: a translucent
- *      circle centred on the neighbourhood centroid (honest about precision,
- *      and good for privacy — we don't pin the exact building).
- *   3. Nothing resolvable → graceful "indisponible" placeholder.
+ * Four states, in priority order:
+ *   1. Fuzzed listing zone (`geo`) → a 500 m brand circle around a DECOY centre.
+ *      We never pin a listing's exact location — see #724972.
+ *   2. Exact GPS (`gps`, agency office only) → precise brand pin.
+ *   3. No coords but a known quartier/city → approximate-area circle on the
+ *      neighbourhood centroid (honest about precision).
+ *   4. Nothing resolvable → graceful "indisponible" placeholder.
  *
  * Note: we deliberately use a `divIcon` (inline SVG) rather than Leaflet's
  * default marker. The default marker references PNGs whose URLs break under
  * Vite's bundler (the classic "marker icon 404" bug), which is why the pin
  * was invisible before.
  */
-export default function PropertyMap({ gps, title, quartier, city, className }: Props) {
+export default function PropertyMap({ geo, gps, title, quartier, city, className }: Props) {
   type LeafletMod = typeof import('react-leaflet');
   type Leaflet = typeof import('leaflet');
   const [RL, setRL] = useState<LeafletMod | null>(null);
   const [L, setL] = useState<Leaflet | null>(null);
 
-  const exact: LatLng | null = parseGps(gps);
-  const approx = exact ? null : approximateLocation(quartier, city);
-  const coords = exact ?? approx?.coords ?? null;
+  // Priority: fuzzed listing zone → exact agency pin → quartier fallback.
+  const zone: GpsZone | null = geo ?? null;
+  const exact: LatLng | null = zone ? null : parseGps(gps);
+  const approx = zone || exact ? null : approximateLocation(quartier, city);
+  const coords: LatLng | null = zone
+    ? { lat: zone.centerLat, lng: zone.centerLng }
+    : (exact ?? approx?.coords ?? null);
 
   useEffect(() => {
     let cancelled = false;
@@ -93,9 +108,12 @@ export default function PropertyMap({ gps, title, quartier, city, className }: P
     popupAnchor: [0, -38],
   });
 
-  const isApprox = !exact && !!approx;
-  // Approximate view zooms out a touch; exact view zooms in on the building.
-  const zoom = exact ? 15 : approx?.precision === 'city' ? 12 : 14;
+  // Both the fuzzed listing zone and the quartier fallback render as a circle;
+  // only the agency office (exact gps) gets a pin.
+  const showCircle = !!zone || !!approx;
+  const circleRadius = zone ? zone.radiusM : approx?.precision === 'city' ? 1400 : 600;
+  // Approximate/city views zoom out; the 500 m zone and the exact pin zoom in.
+  const zoom = zone || exact ? 15 : approx?.precision === 'city' ? 12 : 14;
 
   return (
     <div className={className}>
@@ -120,10 +138,10 @@ export default function PropertyMap({ gps, title, quartier, city, className }: P
           attribution={STREETS_VECTOR.attribution}
           maxZoom={STREETS_VECTOR.maxZoom}
         />
-        {isApprox ? (
+        {showCircle ? (
           <Circle
             center={[coords.lat, coords.lng]}
-            radius={approx?.precision === 'city' ? 1400 : 600}
+            radius={circleRadius}
             pathOptions={{
               color: 'hsl(234 60% 36%)',
               fillColor: 'hsl(234 60% 36%)',
@@ -137,7 +155,7 @@ export default function PropertyMap({ gps, title, quartier, city, className }: P
           </Marker>
         )}
       </MapContainer>
-      {isApprox && (
+      {showCircle && (
         <p className="mt-1.5 text-[11px] text-muted-foreground/80 px-1">
           Zone approximative — l'emplacement exact est communiqué sur demande.
         </p>

@@ -1,6 +1,5 @@
 ---
 import type { PublicProperty } from '@/types/property';
-import { parseGps } from '@/lib/gps';
 import type { Lang } from '@/lib/i18n';
 import { localizedPath } from '@/lib/i18n';
 
@@ -10,7 +9,9 @@ interface Props {
   lang: Lang;
 }
 const { property: p, url, lang } = Astro.props;
-const geo = parseGps(p.gps);
+// Privacy-safe fuzzed centre (#724972) — a decoy ~180–380 m off the real point,
+// never the exact GPS. Safe to publish in JSON-LD for local SEO.
+const geo = p.geo;
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com';
 
 // Drop image URLs that the Google validator would reject (missing scheme).
@@ -68,7 +69,9 @@ const listing = {
     addressRegion: p.city,
     addressCountry: 'SN',
   },
-  ...(geo ? { geo: { '@type': 'GeoCoordinates', latitude: geo.lat, longitude: geo.lng } } : {}),
+  ...(geo
+    ? { geo: { '@type': 'GeoCoordinates', latitude: geo.centerLat, longitude: geo.centerLng } }
+    : {}),
   floorSize: p.surface > 0 ? { '@type': 'QuantitativeValue', value: p.surface, unitCode: 'MTK' } : undefined,
   numberOfRooms: p.bedrooms > 0 ? p.bedrooms : undefined,
   numberOfBathroomsTotal: bathrooms,

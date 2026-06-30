@@ -16,7 +16,13 @@
  */
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import type { DbProperty, PublicProperty } from '@/types/property';
+import type { DbProperty, GpsZone, PublicProperty } from '@/types/property';
+import {
+  PUBLIC_GEO_VIEW,
+  PUBLIC_GEO_COLUMNS,
+  geoRowToZone,
+  type GeoViewRow,
+} from '@/lib/public-geo';
 
 const isNodeBuild =
   typeof process !== 'undefined' &&
@@ -63,8 +69,12 @@ function client(): SupabaseClient {
  * source_*, caution, avance, accessibility, manager, deal_type and other
  * admin-internal fields are dropped here — the build process sees them in
  * memory but they never make it into the rendered HTML.
+ *
+ * The exact `gps` is NOT projected (#724972). The privacy-safe fuzzed `geo`
+ * zone is supplied separately from the `properties_public_geo` view — see
+ * `fetchGeoZones`. The exact coordinate never enters `PublicProperty`.
  */
-function maskRow(p: DbProperty): PublicProperty {
+function maskRow(p: DbProperty, geo: GpsZone | null = null): PublicProperty {
   return {
     id: p.id,
     reference: p.reference,
@@ -75,7 +85,7 @@ function maskRow(p: DbProperty): PublicProperty {
     city: p.city,
     quartier: p.quartier,
     address: p.address,
-    gps: p.gps,
+    geo,
     price: p.price,
     negotiable: p.negotiable,
     commercial_message: p.commercial_message,
@@ -103,9 +113,14 @@ function maskRow(p: DbProperty): PublicProperty {
 // estate-flow team needs to REVOKE from the `anon` role. Keeping this list
 // tight lets that REVOKE land without breaking the build. is_public/status
 // are still usable in WHERE filters without being in the projection.
+//
+// `gps` is deliberately ABSENT (#724972): the exact coordinate must never be
+// selected into the public build. The privacy-safe fuzzed zone comes from the
+// `properties_public_geo` view via `fetchGeoZones`. This is also what lets the
+// estate-flow team REVOKE the `gps` column from `anon` once the vitrine ships.
 const PUBLIC_COLUMNS = `
   id, reference, title, type, transaction_type, status,
-  city, quartier, address, gps,
+  city, quartier, address,
   price, negotiable, commercial_message,
   surface, bedrooms,
   images, video_links,
@@ -115,6 +130,31 @@ const PUBLIC_COLUMNS = `
 `
   .replace(/\s+/g, ' ')
   .trim();
+
+/**
+ * Read privacy-safe fuzzed zones for the given listing ids from the
+ * `properties_public_geo` view (decoy centre + 500 m radius). Returns a map of
+ * id → zone; ids with no row (or an invalid centre) are simply absent, and the
+ * caller renders the quartier/city approximate fallback. Never reads the exact
+ * `gps` column.
+ */
+async function fetchGeoZones(ids: string[]): Promise<Map<string, GpsZone>> {
+  const zones = new Map<string, GpsZone>();
+  if (ids.length === 0) return zones;
+  const { data, error } = await client().from(PUBLIC_GEO_VIEW).select(PUBLIC_GEO_COLUMNS).in('id', ids);
+  if (error || !data) {
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.warn('[supabase.build] fetchGeoZones failed:', error.message);
+    }
+    return zones;
+  }
+  for (const row of data as unknown as GeoViewRow[]) {
+    const zone = geoRowToZone(row);
+    if (zone) zones.set(row.id, zone);
+  }
+  return zones;
+}
 
 export async function listPublicProperties(
   opts: {
@@ -153,7 +193,9 @@ export async function listPublicProperties(
     console.warn('[supabase.build] listPublicProperties failed:', error.message);
     return [];
   }
-  return (data ?? []).map((row) => maskRow(row as unknown as DbProperty));
+  const rows = (data ?? []) as unknown as DbProperty[];
+  const zones = await fetchGeoZones(rows.map((r) => r.id));
+  return rows.map((row) => maskRow(row, zones.get(row.id) ?? null));
 }
 
 export async function getPublicPropertyByRef(ref: string): Promise<PublicProperty | null> {
@@ -166,7 +208,9 @@ export async function getPublicPropertyByRef(ref: string): Promise<PublicPropert
     .eq('status', 'Disponible')
     .maybeSingle();
   if (error || !data) return null;
-  return maskRow(data as unknown as DbProperty);
+  const row = data as unknown as DbProperty;
+  const zones = await fetchGeoZones([row.id]);
+  return maskRow(row, zones.get(row.id) ?? null);
 }
 
 export async function findSimilar(p: PublicProperty, n: number = 3): Promise<PublicProperty[]> {
@@ -181,7 +225,9 @@ export async function findSimilar(p: PublicProperty, n: number = 3): Promise<Pub
     .neq('id', p.id)
     .limit(n);
   if (error || !data) return [];
-  return data.map((row) => maskRow(row as unknown as DbProperty));
+  const rows = data as unknown as DbProperty[];
+  const zones = await fetchGeoZones(rows.map((r) => r.id));
+  return rows.map((row) => maskRow(row, zones.get(row.id) ?? null));
 }
 
 export async function listAllPublicRefs(): Promise<

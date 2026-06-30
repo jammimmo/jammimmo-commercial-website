@@ -33,6 +33,22 @@ export interface NearbyCommerce {
 }
 
 /**
+ * Public, privacy-safe geolocation of a listing. This is NOT the exact GPS:
+ * the centre is a server-side DECOY (180–380 m off the real point, inside the
+ * circle but never at it), produced by the salted SQL view
+ * `properties_public_geo`. The exact `properties.gps` column is never selected
+ * into the public site — see #724972. We render a `radiusM` zone, not a pin.
+ */
+export interface GpsZone {
+  /** Decoy centre latitude (≠ the real position). */
+  centerLat: number;
+  /** Decoy centre longitude (≠ the real position). */
+  centerLng: number;
+  /** Radius of the displayed zone, in metres (500 m). */
+  radiusM: number;
+}
+
+/**
  * The full DB row. We fetch this with the anon key + RLS filtering
  * (is_public = true AND status = 'Disponible'), but we never render the
  * sensitive fields — see the masking step in `lib/property.ts`.
@@ -87,7 +103,12 @@ export interface PublicProperty {
   city: string;
   quartier: string;
   address: string | null;
-  gps: string | null;
+  /**
+   * Privacy-safe fuzzed zone (#724972). NOT the exact GPS — the exact
+   * `properties.gps` is never selected into the public site. `null` when the
+   * listing has no resolvable point (map falls back to quartier/city).
+   */
+  geo: GpsZone | null;
   price: number;
   negotiable: boolean;
   commercial_message: string;

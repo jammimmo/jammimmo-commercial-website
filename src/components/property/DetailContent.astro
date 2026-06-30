@@ -12,7 +12,6 @@ import { t, type Lang, localizedPath } from '@/lib/i18n';
 import { formatRentalPrice, formatLocation } from '@/lib/format';
 import { formatPublicRef } from '@/lib/reference';
 import { getStatusBadge, getTransactionBadge, statusLabel, transactionLabel, typeLabel } from '@/lib/status';
-import { parseGps } from '@/lib/gps';
 import { approximateLocation } from '@/lib/dakar-geo';
 import { SITE, TEL_URI, MAILTO_URI } from '@/lib/site-config';
 import listingTranslations from '@/data/listing-translations.json';
@@ -96,8 +95,8 @@ const videoLabel = t('common.videoTour', lang);
 
 // Map: decide SERVER-SIDE whether a location is resolvable, so we never emit
 // the dead "Localisation indisponible" placeholder. Same resolution logic as
-// PropertyMap (exact GPS → approximate quartier/city centroid).
-const hasMap = !!(parseGps(p.gps) || approximateLocation(p.quartier, p.city));
+// PropertyMap (fuzzed zone → approximate quartier/city centroid).
+const hasMap = !!(p.geo || approximateLocation(p.quartier, p.city));
 
 // ── Traduction des titres/descriptions ───────────────────────────────────
 // Le contenu traduit est cuit AU BUILD : prioritairement depuis le champ
@@ -490,7 +489,7 @@ const trLabels = {
             <div class="rounded-xl overflow-hidden border border-clay min-h-[260px] lg:min-h-[320px]">
               <PropertyMap
                 client:visible
-                gps={p.gps}
+                geo={p.geo}
                 quartier={p.quartier}
                 city={p.city}
                 title={p.title}
