@@ -23,6 +23,13 @@ describe('PUBLIC_COLUMNS leaks no sensitive admin column', () => {
     },
   );
 
+  // #724972: the exact `gps` must never be selected into the public build — the
+  // privacy-safe fuzzed zone comes from the `properties_public_geo` view. If
+  // this regresses, the exact coordinate leaks into the static bundle again.
+  it('excludes the exact gps column (#724972)', () => {
+    expect(cols).not.toMatch(/\bgps\b/);
+  });
+
   it('still selects the columns the public site renders', () => {
     for (const needed of ['reference', 'title', 'price', 'quartier', 'surface', 'images']) {
       expect(cols).toContain(needed);
