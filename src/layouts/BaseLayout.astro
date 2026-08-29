@@ -255,7 +255,7 @@ const isHome = homePaths.has(Astro.url.pathname);
         import('@/lib/click-capture').then((m) => m.initClickCapture());
         import('@/lib/replay-recorder').then((m) => {
           const start = () => m.initReplayRecorder();
-          if ('requestIdleCallback' in window) (window as any).requestIdleCallback(start);
+          if ('requestIdleCallback' in window) window.requestIdleCallback(start);
           else setTimeout(start, 1200);
         });
       </script>
