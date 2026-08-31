@@ -2,7 +2,7 @@
 title: "Jënd benn kër ci Senegaal nga nekk ci diaspora"
 description: "Jënd ci Dakar walla Saly nga nekk Faraas, Itali walla Etazini : mandat, saytu yu sori, frais yu war a defar ak piège yu war a moytu su nga sori."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Diaspora"
 order: 3
 relatedTool:

@@ -2,7 +2,7 @@
 title: "How to estimate the price of a property in Dakar"
 description: "Estimating the value of an apartment, a villa or a plot of land in Dakar: the comparable-properties method, the factors that drive the price, and why to be wary of ready-made price grids."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Valuation"
 order: 4
 relatedTool:

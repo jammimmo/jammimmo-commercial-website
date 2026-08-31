@@ -2,7 +2,7 @@
 title: "Costi di acquisizione immobiliare in Senegal: la guida completa"
 description: "Imposta di registro, pubblicità immobiliare, onorari del notaio e IVA: quanto prevedere oltre al prezzo per acquistare un immobile in Senegal, con un esempio in cifre e le tariffe ufficiali."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Acquisto"
 order: 1
 relatedTool:

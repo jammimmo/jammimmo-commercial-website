@@ -2,7 +2,7 @@
 title: "Kaaraange suuf ci Senegaal : saytu benn titre foncier ak moytu arnaque yi"
 description: "Titre foncier, bail, délibération : nan ngay xàmmee benn dokimaa bu wóor ak bu am risque, saytu moomeel bi ca Conservation foncière ak jënd te kenn du la sosal."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Kaaraange"
 order: 2
 relatedTool:

@@ -2,7 +2,7 @@
 title: "Land security in Senegal: checking a land title and avoiding scams"
 description: "Land title, lease, deliberation: how to tell a safe document from a risky one, verify ownership at the Land Registry, and buy without being trapped."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Security"
 order: 2
 relatedTool:

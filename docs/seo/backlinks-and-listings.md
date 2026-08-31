@@ -1,11 +1,11 @@
-# Jamm Immobilier — Backlinks & listings playbook (free / freemium)
+# Jamm Immo — Backlinks & listings playbook (free / freemium)
 
 > Curated from the 2026-06-24 multi-agent SEO/GEO audit. Every item below is **free or has a free tier**. Most require **manual action by the owner** (claiming a profile, verifying premises) — those are flagged `OWNER`. A few are `DEV` (done in the codebase). No spam / link-farm tactics.
 >
 > **Golden rule — NAP consistency.** Use the *exact* same Name / Address / Phone everywhere, or the citations stop reinforcing each other. Copy-paste this block:
 >
 > ```
-> Name:    Jamm Immobilier
+> Name:    Jamm Immo
 > Address: RC 24, Sacré-Cœur 3, Dakar, Sénégal
 > Phone:   +221 76 944 48 49   (also WhatsApp)
 > Email:   contact@jammimmo.com

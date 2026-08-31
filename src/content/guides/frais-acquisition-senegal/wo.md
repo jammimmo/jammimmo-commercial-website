@@ -2,7 +2,7 @@
 title: "Frais d'acquisition immobilier ci Senegaal : guide bu mat sëkk"
 description: "Droits d'enregistrement, publicité foncière, honoraires notaire ak TVA : ñaata nga war a yokk ci njëg li ngir jënd benn kër ci Senegaal, ak misaal bu am xayma ak barème yu officiel."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Njënd"
 order: 1
 relatedTool:

@@ -54,16 +54,16 @@ export const QUARTIERS: Quartier[] = [
     geo: { lat: 14.7237, lng: -17.468 },
     aliases: ['sacre coeur', 'sacré-coeur', 'sacre-coeur 1', 'sacre-coeur 2', 'sacre-coeur 3'],
     intro: {
-      fr: "Quartier central et résidentiel de Dakar, Sacré-Cœur conjugue immeubles modernes, commerces de proximité et accès rapide à la VDN et au Plateau. C'est l'un des secteurs les plus recherchés pour la location d'appartements familiaux comme pour l'investissement locatif. Le siège de Jamm Immobilier s'y trouve, à Sacré-Cœur 3.",
-      en: "A central, residential district of Dakar, Sacré-Cœur blends modern apartment blocks, local shops and quick access to the VDN highway and downtown Plateau. It's one of the most sought-after areas for family-apartment rentals and buy-to-let investment alike. Jamm Immobilier's office is here, in Sacré-Cœur 3.",
+      fr: "Quartier central et résidentiel de Dakar, Sacré-Cœur conjugue immeubles modernes, commerces de proximité et accès rapide à la VDN et au Plateau. C'est l'un des secteurs les plus recherchés pour la location d'appartements familiaux comme pour l'investissement locatif. Le siège de Jamm Immo s'y trouve, à Sacré-Cœur 3.",
+      en: "A central, residential district of Dakar, Sacré-Cœur blends modern apartment blocks, local shops and quick access to the VDN highway and downtown Plateau. It's one of the most sought-after areas for family-apartment rentals and buy-to-let investment alike. Jamm Immo's office is here, in Sacré-Cœur 3.",
     },
     highlights: {
       fr: ['Central & bien desservi', 'Appartements familiaux', 'Commerces de proximité', 'Fort potentiel locatif'],
       en: ['Central & well-connected', 'Family apartments', 'Local shops', 'Strong rental demand'],
     },
     meta: {
-      fr: 'Appartements, bureaux et commerces à vendre ou à louer à Sacré-Cœur, Dakar. Annonces vérifiées par Jamm Immobilier.',
-      en: 'Apartments, offices and shops for sale or rent in Sacré-Cœur, Dakar. Verified listings by Jamm Immobilier.',
+      fr: 'Appartements, bureaux et commerces à vendre ou à louer à Sacré-Cœur, Dakar. Annonces vérifiées par Jamm Immo.',
+      en: 'Apartments, offices and shops for sale or rent in Sacré-Cœur, Dakar. Verified listings by Jamm Immo.',
     },
     faq: {
       q: { fr: 'Pourquoi investir à Sacré-Cœur ?', en: 'Why invest in Sacré-Cœur?' },
@@ -87,8 +87,8 @@ export const QUARTIERS: Quartier[] = [
       en: ['Upscale', 'Villas with pools', 'Seafront', 'Gated residences'],
     },
     meta: {
-      fr: 'Villas, appartements de standing et résidences sécurisées aux Almadies, Dakar. Annonces vérifiées Jamm Immobilier.',
-      en: 'Villas, high-end apartments and gated residences in Almadies, Dakar. Verified Jamm Immobilier listings.',
+      fr: 'Villas, appartements de standing et résidences sécurisées aux Almadies, Dakar. Annonces vérifiées Jamm Immo.',
+      en: 'Villas, high-end apartments and gated residences in Almadies, Dakar. Verified Jamm Immo listings.',
     },
     faq: {
       q: { fr: 'Quel type de biens trouve-t-on aux Almadies ?', en: 'What kind of properties are in Almadies?' },
@@ -112,8 +112,8 @@ export const QUARTIERS: Quartier[] = [
       en: ['Sea view', 'Seaside setting', 'Second homes', 'Short-term rentals'],
     },
     meta: {
-      fr: "Villas vue mer, appartements et résidences secondaires à Ngor, Dakar. Annonces vérifiées Jamm Immobilier.",
-      en: 'Sea-view villas, apartments and second homes in Ngor, Dakar. Verified Jamm Immobilier listings.',
+      fr: "Villas vue mer, appartements et résidences secondaires à Ngor, Dakar. Annonces vérifiées Jamm Immo.",
+      en: 'Sea-view villas, apartments and second homes in Ngor, Dakar. Verified Jamm Immo listings.',
     },
     faq: {
       q: { fr: 'Ngor convient-il pour une résidence secondaire ?', en: 'Is Ngor good for a second home?' },
@@ -137,8 +137,8 @@ export const QUARTIERS: Quartier[] = [
       en: ['Residential & calm', 'Near the Corniche', 'Near the university', 'Apartments & offices'],
     },
     meta: {
-      fr: 'Appartements et bureaux à vendre ou à louer à Mermoz, Dakar. Annonces vérifiées par Jamm Immobilier.',
-      en: 'Apartments and offices for sale or rent in Mermoz, Dakar. Verified listings by Jamm Immobilier.',
+      fr: 'Appartements et bureaux à vendre ou à louer à Mermoz, Dakar. Annonces vérifiées par Jamm Immo.',
+      en: 'Apartments and offices for sale or rent in Mermoz, Dakar. Verified listings by Jamm Immo.',
     },
     faq: {
       q: { fr: 'Mermoz est-il bien desservi ?', en: 'Is Mermoz well-connected?' },
@@ -162,8 +162,8 @@ export const QUARTIERS: Quartier[] = [
       en: ['Leafy residential', 'Office district', 'Quality buildings', 'Safe investment'],
     },
     meta: {
-      fr: 'Appartements de standing et bureaux à vendre ou à louer au Point E, Dakar. Annonces vérifiées Jamm Immobilier.',
-      en: 'Quality apartments and offices for sale or rent in Point E, Dakar. Verified Jamm Immobilier listings.',
+      fr: 'Appartements de standing et bureaux à vendre ou à louer au Point E, Dakar. Annonces vérifiées Jamm Immo.',
+      en: 'Quality apartments and offices for sale or rent in Point E, Dakar. Verified Jamm Immo listings.',
     },
     faq: {
       q: { fr: 'Le Point E convient-il pour des bureaux ?', en: 'Is Point E suitable for offices?' },
@@ -188,8 +188,8 @@ export const QUARTIERS: Quartier[] = [
       en: ['Prestige', 'Corniche frontage', 'Near embassies', 'Villas & residences'],
     },
     meta: {
-      fr: 'Villas et appartements de prestige à vendre ou à louer à Fann, Dakar. Annonces vérifiées Jamm Immobilier.',
-      en: 'Prestige villas and apartments for sale or rent in Fann, Dakar. Verified Jamm Immobilier listings.',
+      fr: 'Villas et appartements de prestige à vendre ou à louer à Fann, Dakar. Annonces vérifiées Jamm Immo.',
+      en: 'Prestige villas and apartments for sale or rent in Fann, Dakar. Verified Jamm Immo listings.',
     },
     faq: {
       q: { fr: 'Fann est-il un quartier haut de gamme ?', en: 'Is Fann an upscale district?' },
@@ -214,8 +214,8 @@ export const QUARTIERS: Quartier[] = [
       en: ['City centre', 'Business district', 'Offices & shops', 'Income buildings'],
     },
     meta: {
-      fr: 'Bureaux, commerces et immeubles à vendre ou à louer au Plateau, Dakar centre. Annonces vérifiées Jamm Immobilier.',
-      en: 'Offices, shops and buildings for sale or rent in Plateau, downtown Dakar. Verified Jamm Immobilier listings.',
+      fr: 'Bureaux, commerces et immeubles à vendre ou à louer au Plateau, Dakar centre. Annonces vérifiées Jamm Immo.',
+      en: 'Offices, shops and buildings for sale or rent in Plateau, downtown Dakar. Verified Jamm Immo listings.',
     },
     faq: {
       q: { fr: 'Quel type de biens recherche-t-on au Plateau ?', en: 'What is in demand in Plateau?' },
@@ -240,8 +240,8 @@ export const QUARTIERS: Quartier[] = [
       en: ['Seaside', 'Fast-growing', 'New developments', 'Near the VDN'],
     },
     meta: {
-      fr: 'Appartements, villas et terrains à vendre ou à louer à Yoff, Dakar. Annonces vérifiées par Jamm Immobilier.',
-      en: 'Apartments, villas and land for sale or rent in Yoff, Dakar. Verified listings by Jamm Immobilier.',
+      fr: 'Appartements, villas et terrains à vendre ou à louer à Yoff, Dakar. Annonces vérifiées par Jamm Immo.',
+      en: 'Apartments, villas and land for sale or rent in Yoff, Dakar. Verified listings by Jamm Immo.',
     },
     faq: {
       q: { fr: 'Yoff est-il un bon secteur pour investir ?', en: 'Is Yoff a good area to invest?' },
@@ -265,8 +265,8 @@ export const QUARTIERS: Quartier[] = [
       en: ['Lively & commercial', 'On the BRT line', 'Accessible prices', 'Shops & premises'],
     },
     meta: {
-      fr: "Appartements, magasins et locaux d'activité à Grand Yoff, Dakar. Annonces vérifiées par Jamm Immobilier.",
-      en: 'Apartments, shops and business premises in Grand Yoff, Dakar. Verified listings by Jamm Immobilier.',
+      fr: "Appartements, magasins et locaux d'activité à Grand Yoff, Dakar. Annonces vérifiées par Jamm Immo.",
+      en: 'Apartments, shops and business premises in Grand Yoff, Dakar. Verified listings by Jamm Immo.',
     },
     faq: {
       q: { fr: 'Pourquoi choisir Grand Yoff ?', en: 'Why choose Grand Yoff?' },
@@ -291,8 +291,8 @@ export const QUARTIERS: Quartier[] = [
       en: ['Central & residential', 'Family rentals', 'Well-connected', 'Wide choice'],
     },
     meta: {
-      fr: 'Appartements à vendre ou à louer à Liberté (1 à 6), Dakar. Annonces vérifiées par Jamm Immobilier.',
-      en: 'Apartments for sale or rent in Liberté (1 to 6), Dakar. Verified listings by Jamm Immobilier.',
+      fr: 'Appartements à vendre ou à louer à Liberté (1 à 6), Dakar. Annonces vérifiées par Jamm Immo.',
+      en: 'Apartments for sale or rent in Liberté (1 to 6), Dakar. Verified listings by Jamm Immo.',
     },
     faq: {
       q: { fr: 'Liberté est-il adapté aux familles ?', en: 'Is Liberté suitable for families?' },
@@ -317,8 +317,8 @@ export const QUARTIERS: Quartier[] = [
       en: ['Great value', 'Family-friendly', 'First-time buyers', 'Well-equipped'],
     },
     meta: {
-      fr: 'Appartements, maisons et terrains aux Parcelles Assainies, Dakar. Annonces vérifiées par Jamm Immobilier.',
-      en: 'Apartments, houses and land in Parcelles Assainies, Dakar. Verified listings by Jamm Immobilier.',
+      fr: 'Appartements, maisons et terrains aux Parcelles Assainies, Dakar. Annonces vérifiées par Jamm Immo.',
+      en: 'Apartments, houses and land in Parcelles Assainies, Dakar. Verified listings by Jamm Immo.',
     },
     faq: {
       q: { fr: 'Les Parcelles Assainies sont-elles accessibles ?', en: 'Are Parcelles Assainies affordable?' },
@@ -342,8 +342,8 @@ export const QUARTIERS: Quartier[] = [
       en: ['Coastal frontage', 'Transforming', 'Central', 'New residences'],
     },
     meta: {
-      fr: 'Appartements, villas et terrains à Ouakam, Dakar. Annonces vérifiées par Jamm Immobilier.',
-      en: 'Apartments, villas and land in Ouakam, Dakar. Verified listings by Jamm Immobilier.',
+      fr: 'Appartements, villas et terrains à Ouakam, Dakar. Annonces vérifiées par Jamm Immo.',
+      en: 'Apartments, villas and land in Ouakam, Dakar. Verified listings by Jamm Immo.',
     },
     faq: {
       q: { fr: 'Ouakam est-il bien situé ?', en: 'Is Ouakam well located?' },

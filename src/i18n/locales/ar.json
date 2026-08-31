@@ -1,5 +1,5 @@
 {
-  "site.name": "Jamm Immobilier",
+  "site.name": "Jamm Immo",
   "common.close": "إغلاق",
   "propertyType.appartement": "شقة",
   "propertyType.maison": "منزل",
@@ -38,7 +38,7 @@
   "hero.eyebrow": "Dakar · Saly · Mbour · Saint-Louis · Thiès",
   "hero.title.line1": "العقارات في السنغال،",
   "hero.title.line2": "بروح jamm.",
-  "hero.subtitle": "شراء وإيجار وإدارة ومرافقة مشاريع عقارية — Jamm Immobilier يساعدك على الاستثمار بثقة واطمئنان، من أراضي الساحل الصغير إلى شقق الحي الجبلي.",
+  "hero.subtitle": "شراء وإيجار وإدارة ومرافقة مشاريع عقارية — Jamm Immo يساعدك على الاستثمار بثقة واطمئنان، من أراضي الساحل الصغير إلى شقق الحي الجبلي.",
   "hero.cta.primary": "استعراض العقارات",
   "hero.cta.secondary": "تقدير مجاني",
   "hero.scroll": "اكتشف",
@@ -114,7 +114,7 @@
   "band.quote": "«استثمر في السنغال، بثقة شريك محلي.»",
   "band.sub": "Jamm — السلام، بالولوف",
 
-  "why.tag": "لماذا Jamm Immobilier",
+  "why.tag": "لماذا Jamm Immo",
   "why.title": "منهجية قبل أن تكون فهرساً.",
   "why.1.title": "فحص منهجي لوثائق الملكية",
   "why.1.desc": "كل عقار يخضع للتحقق من سند الملكية والعقد والقرار البلدي قبل النشر. لا مفاجآت عند التوثيق.",
@@ -143,7 +143,7 @@
   "testi.tag": "شهادات العملاء",
   "testi.title": "أولئك الذين وثقوا بنا.",
   "testi.subtitle": "أكثر من 320 مشروعاً مرافَقاً منذ 2018 — أفراد ومستثمرون وعملاء من المغتربين.",
-  "testi.1.quote": "أدار Jamm Immobilier عملية شراء فيلتنا في Saly من باريس. زيارات مصوّرة وتوقيع عن بُعد ومتابعة شبه يومية لأعمال البناء. شريك حقيقي.",
+  "testi.1.quote": "أدار Jamm Immo عملية شراء فيلتنا في Saly من باريس. زيارات مصوّرة وتوقيع عن بُعد ومتابعة شبه يومية لأعمال البناء. شريك حقيقي.",
   "testi.1.name": "A. Diop",
   "testi.1.role": "مستثمر — Paris / Saly",
   "testi.2.quote": "ثلاثة مستأجرين في عامين لشقتنا في Mermoz، صفر تأخر في الإيجار، وتقرير واضح كل ربع سنة. نحن مرتاحون.",
@@ -186,7 +186,7 @@
   "footer.services": "الخدمات",
   "footer.discover": "اكتشف",
   "footer.contact": "التواصل",
-  "footer.copy": "© 2026 Jamm Immobilier — جميع الحقوق محفوظة. مرخّص RC SN-DKR-2018-B-XXXX",
+  "footer.copy": "© 2026 Jamm Immo — جميع الحقوق محفوظة. مرخّص RC SN-DKR-2018-B-XXXX",
   "footer.legal": "الشروط القانونية",
   "footer.privacy": "الخصوصية",
   "footer.cookies": "ملفات تعريف الارتباط",
@@ -202,7 +202,7 @@
   "page.favorites.eyebrow": "قائمتك المختصرة",
   "page.favorites.title": "مفضلتي",
   "page.favorites.subtitle": "العقارات التي حفظتها من هذا المتصفح. مخزّنة محلياً — لا حساب ولا مزامنة سحابية.",
-  "page.favorites.description": "جميع عقارات Jamm Immobilier التي أضفتها إلى مفضلتك.",
+  "page.favorites.description": "جميع عقارات Jamm Immo التي أضفتها إلى مفضلتك.",
   "page.favorites.empty.title": "لا توجد مفضلة بعد",
   "page.favorites.empty.body": "انقر على القلب في أي إعلان لحفظه هنا. تبقى مفضلتك على هذا الجهاز.",
   "page.favorites.empty.cta": "تصفح الإعلانات",
@@ -211,7 +211,7 @@
   "page.favorites.clearConfirm": "هل تريد مسح جميع المفضلات؟",
 
   "owner.meta.title": "بيع عقارك أو تفويض إدارته",
-  "owner.meta.description": "الملاك والبائعون والمؤجِّرون: عهّد بعقارك إلى Jamm Immobilier. تقدير مجاني وتفويض واضح وتسويق متعدد القنوات مع ريلز فيديو ومشترون ومستأجرون مؤهلون ومرافقة شاملة.",
+  "owner.meta.description": "الملاك والبائعون والمؤجِّرون: عهّد بعقارك إلى Jamm Immo. تقدير مجاني وتفويض واضح وتسويق متعدد القنوات مع ريلز فيديو ومشترون ومستأجرون مؤهلون ومرافقة شاملة.",
 
   "owner.eyebrow": "البائعون · المؤجِّرون · الملاك",
   "owner.title": "بيعْ أو أجِّر عقارك بكل ثقة.",
@@ -253,7 +253,7 @@
   "owner.final.lead": "أخبرنا في بضع كلمات عمّا تريد بيعه أو تأجيره. سنتصل بك خلال 24 ساعة عمل، بدون التزام.",
 
   "partner.meta.title": "كن شريكاً مقدِّم أعمال",
-  "partner.meta.description": "وكالات ووسطاء وشركاء وأفراد: قدِّم عقاراً أو عميلاً إلى Jamm Immobilier وكن مكافأً. عمولة واضحة تُدفع عند الإبرام وتقديمك محمي من التكرار ومتابعة شفافة للصفقات المقدَّمة.",
+  "partner.meta.description": "وكالات ووسطاء وشركاء وأفراد: قدِّم عقاراً أو عميلاً إلى Jamm Immo وكن مكافأً. عمولة واضحة تُدفع عند الإبرام وتقديمك محمي من التكرار ومتابعة شفافة للصفقات المقدَّمة.",
 
   "partner.eyebrow": "وكالات · وسطاء · مقدّمو أعمال",
   "partner.title": "قدِّم صفقة وكن مكافأً.",
@@ -365,7 +365,7 @@
   "breadcrumb.home": "الرئيسية",
   "geo.hub.eyebrow": "العقارات حسب الحي",
   "geo.hub.title": "أحياؤنا في داكار",
-  "geo.hub.subtitle": "استكشف العقارات حيّاً حيّاً — بيع وإيجار وإدارة، مع إعلانات تحقق منها Jamm Immobilier.",
+  "geo.hub.subtitle": "استكشف العقارات حيّاً حيّاً — بيع وإيجار وإدارة، مع إعلانات تحقق منها Jamm Immo.",
   "geo.hub.linkLabel": "{count} عقار متاح",
   "geo.quartier.eyebrow": "عقارات · {city}",
   "geo.quartier.h1": "عقارات في {name}",
@@ -377,12 +377,12 @@
   "geo.quartier.empty.body": "تصل عقارات جديدة بانتظام. أخبرنا بما تبحث عنه في {name} وسنُنبّهك فور توافر ما يناسبك.",
   "geo.quartier.empty.cta": "وصف مشروعي",
   "geo.quartier.allListings": "عرض جميع الإعلانات",
-  "geo.faq.generic.q": "هل إعلانات Jamm Immobilier موثّقة؟",
+  "geo.faq.generic.q": "هل إعلانات Jamm Immo موثّقة؟",
   "geo.faq.generic.a": "نعم. كل عقار يفحصه فريقنا قبل النشر: السند والتوافر والسعر والمواصفات. أنت تتعامل مع وكالة وليس مع دليل إعلانات غير مصفّاة.",
 
   "faq.eyebrow": "الأسئلة الشائعة",
   "faq.title": "كل ما تحتاج معرفته قبل التواصل معنا",
-  "faq.q1": "ما الخدمات التي تقدمها Jamm Immobilier؟",
+  "faq.q1": "ما الخدمات التي تقدمها Jamm Immo؟",
   "faq.a1": "نرافق البيع والإيجار وإدارة العقارات والاستشارة العقارية في السنغال. سواء أكنت مالكاً أم مشترياً أم مستأجراً أم مستثمراً، نتولى مشروعك من الألف إلى الياء: تقدير وتسويق وزيارات وتفاوض ومتابعة إدارية.",
   "faq.q2": "ما المدن والأحياء التي تغطونها؟",
   "faq.a2": "نشاطنا الأساسي في داكار — Almadies وNgor وOuakam وMermoz وPoint E وFann وPlateau وSacré-Cœur وYoff وGrand Yoff وLiberté وParcelles Assainies — كما نعمل على الساحل الصغير (Saly وMbour) وفي Thiès وSaint-Louis.",
@@ -396,7 +396,7 @@
   "faq.a6": "أتعابنا تتوافق مع أعراف السوق السنغالية وتُكشف بشفافية قبل أي التزام وبدون رسوم مخفية. تواصل معنا للحصول على تقدير مناسب لمشروعك.",
 
   "estimate.meta.title": "تقدير سريع — قيِّم عقارك في دقيقة واحدة",
-  "estimate.meta.description": "صف عقارك في دقيقة واحدة واحصل مجاناً على تقدير دقيق من خبير Jamm Immobilier خلال 24 ساعة. بدون التزام.",
+  "estimate.meta.description": "صف عقارك في دقيقة واحدة واحصل مجاناً على تقدير دقيق من خبير Jamm Immo خلال 24 ساعة. بدون التزام.",
   "estimate.page.eyebrow": "الملاك البائعون والمؤجِّرون",
   "estimate.page.title": "قيِّم عقارك في دقيقة واحدة",
   "estimate.page.subtitle": "أنشئ ملف عقارك خطوة بخطوة، مجاناً وبدون تسجيل. في النهاية يرسل لك خبير Jamm تقديراً بالأرقام خلال 24 ساعة.",
@@ -452,7 +452,7 @@
   "estimate.result.factor.2": "المساحة والتصميم — توزيع داخلي محكم ومساحات واضحة تستقطب المشترين والمستأجرين.",
   "estimate.result.factor.3": "الحالة والمستوى — عقار جاهز للسكن أو مُجدَّد باحتراف يرتفع سعره ويُباع أسرع.",
   "estimate.result.offerTitle": "تقدير دقيق بالأرقام مجاناً خلال 24 ساعة",
-  "estimate.result.offerBody": "لا أرقام تقريبية آلية: خبير Jamm Immobilier يحلل عقارك ويرسل لك تقديراً دقيقاً ومخصصاً خلال 24 ساعة. مجاني وبدون التزام.",
+  "estimate.result.offerBody": "لا أرقام تقريبية آلية: خبير Jamm Immo يحلل عقارك ويرسل لك تقديراً دقيقاً ومخصصاً خلال 24 ساعة. مجاني وبدون التزام.",
   "estimate.result.cta": "الحصول على تقديري بالأرقام",
   "estimate.result.edit": "تعديل",
 
@@ -466,11 +466,11 @@
   "estimate.capture.back": "العودة إلى النتيجة",
 
   "estimate.done.title": "تم التسجيل، شكراً!",
-  "estimate.done.body": "خبير Jamm Immobilier يُعدّ تقديرك بالأرقام وسيتواصل معك عبر WhatsApp خلال 24 ساعة.",
+  "estimate.done.body": "خبير Jamm Immo يُعدّ تقديرك بالأرقام وسيتواصل معك عبر WhatsApp خلال 24 ساعة.",
   "estimate.done.wa": "تحدث الآن على WhatsApp",
 
   "estimate.recap.header": "تقدير سريع — تفاصيل العقار:",
-  "estimate.wa.intro": "مرحباً Jamm Immobilier، أودّ الحصول على تقدير لعقاري.",
+  "estimate.wa.intro": "مرحباً Jamm Immo، أودّ الحصول على تقدير لعقاري.",
   "estimate.lead.anonName": "تقدير سريع",
 
   "budget.meta.title": "ميزانيتي — اكتشف ما يمكنك استهدافه",
@@ -546,11 +546,11 @@
   "budget.capture.back": "العودة إلى النتيجة",
 
   "budget.done.title": "تم التسجيل، شكراً!",
-  "budget.done.body": "مستشار Jamm Immobilier يُعدّ قائمتك المختصرة المخصصة وسيتواصل معك عبر WhatsApp. ستكون أول من يُخطَر فور توافر عقار ضمن ميزانيتك.",
+  "budget.done.body": "مستشار Jamm Immo يُعدّ قائمتك المختصرة المخصصة وسيتواصل معك عبر WhatsApp. ستكون أول من يُخطَر فور توافر عقار ضمن ميزانيتك.",
   "budget.done.wa": "تحدث الآن على WhatsApp",
 
   "budget.recap.header": "ميزانيتي — تفاصيل المشروع:",
-  "budget.wa.intro": "مرحباً Jamm Immobilier، إليك ميزانيتي وبحثي.",
+  "budget.wa.intro": "مرحباً Jamm Immo، إليك ميزانيتي وبحثي.",
   "budget.lead.anonName": "بحث بالميزانية",
   "budget.listings.cta": "غير متأكد من ميزانيتك؟ اكتشف ما يمكن استهدافه",
 
@@ -640,13 +640,13 @@
   "safety.capture.back": "العودة إلى النتيجة",
 
   "safety.done.title": "تم التسجيل، شكراً!",
-  "safety.done.body": "خبير Jamm Immobilier يتولى تشخيصك وسيتواصل معك عبر WhatsApp للتحقق من الملف معك، مجاناً.",
+  "safety.done.body": "خبير Jamm Immo يتولى تشخيصك وسيتواصل معك عبر WhatsApp للتحقق من الملف معك، مجاناً.",
   "safety.done.wa": "تحدث الآن على WhatsApp",
 
   "safety.recap.header": "الأمن العقاري — تشخيصي:",
   "safety.recap.level": "مستوى الحذر",
   "safety.recap.flagsHeader": "نقاط الحذر:",
-  "safety.wa.intro": "مرحباً Jamm Immobilier، أودّ فحص عقار قبل الشراء.",
+  "safety.wa.intro": "مرحباً Jamm Immo، أودّ فحص عقار قبل الشراء.",
   "safety.lead.anonName": "تشخيص عقاري",
   "safety.detail.cta": "تبحث في مكان آخر أيضًا؟ افحص أي عقار — تشخيص مجاني",
 
@@ -720,12 +720,12 @@
   "match.capture.back": "العودة إلى النتيجة",
 
   "match.done.title": "تم التسجيل، شكراً!",
-  "match.done.body": "مستشار Jamm Immobilier يُعدّ قائمتك المختصرة المخصصة وسيتواصل معك عبر WhatsApp فور توافر عقار مطابق.",
+  "match.done.body": "مستشار Jamm Immo يُعدّ قائمتك المختصرة المخصصة وسيتواصل معك عبر WhatsApp فور توافر عقار مطابق.",
   "match.done.wa": "تحدث الآن على WhatsApp",
 
   "match.recap.header": "مطابق العقارات — بحثي:",
   "match.recap.matchesHeader": "التطابقات القريبة الموجودة:",
-  "match.wa.intro": "مرحباً Jamm Immobilier، إليك ما أبحث عنه.",
+  "match.wa.intro": "مرحباً Jamm Immo، إليك ما أبحث عنه.",
   "match.lead.anonName": "بحث عن عقار",
   "a11y.skipToContent": "التخطي إلى المحتوى الرئيسي",
   "geo.quartier.titlePrefix": "عقارات في",
@@ -759,7 +759,7 @@
   "safety.trust.point.deed": "سند الملكية متحقق منه قبل أي زيارة",
   "safety.trust.point.seller": "هوية البائع وتفويضه مُتحقق منهما",
   "safety.trust.point.nodouble": "حماية من البيع المزدوج",
-  "safety.trust.band": "عقار موثّق من Jamm Immobilier",
+  "safety.trust.band": "عقار موثّق من Jamm Immo",
   "listing.translate.seeTranslation": "عرض الترجمة",
   "estimate.comps.eyebrow": "مرجع السوق",
   "estimate.comps.rangeLabel": "نطاق تقديري لعقارك",
@@ -893,7 +893,7 @@
   "nav.frais": "رسوم الشراء",
   "toolseo.faqTitle": "الأسئلة الشائعة",
   "page.listings.description": "جميع إعلانات Jamm العقارية الموثَّقة في داكار والسنغال: شقق وفيلات وأراضٍ ومكاتب للبيع أو الإيجار، قابلة للتصفية حسب المدينة والنوع والميزانية، مع خريطة.",
-  "page.contact.description": "تواصل مع Jamm Immobilier في داكار (Sacré-Cœur 3): هاتف وWhatsApp وبريد إلكتروني وعنوان واتجاهات. فريق في خدمتك لشراء عقار أو استئجاره أو تفويض إدارته في السنغال.",
+  "page.contact.description": "تواصل مع Jamm Immo في داكار (Sacré-Cœur 3): هاتف وWhatsApp وبريد إلكتروني وعنوان واتجاهات. فريق في خدمتك لشراء عقار أو استئجاره أو تفويض إدارته في السنغال.",
   "toolseo.frais-acquisition.intro": "عند شراء عقار في السنغال، يدفع المشتري رسوماً إضافية فوق الثمن: رسوم التسجيل ورسوم الشهر العقاري وأتعاب الموثّق. لإعادة بيع عقار له سند عقاري، احتسب نحو 7–12 % من الثمن.",
   "toolseo.frais-acquisition.q1": "ما هي أتعاب الموثّق في السنغال؟",
   "toolseo.frais-acquisition.a1": "تتبع أتعاب الموثّق سُلَّماً تنازلياً حسب الشرائح (Décret 2006-1366، art. 150): 4,5 % حتى 20 مليون FCFA، و3 % من 20 إلى 80 مليون، و1,5 % من 80 إلى 300 مليون، و0,75 % لما فوق ذلك، إضافة إلى 18 % ضريبة على القيمة المضافة على هذه الأتعاب.",
@@ -940,7 +940,7 @@
   "guides.eyebrow": "موارد",
   "guides.hubTitle": "أدلة عقارية",
   "guides.hubSubtitle": "أدلة عملية وموثّقة للشراء والإيجار والاستثمار في السنغال بثقة.",
-  "guides.metaTitle": "أدلة عقارية في السنغال — Jamm Immobilier",
+  "guides.metaTitle": "أدلة عقارية في السنغال — Jamm Immo",
   "guides.metaDescription": "أدلة عملية وموثّقة للشراء أو الإيجار أو الاستثمار العقاري في السنغال: رسوم الاقتناء، الأمن العقاري، الشراء من المهجر، تقدير الأسعار.",
   "guides.by": "بقلم",
   "guides.freeTool": "أداة مجانية",

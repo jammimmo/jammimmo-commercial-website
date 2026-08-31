@@ -15,7 +15,7 @@ const p = (path: string) => localizedPath(path, lang);
         <a href={p('/')} class="flex items-center gap-3 font-extrabold text-white">
           <BrandMark size={42} />
           <span class="leading-none">
-            <span class="block">JAMM IMMOBILIER</span>
+            <span class="block uppercase">{SITE.agencyName}</span>
             <small class="block font-medium text-[10px] mt-1 opacity-60 tracking-[0.12em] uppercase">
               {t('site.tagline', lang)}
             </small>

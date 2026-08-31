@@ -46,7 +46,7 @@ export function propertySeoTitle(
   const unit = lang === 'en' ? 'sqm' : 'm²';
   const surfaceFrag = p.surface > 0 ? `${p.surface}${unit} ` : '';
   const price = formatRentalPrice(p.price, p.transaction_type);
-  return `${typeLabel(p.type, lang)} ${surfaceFrag}${p.quartier} ${p.city} — ${price} | Jamm Immobilier`;
+  return `${typeLabel(p.type, lang)} ${surfaceFrag}${p.quartier} ${p.city} — ${price} | Jamm Immo`;
 }
 
 /**

@@ -2,7 +2,7 @@
 title: "Comprar un inmueble en Senegal desde la diáspora"
 description: "Comprar en Dakar o Saly desde Francia, Italia o Estados Unidos: poder de representación, verificaciones a distancia, gastos a prever y trampas que evitar cuando se está lejos."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Diáspora"
 order: 3
 relatedTool:

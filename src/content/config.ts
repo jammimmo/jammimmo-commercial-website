@@ -18,7 +18,7 @@ const guides = defineCollection({
     /** ISO date (YYYY-MM-DD), provided in frontmatter. */
     date: z.string(),
     updated: z.string().optional(),
-    author: z.string().default('Jamm Immobilier'),
+    author: z.string().default('Jamm Immo'),
     /** short category label shown on the card + page. */
     category: z.string().default('Guide'),
     /** ordering weight on the hub (lower first); ties break by date desc. */

@@ -1,6 +1,6 @@
-# Jamm Immobilier — site vitrine
+# Jamm Immo — site vitrine
 
-Site marketing public pour Jamm Immobilier. Reconstruction greenfield en Astro 4, déploiement Cloudflare Pages. Sœur du SaaS admin [`jammimmo-estate-flow`](https://github.com/jammimmo/jammimmo-estate-flow).
+Site marketing public pour Jamm Immo. Reconstruction greenfield en Astro 4, déploiement Cloudflare Pages. Sœur du SaaS admin [`jammimmo-estate-flow`](https://github.com/jammimmo/jammimmo-estate-flow).
 
 ## Architecture — Tier 3 (vitrine ↔ admin isolation)
 
@@ -185,4 +185,4 @@ Beacon `requestIdleCallback` après chargement de la fiche → `POST /api/views`
 
 [`jammimmo-estate-flow`](https://github.com/jammimmo/jammimmo-estate-flow) — Vite + React + Cloudflare Worker + R2. Stack séparée parce que les besoins sont opposés (SPA admin authentifiée vs. site SEO public).
 
-© Jamm Immobilier · Dakar
+© Jamm Immo · Dakar

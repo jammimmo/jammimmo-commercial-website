@@ -2,7 +2,7 @@
 title: "Property acquisition costs in Senegal: the complete guide"
 description: "Registration tax, land registration, notary fees and VAT: how much to budget on top of the price to buy a property in Senegal, with a worked example and the official rate schedules."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Buying"
 order: 1
 relatedTool:

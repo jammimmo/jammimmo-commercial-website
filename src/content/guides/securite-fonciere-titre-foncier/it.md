@@ -2,7 +2,7 @@
 title: "Sicurezza fondiaria in Senegal: verificare un titolo fondiario ed evitare le truffe"
 description: "Titolo fondiario, contratto d'affitto, delibera: come distinguere un documento sicuro da uno rischioso, verificare la proprietà presso la Conservatoria fondiaria e acquistare senza cadere in trappola."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Sicurezza"
 order: 2
 relatedTool:

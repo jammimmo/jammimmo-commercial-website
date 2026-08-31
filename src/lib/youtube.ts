@@ -21,7 +21,7 @@ export function isYoutubeShorts(url: string | null | undefined): boolean {
 /**
  * Best-guess aspect ratio for a YouTube URL.
  *
- * **Default is portrait (9:16)** because Jamm Immobilier's tour videos are
+ * **Default is portrait (9:16)** because Jamm Immo's tour videos are
  * shot on phones — virtually all are vertical, including the ones uploaded
  * via `/watch?v=…` (not just `/shorts/`). Switch the default back to 16:9
  * the day someone records landscape on a real camera.

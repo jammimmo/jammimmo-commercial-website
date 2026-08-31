@@ -2,7 +2,7 @@
 title: "Nan ngay xayma njëgu benn kër ci Dakar"
 description: "Xayma njëgu benn appartement, benn villa walla benn tool ci Dakar : méthode bu kër yu mengoo (comparables), faktër yi di defar njëg li, ak lu tax nga war a moytu grille yu ñu defar ba pare."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Saytu njëg"
 order: 4
 relatedTool:

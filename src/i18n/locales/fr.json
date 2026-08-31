@@ -1,5 +1,5 @@
 {
-  "site.name": "Jamm Immobilier",
+  "site.name": "Jamm Immo",
   "common.close": "Fermer",
   "propertyType.appartement": "Appartement",
   "propertyType.maison": "Maison",
@@ -38,7 +38,7 @@
   "hero.eyebrow": "Dakar · Saly · Mbour · Saint-Louis · Thiès",
   "hero.title.line1": "L'immobilier au Sénégal,",
   "hero.title.line2": "fait avec jamm.",
-  "hero.subtitle": "Achat, location, gestion et accompagnement de projet — Jamm Immobilier vous aide à investir avec sérénité, des terrains de la petite côte aux appartements du Plateau.",
+  "hero.subtitle": "Achat, location, gestion et accompagnement de projet — Jamm Immo vous aide à investir avec sérénité, des terrains de la petite côte aux appartements du Plateau.",
   "hero.cta.primary": "Voir les biens",
   "hero.cta.secondary": "Estimation gratuite",
   "hero.scroll": "Découvrir",
@@ -114,7 +114,7 @@
   "band.quote": "« Investir au Sénégal, avec la confiance d'un partenaire local. »",
   "band.sub": "Jamm — la paix, en wolof",
 
-  "why.tag": "Pourquoi Jamm Immobilier",
+  "why.tag": "Pourquoi Jamm Immo",
   "why.title": "Une méthode avant d'être un catalogue.",
   "why.1.title": "Vérification systématique du foncier",
   "why.1.desc": "Chaque bien proposé passe par un contrôle titre foncier / bail / délibération avant publication. Pas de surprise au moment du notaire.",
@@ -143,7 +143,7 @@
   "testi.tag": "Témoignages",
   "testi.title": "Ils nous ont fait confiance.",
   "testi.subtitle": "Plus de 320 projets accompagnés depuis 2018 — particuliers, investisseurs et clients diaspora.",
-  "testi.1.quote": "Jamm Immobilier a géré l'achat de notre villa à Saly depuis Paris. Visites filmées, signature à distance, et un suivi de travaux quasi-quotidien. Un vrai partenaire.",
+  "testi.1.quote": "Jamm Immo a géré l'achat de notre villa à Saly depuis Paris. Visites filmées, signature à distance, et un suivi de travaux quasi-quotidien. Un vrai partenaire.",
   "testi.1.name": "A. Diop",
   "testi.1.role": "Investisseur — Paris / Saly",
   "testi.2.quote": "Trois locataires en deux ans pour notre appartement de Mermoz, zéro impayé, et un reporting clair chaque trimestre. On dort tranquilles.",
@@ -186,7 +186,7 @@
   "footer.services": "Services",
   "footer.discover": "Découvrir",
   "footer.contact": "Contact",
-  "footer.copy": "© 2026 Jamm Immobilier — Tous droits réservés. Agréé RC SN-DKR-2018-B-XXXX",
+  "footer.copy": "© 2026 Jamm Immo — Tous droits réservés. Agréé RC SN-DKR-2018-B-XXXX",
   "footer.legal": "Mentions légales",
   "footer.privacy": "Confidentialité",
   "footer.cookies": "Cookies",
@@ -202,7 +202,7 @@
   "page.favorites.eyebrow": "Vos coups de cœur",
   "page.favorites.title": "Mes favoris",
   "page.favorites.subtitle": "Les biens que vous avez sauvegardés depuis ce navigateur. Stockés localement — aucun compte, aucune synchronisation cloud.",
-  "page.favorites.description": "Retrouvez ici tous les biens Jamm Immobilier que vous avez ajoutés à vos favoris.",
+  "page.favorites.description": "Retrouvez ici tous les biens Jamm Immo que vous avez ajoutés à vos favoris.",
   "page.favorites.empty.title": "Aucun favori pour le moment",
   "page.favorites.empty.body": "Cliquez sur le cœur d'une annonce pour la sauvegarder ici. Vos favoris restent sur cet appareil.",
   "page.favorites.empty.cta": "Parcourir les annonces",
@@ -211,7 +211,7 @@
   "page.favorites.clearConfirm": "Effacer tous les favoris ?",
 
   "owner.meta.title": "Vendre ou confier la gestion de votre bien",
-  "owner.meta.description": "Propriétaires, vendeurs et bailleurs : confiez votre bien à Jamm Immobilier. Estimation gratuite, mandat clair, diffusion multicanale avec reels vidéo, acheteurs et locataires qualifiés, accompagnement de bout en bout.",
+  "owner.meta.description": "Propriétaires, vendeurs et bailleurs : confiez votre bien à Jamm Immo. Estimation gratuite, mandat clair, diffusion multicanale avec reels vidéo, acheteurs et locataires qualifiés, accompagnement de bout en bout.",
 
   "owner.eyebrow": "Vendeurs · Bailleurs · Propriétaires",
   "owner.title": "Vendez ou louez votre bien en confiance.",
@@ -253,7 +253,7 @@
   "owner.final.lead": "Dites-nous en quelques mots ce que vous souhaitez vendre ou mettre en location. On vous rappelle sous 24 h ouvrées, sans engagement.",
 
   "partner.meta.title": "Devenez partenaire apporteur d'affaires",
-  "partner.meta.description": "Agences, courtiers, partenaires et particuliers : apportez un bien ou un client à Jamm Immobilier et soyez rémunéré. Commission claire payée à la conclusion, apport protégé contre les doublons, suivi transparent des affaires apportées.",
+  "partner.meta.description": "Agences, courtiers, partenaires et particuliers : apportez un bien ou un client à Jamm Immo et soyez rémunéré. Commission claire payée à la conclusion, apport protégé contre les doublons, suivi transparent des affaires apportées.",
 
   "partner.eyebrow": "Agences · Courtiers · Apporteurs d'affaires",
   "partner.title": "Apportez une affaire, soyez rémunéré.",
@@ -365,7 +365,7 @@
   "breadcrumb.home": "Accueil",
   "geo.hub.eyebrow": "Immobilier par quartier",
   "geo.hub.title": "Nos quartiers à Dakar",
-  "geo.hub.subtitle": "Explorez l'immobilier quartier par quartier — vente, location et gestion, avec des annonces vérifiées par Jamm Immobilier.",
+  "geo.hub.subtitle": "Explorez l'immobilier quartier par quartier — vente, location et gestion, avec des annonces vérifiées par Jamm Immo.",
   "geo.hub.linkLabel": "{count} bien(s) disponible(s)",
   "geo.quartier.eyebrow": "Immobilier · {city}",
   "geo.quartier.h1": "Immobilier à {name}",
@@ -377,12 +377,12 @@
   "geo.quartier.empty.body": "De nouveaux biens arrivent régulièrement. Dites-nous ce que vous cherchez à {name} et nous vous alertons dès qu'un bien correspond.",
   "geo.quartier.empty.cta": "Décrire mon projet",
   "geo.quartier.allListings": "Voir toutes les annonces",
-  "geo.faq.generic.q": "Les annonces de Jamm Immobilier sont-elles vérifiées ?",
+  "geo.faq.generic.q": "Les annonces de Jamm Immo sont-elles vérifiées ?",
   "geo.faq.generic.a": "Oui. Chaque bien est vérifié par notre équipe avant publication : titre, disponibilité, prix et caractéristiques. Vous traitez avec une agence, pas avec un annuaire d'annonces non filtrées.",
 
   "faq.eyebrow": "Questions fréquentes",
   "faq.title": "Tout ce qu'il faut savoir avant de nous contacter",
-  "faq.q1": "Quels services propose Jamm Immobilier ?",
+  "faq.q1": "Quels services propose Jamm Immo ?",
   "faq.a1": "Nous accompagnons la vente, la location, la gestion locative et le conseil immobilier au Sénégal. Que vous soyez propriétaire, acquéreur, locataire ou investisseur, nous prenons en charge votre projet de bout en bout : estimation, mise en valeur, visites, négociation et suivi administratif.",
   "faq.q2": "Dans quelles villes et quartiers intervenez-vous ?",
   "faq.a2": "Notre cœur d'activité est Dakar — Almadies, Ngor, Ouakam, Mermoz, Point E, Fann, Plateau, Sacré-Cœur, Yoff, Grand Yoff, Liberté, Parcelles Assainies — et nous intervenons aussi sur la Petite-Côte (Saly, Mbour), à Thiès et à Saint-Louis.",
@@ -396,7 +396,7 @@
   "faq.a6": "Nos honoraires sont conformes aux usages du marché sénégalais et vous sont communiqués en toute transparence avant tout engagement, sans frais cachés. Contactez-nous pour une estimation adaptée à votre projet.",
 
   "estimate.meta.title": "Estimation express — estimez votre bien en 1 minute",
-  "estimate.meta.description": "Décrivez votre bien en 1 minute et recevez gratuitement une estimation chiffrée par un expert Jamm Immobilier sous 24h. Sans engagement.",
+  "estimate.meta.description": "Décrivez votre bien en 1 minute et recevez gratuitement une estimation chiffrée par un expert Jamm Immo sous 24h. Sans engagement.",
   "estimate.page.eyebrow": "Propriétaires vendeurs & bailleurs",
   "estimate.page.title": "Estimez votre bien en 1 minute",
   "estimate.page.subtitle": "Composez votre bien étape par étape, gratuitement et sans inscription. À la fin, un expert Jamm vous remet une estimation chiffrée sous 24h.",
@@ -452,7 +452,7 @@
   "estimate.result.factor.2": "La surface et l'agencement — une distribution optimisée et des volumes clairs séduisent acheteurs et locataires.",
   "estimate.result.factor.3": "L'état et le standing — un bien prêt à vivre ou rénové avec goût se valorise mieux et se concrétise plus vite.",
   "estimate.result.offerTitle": "Estimation chiffrée gratuite sous 24h",
-  "estimate.result.offerBody": "Pas de prix automatique approximatif : un expert Jamm Immobilier analyse votre bien et vous envoie une estimation précise et personnalisée sous 24h. C'est gratuit et sans engagement.",
+  "estimate.result.offerBody": "Pas de prix automatique approximatif : un expert Jamm Immo analyse votre bien et vous envoie une estimation précise et personnalisée sous 24h. C'est gratuit et sans engagement.",
   "estimate.result.cta": "Recevoir mon estimation chiffrée",
   "estimate.result.edit": "Modifier",
 
@@ -466,11 +466,11 @@
   "estimate.capture.back": "Revenir au résultat",
 
   "estimate.done.title": "C'est noté, merci !",
-  "estimate.done.body": "Un expert Jamm Immobilier prépare votre estimation chiffrée et vous contacte sur WhatsApp sous 24h.",
+  "estimate.done.body": "Un expert Jamm Immo prépare votre estimation chiffrée et vous contacte sur WhatsApp sous 24h.",
   "estimate.done.wa": "Discuter dès maintenant sur WhatsApp",
 
   "estimate.recap.header": "Estimation express — détails du bien :",
-  "estimate.wa.intro": "Bonjour Jamm Immobilier, je souhaite une estimation pour mon bien.",
+  "estimate.wa.intro": "Bonjour Jamm Immo, je souhaite une estimation pour mon bien.",
   "estimate.lead.anonName": "Estimation express",
 
   "budget.meta.title": "Mon budget — trouvez ce que vous pouvez viser",
@@ -546,11 +546,11 @@
   "budget.capture.back": "Revenir au résultat",
 
   "budget.done.title": "C'est noté, merci !",
-  "budget.done.body": "Un conseiller Jamm Immobilier prépare votre sélection personnalisée et vous contacte sur WhatsApp. Vous serez prévenu en priorité dès qu'un bien correspond à votre budget.",
+  "budget.done.body": "Un conseiller Jamm Immo prépare votre sélection personnalisée et vous contacte sur WhatsApp. Vous serez prévenu en priorité dès qu'un bien correspond à votre budget.",
   "budget.done.wa": "Discuter dès maintenant sur WhatsApp",
 
   "budget.recap.header": "Mon budget — détails du projet :",
-  "budget.wa.intro": "Bonjour Jamm Immobilier, voici mon budget et ma recherche.",
+  "budget.wa.intro": "Bonjour Jamm Immo, voici mon budget et ma recherche.",
   "budget.lead.anonName": "Recherche budget",
   "budget.listings.cta": "Pas sûr de votre budget ? Voyez ce que vous pouvez viser",
 
@@ -640,13 +640,13 @@
   "safety.capture.back": "Revenir au résultat",
 
   "safety.done.title": "C'est noté, merci !",
-  "safety.done.body": "Un expert Jamm Immobilier reprend votre diagnostic et vous contacte sur WhatsApp pour vérifier le dossier avec vous, gratuitement.",
+  "safety.done.body": "Un expert Jamm Immo reprend votre diagnostic et vous contacte sur WhatsApp pour vérifier le dossier avec vous, gratuitement.",
   "safety.done.wa": "Discuter dès maintenant sur WhatsApp",
 
   "safety.recap.header": "Sécurité foncière — mon diagnostic :",
   "safety.recap.level": "Niveau de vigilance",
   "safety.recap.flagsHeader": "Points de vigilance :",
-  "safety.wa.intro": "Bonjour Jamm Immobilier, j'aimerais faire vérifier un bien avant d'acheter.",
+  "safety.wa.intro": "Bonjour Jamm Immo, j'aimerais faire vérifier un bien avant d'acheter.",
   "safety.lead.anonName": "Diagnostic foncier",
   "safety.detail.cta": "Vous regardez aussi ailleurs ? Vérifiez n'importe quel bien — diagnostic gratuit",
 
@@ -720,12 +720,12 @@
   "match.capture.back": "Revenir au résultat",
 
   "match.done.title": "C'est noté, merci !",
-  "match.done.body": "Un conseiller Jamm Immobilier prépare votre sélection personnalisée et vous contacte sur WhatsApp dès qu'un bien correspond.",
+  "match.done.body": "Un conseiller Jamm Immo prépare votre sélection personnalisée et vous contacte sur WhatsApp dès qu'un bien correspond.",
   "match.done.wa": "Discuter dès maintenant sur WhatsApp",
 
   "match.recap.header": "Match-o-mètre — ma recherche :",
   "match.recap.matchesHeader": "Biens proches trouvés :",
-  "match.wa.intro": "Bonjour Jamm Immobilier, voici ce que je recherche.",
+  "match.wa.intro": "Bonjour Jamm Immo, voici ce que je recherche.",
   "match.lead.anonName": "Recherche bien",
   "a11y.skipToContent": "Aller au contenu principal",
   "geo.quartier.titlePrefix": "Immobilier à",
@@ -759,7 +759,7 @@
   "safety.trust.point.deed": "Titre de propriété vérifié avant toute visite",
   "safety.trust.point.seller": "Identité et mandat du vendeur contrôlés",
   "safety.trust.point.nodouble": "Protection contre les ventes multiples",
-  "safety.trust.band": "Bien vérifié par Jamm Immobilier",
+  "safety.trust.band": "Bien vérifié par Jamm Immo",
   "listing.translate.seeTranslation": "Voir la traduction",
   "estimate.comps.eyebrow": "Repère de marché",
   "estimate.comps.rangeLabel": "Fourchette indicative pour votre bien",
@@ -893,7 +893,7 @@
   "nav.frais": "Frais d'achat",
   "toolseo.faqTitle": "Questions fréquentes",
   "page.listings.description": "Toutes les annonces immobilières vérifiées de Jamm à Dakar et au Sénégal : appartements, villas, terrains et bureaux à vendre ou à louer, filtrables par ville, type et budget, avec carte.",
-  "page.contact.description": "Contactez Jamm Immobilier à Dakar (Sacré-Cœur 3) : téléphone, WhatsApp, e-mail, adresse et itinéraire. Une équipe à votre écoute pour acheter, louer ou confier un bien au Sénégal.",
+  "page.contact.description": "Contactez Jamm Immo à Dakar (Sacré-Cœur 3) : téléphone, WhatsApp, e-mail, adresse et itinéraire. Une équipe à votre écoute pour acheter, louer ou confier un bien au Sénégal.",
   "toolseo.frais-acquisition.intro": "Lors d'un achat immobilier au Sénégal, l'acheteur paie des frais en plus du prix : droits d'enregistrement, publicité foncière et honoraires du notaire. Pour la revente d'un bien titré, comptez environ 7 à 12 % du prix.",
   "toolseo.frais-acquisition.q1": "Quels sont les frais de notaire au Sénégal ?",
   "toolseo.frais-acquisition.a1": "Les honoraires du notaire suivent un barème dégressif par tranche (Décret 2006-1366, art. 150) : 4,5 % jusqu'à 20 millions FCFA, 3 % de 20 à 80 millions, 1,5 % de 80 à 300 millions et 0,75 % au-delà, plus 18 % de TVA sur ces honoraires.",
@@ -940,7 +940,7 @@
   "guides.eyebrow": "Ressources",
   "guides.hubTitle": "Guides immobiliers",
   "guides.hubSubtitle": "Des guides pratiques et sourcés pour acheter, louer et investir au Sénégal en toute confiance.",
-  "guides.metaTitle": "Guides immobiliers au Sénégal — Jamm Immobilier",
+  "guides.metaTitle": "Guides immobiliers au Sénégal — Jamm Immo",
   "guides.metaDescription": "Guides pratiques et sourcés pour acheter, louer ou investir dans l’immobilier au Sénégal : frais d’acquisition, sécurité foncière, achat depuis la diaspora, estimation de prix.",
   "guides.by": "Par",
   "guides.freeTool": "Outil gratuit",

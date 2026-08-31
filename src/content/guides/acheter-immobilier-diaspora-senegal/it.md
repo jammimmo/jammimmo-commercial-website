@@ -2,7 +2,7 @@
 title: "Acquistare un immobile in Senegal dalla diaspora"
 description: "Acquistare a Dakar o a Saly dalla Francia, dall'Italia o dagli Stati Uniti: mandato, verifiche a distanza, costi da prevedere e insidie da evitare quando si è lontani."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Diaspora"
 order: 3
 relatedTool:

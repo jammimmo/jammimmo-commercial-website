@@ -1,4 +1,4 @@
-# Jamm Immobilier vitrine — last reviewed 2026-06-24
+# Jamm Immo vitrine — last reviewed 2026-06-24
 User-agent: *
 Allow: /
 Disallow: /api/
