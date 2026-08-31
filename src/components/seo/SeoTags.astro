@@ -18,7 +18,7 @@ const {
   title,
   description,
   image = '/og-default.png',
-  imageAlt = 'Jamm Immobilier',
+  imageAlt = 'Jamm Immo',
   type = 'website',
   canonical,
   noindex = false,
@@ -65,7 +65,7 @@ const hreflangs = buildHreflangLinks(Astro.url.pathname, siteOrigin).map((h) => 
 <meta property="og:image:type" content={fullImage.endsWith('.png') ? 'image/png' : 'image/jpeg'} />
 <meta property="og:image:alt" content={imageAlt} />
 <meta property="og:url" content={fullCanonical} />
-<meta property="og:site_name" content="Jamm Immobilier" />
+<meta property="og:site_name" content="Jamm Immo" />
 <meta property="og:locale" content={OG_LOCALE[lang] ?? 'fr_SN'} />
 {LANGS.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={OG_LOCALE[l]} />)}
 

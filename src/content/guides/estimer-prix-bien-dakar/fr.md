@@ -2,7 +2,7 @@
 title: "Comment estimer le prix d'un bien immobilier à Dakar"
 description: "Estimer la valeur d'un appartement, d'une villa ou d'un terrain à Dakar : la méthode des biens comparables, les facteurs qui font le prix, et pourquoi se méfier des grilles toutes faites."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Estimation"
 order: 4
 relatedTool:

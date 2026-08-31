@@ -22,7 +22,7 @@ if (!q) return Astro.redirect('/immobilier', 307);
 
 const lang = getLang(Astro.url);
 const meta = pickL10n(q.meta, lang);
-const title = `${t('geo.quartier.titlePrefix', lang)} ${q.name}, ${q.city} — Jamm Immobilier`;
+const title = `${t('geo.quartier.titlePrefix', lang)} ${q.name}, ${q.city} — Jamm Immo`;
 const canonical = `${Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com'}${Astro.url.pathname}`;
 ---
 

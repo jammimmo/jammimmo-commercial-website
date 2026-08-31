@@ -14,7 +14,7 @@ const items = QUARTIERS.map((q) => ({
   count: all.filter((pr) => quartierMatches(q, pr.quartier)).length,
 }));
 
-const title = `${t('geo.hub.title', lang)} — Jamm Immobilier`;
+const title = `${t('geo.hub.title', lang)} — Jamm Immo`;
 const canonical = `${Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com'}${Astro.url.pathname}`;
 ---
 

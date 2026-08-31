@@ -1,9 +1,9 @@
-# Jamm Immobilier
+# Jamm Immo
 
 > Agence immobilière sénégalaise basée à Dakar (Sacré-Cœur 3). Vente, location, gestion locative et accompagnement de projet immobilier — de Dakar à Saly, Mbour, Thiès et Saint-Louis. Chaque annonce est vérifiée par l'agence avant publication. Site disponible en 6 langues (français, anglais, wolof, espagnol, italien, arabe) avec des outils gratuits d'estimation, de budget, de rentabilité et de calcul des frais d'acquisition.
 
 ## À propos
-- Nom : Jamm Immobilier
+- Nom : Jamm Immo
 - Localisation : RC 24, Sacré-Cœur 3 (près de chez Omar Pène), Dakar, Sénégal
 - Téléphone / WhatsApp : +221 76 944 48 49
 - E-mail : contact@jammimmo.com

@@ -2,7 +2,7 @@
 title: "Frais d'acquisition immobilière au Sénégal : le guide complet"
 description: "Droits d'enregistrement, publicité foncière, honoraires de notaire et TVA : combien prévoir en plus du prix pour acheter un bien au Sénégal, avec un exemple chiffré et les barèmes officiels."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Achat"
 order: 1
 relatedTool:

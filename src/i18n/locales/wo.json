@@ -1,7 +1,7 @@
 {
   "_NOTE": "Wolof translations to be reviewed by a native speaker. Keys not present here fall back to French via the t() helper in src/lib/i18n.ts.",
 
-  "site.name": "Jamm Immobilier",
+  "site.name": "Jamm Immo",
   "site.tagline": "Sa alal ci kaaraange ak xel mu dal",
   "site.description": "Agence immobilière yu Senegaal — jaay, luwe, topptoo ak ndimbal projet. Jóge Dakar ba Saint-Louis.",
 
@@ -26,7 +26,7 @@
   "hero.eyebrow": "Dakar · Saly · Mbour · Saint-Louis · Thiès",
   "hero.title.line1": "Jëfandikoo kër ci Senegaal,",
   "hero.title.line2": "ak jamm.",
-  "hero.subtitle": "Jënd, luwaa, topptoo ak dimbali sa projet — Jamm Immobilier dafa lay jàppale ngir nga jëfandikoo ak jamm.",
+  "hero.subtitle": "Jënd, luwaa, topptoo ak dimbali sa projet — Jamm Immo dafa lay jàppale ngir nga jëfandikoo ak jamm.",
   "hero.cta.primary": "Gis kër yi",
   "hero.cta.secondary": "Saytu bu free",
   "hero.scroll": "Gis lu ëpp",
@@ -102,7 +102,7 @@
   "band.quote": "« Investir ci Senegaal, ak ab partenaire local bu wóor. »",
   "band.sub": "Jamm — la paix, en wolof",
 
-  "why.tag": "Lu tax Jamm Immobilier",
+  "why.tag": "Lu tax Jamm Immo",
   "why.title": "Benn méthode laata benn catalogue.",
   "why.1.title": "Saytu titre foncier bu sistematik",
   "why.1.desc": "Kër bu nekk ñu won dañu ko saytu (titre, bail, délibération) laata ñu ko yebbee. Amul lu yokk ci notaire bi.",
@@ -131,7 +131,7 @@
   "testi.tag": "Témoignage yi",
   "testi.title": "Ñoo nu nangoo.",
   "testi.subtitle": "Lu ëpp 320 projet yi ñu ndimbaleel jóge 2018 — particuliers yi, investisseur yi ak kiliyaan diaspora yi.",
-  "testi.1.quote": "Jamm Immobilier toppatoo jënd sama villa ci Saly jóge Paris. Seet yu ñu fillme, xaatim ci kanam, ak suivi liggéey bu dëggu-dëggu. Benn partenaire bu dëgg.",
+  "testi.1.quote": "Jamm Immo toppatoo jënd sama villa ci Saly jóge Paris. Seet yu ñu fillme, xaatim ci kanam, ak suivi liggéey bu dëggu-dëggu. Benn partenaire bu dëgg.",
   "testi.1.name": "A. Diop",
   "testi.1.role": "Investisseur — Paris / Saly",
   "testi.2.quote": "Ñeenti luwekat ci ñaari at ngir sama appartement ci Mermoz, zéro impayé, ak ab rapport bu leer tànk trimestriel. Nangu nañu ak xel mu dal.",
@@ -174,7 +174,7 @@
   "footer.services": "Liggéey yi",
   "footer.discover": "Gis",
   "footer.contact": "Jokkoo",
-  "footer.copy": "© 2026 Jamm Immobilier — Yépp ñu mu am.",
+  "footer.copy": "© 2026 Jamm Immo — Yépp ñu mu am.",
   "footer.legal": "Mentions légales",
   "footer.privacy": "Confidentialité",
   "footer.cookies": "Cookies",
@@ -190,7 +190,7 @@
   "page.favorites.eyebrow": "Sa favori yi",
   "page.favorites.title": "Sama favori",
   "page.favorites.subtitle": "Kër yi nga denc ci telefon bi. Dañu fi nekk rekk — amul kompte, amul sync.",
-  "page.favorites.description": "Kër yépp yi nga denc ci sa favori yi ci Jamm Immobilier.",
+  "page.favorites.description": "Kër yépp yi nga denc ci sa favori yi ci Jamm Immo.",
   "page.favorites.empty.title": "Amoo favori ba leegi",
   "page.favorites.empty.body": "Bësal xol bi ngir denc benn kër. Sa favori yi dañu nekk ci sa appareil.",
   "page.favorites.empty.cta": "Gis kër yi",
@@ -200,7 +200,7 @@
 
   "_NOTE.owner": "Traduit + relu par agent expert wolof (2026-06-13). Validation par un locuteur natif recommandée, surtout pour les chaînes à faible confiance.",
   "owner.meta.title": "Jaay walla batale topptoo bu sa kër",
-  "owner.meta.description": "Boroom kër yi, jaaykat yi ak luwekat yi : batale-leen seen kër Jamm Immobilier. Estimation bu amul fey, mandat bu leer, yebbi ci yoon yu bari ak reels vidéo, jëndkat ak luwekat yu wér, ndimbal bu àndandoo ba ca mujj.",
+  "owner.meta.description": "Boroom kër yi, jaaykat yi ak luwekat yi : batale-leen seen kër Jamm Immo. Estimation bu amul fey, mandat bu leer, yebbi ci yoon yu bari ak reels vidéo, jëndkat ak luwekat yu wér, ndimbal bu àndandoo ba ca mujj.",
 
   "owner.eyebrow": "Jaaykat yi · Luwekat yi · Boroom kër yi",
   "owner.title": "Jaayal walla luwaa sa kër ci kóolute.",
@@ -243,7 +243,7 @@
 
   "_NOTE.partner": "Traduit + relu par agent expert wolof (2026-06-13). Validation par un locuteur natif recommandée, surtout pour les chaînes à faible confiance.",
   "partner.meta.title": "Nekkal partenaire buy indi affaires",
-  "partner.meta.description": "Agence yi, courtier yi, partenaire yi ak nit ñu nekk : indil-leen ab kër walla ab kiliyaan Jamm Immobilier te ñu fey leen. Commission bu leer ñuy fey su affaire bi jeexee, sa apport ñu koy aar ci ñu koy ñaareel, ak topptoo gu leer ci affaires yi ngeen indi.",
+  "partner.meta.description": "Agence yi, courtier yi, partenaire yi ak nit ñu nekk : indil-leen ab kër walla ab kiliyaan Jamm Immo te ñu fey leen. Commission bu leer ñuy fey su affaire bi jeexee, sa apport ñu koy aar ci ñu koy ñaareel, ak topptoo gu leer ci affaires yi ngeen indi.",
 
   "partner.eyebrow": "Agence yi · Courtier yi · Ñiy indi affaires",
   "partner.title": "Indil ab affaire, ñu fey la.",
@@ -355,7 +355,7 @@
   "breadcrumb.home": "Accueil",
   "geo.hub.eyebrow": "Kër yi ci gox wu nekk",
   "geo.hub.title": "Sunu gox yi ci Dakar",
-  "geo.hub.subtitle": "Sëtu kër yi gox ci gox — jaay, luwe ak topptoo, ak annonces yu Jamm Immobilier saytu.",
+  "geo.hub.subtitle": "Sëtu kër yi gox ci gox — jaay, luwe ak topptoo, ak annonces yu Jamm Immo saytu.",
   "geo.hub.linkLabel": "{count} kër bu am",
   "geo.quartier.eyebrow": "Kër yi · {city}",
   "geo.quartier.h1": "Kër yi ci {name}",
@@ -367,12 +367,12 @@
   "geo.quartier.empty.body": "Kër yu bees dañuy ñëw ci diine. Waxal nu lan nga wut ci {name}, dinanu la xamal su amee kër bu jëm.",
   "geo.quartier.empty.cta": "Yégal sama projet",
   "geo.quartier.allListings": "Gis annonces yépp",
-  "geo.faq.generic.q": "Ndax annonces yu Jamm Immobilier dañu leen saytu?",
+  "geo.faq.generic.q": "Ndax annonces yu Jamm Immo dañu leen saytu?",
   "geo.faq.generic.a": "Waaw. Kër bu nekk sunu équipe bi koy saytu laata ñu ko yebbee : titre, disponibilité, prix ak caractéristiques yi. Jëfandikoo ngeen ak benn agence, du benn répertoire annonces bu saytuwaañu.",
 
   "faq.eyebrow": "Laaj yu dëgg-dëgg",
   "faq.title": "Lépp nga war a xam laata nga nu jokkoo",
-  "faq.q1": "Ban liggéey la Jamm Immobilier def?",
+  "faq.q1": "Ban liggéey la Jamm Immo def?",
   "faq.a1": "Danuy ndimbal jaay, luwe, topptoo luwe ak conseil immobilier ci Senegaal. Boo nekk boroom kër, jëndkat, luwekat walla investisseur, dinanu yor sa projet ba ca mujj : estimation, yebbi, seetsi, waxtaan njëg ak suivi administratif.",
   "faq.q2": "Ci ban dëkk ak gox ngeen liggéey?",
   "faq.a2": "Sunu xóor liggéey mooy Dakar — Almadies, Ngor, Ouakam, Mermoz, Point E, Fann, Plateau, Sacré-Cœur, Yoff, Grand Yoff, Liberté, Parcelles Assainies — te liggéey nañu ak ci Petite-Côte (Saly, Mbour), ci Thiès ak ci Saint-Louis.",
@@ -388,7 +388,7 @@
   "_NOTE.estimate": "Traduit + relu par agent expert wolof (2026-06-14). Validation par un locuteur natif recommandée, surtout pour les chaînes à faible confiance.",
 
   "estimate.meta.title": "Saytu bu gaaw — saytul sa kër ci benn minit",
-  "estimate.meta.description": "Waxal sa kër ci benn minit, te am, ci njëkk, saytu bu wér bu kenn ku xam Jamm Immobilier defar ci 24h. Amul njariñ.",
+  "estimate.meta.description": "Waxal sa kër ci benn minit, te am, ci njëkk, saytu bu wér bu kenn ku xam Jamm Immo defar ci 24h. Amul njariñ.",
   "estimate.page.eyebrow": "Boroom kër yi di jaay walla di luwe",
   "estimate.page.title": "Saytul sa kër ci benn minit",
   "estimate.page.subtitle": "Defaral sa kër tànk ci tànk, ci dara te du soxla nga bind sa tur. Su mujje, kenn ku xam Jamm dina la yónnee saytu bu wér ci 24h.",
@@ -444,7 +444,7 @@
   "estimate.result.factor.2": "Surface bi ak séddaleek bi — séddale bu baax ak néeg yu leer dañuy neex jaaykat yeek luwekat yi.",
   "estimate.result.factor.3": "Anam bi ak standing — kër gu paré walla gu ñu defaraat bu baax dafay am njëg bu gën te gaaw a jeex.",
   "estimate.result.offerTitle": "Saytu bu wér ci dara ci 24h",
-  "estimate.result.offerBody": "Amul njëg automatique bu wéradiku: kenn ku xam Jamm Immobilier dina seet sa kër te yónnee la saytu bu wér te ñeel la ci 24h. Amul njariñ te amul ngànnaay.",
+  "estimate.result.offerBody": "Amul njëg automatique bu wéradiku: kenn ku xam Jamm Immo dina seet sa kër te yónnee la saytu bu wér te ñeel la ci 24h. Amul njariñ te amul ngànnaay.",
   "estimate.result.cta": "Jot sama saytu bu wér",
   "estimate.result.edit": "Soppi",
 
@@ -458,11 +458,11 @@
   "estimate.capture.back": "Dellu ci résultat bi",
 
   "estimate.done.title": "Bind nañ ko, jërëjëf!",
-  "estimate.done.body": "Kenn ku xam Jamm Immobilier mungiy defar sa saytu bu wér te dina la jokkoo ci WhatsApp ci 24h.",
+  "estimate.done.body": "Kenn ku xam Jamm Immo mungiy defar sa saytu bu wér te dina la jokkoo ci WhatsApp ci 24h.",
   "estimate.done.wa": "Waxtaan léegi ci WhatsApp",
 
   "estimate.recap.header": "Saytu bu gaaw — détails yu kër bi:",
-  "estimate.wa.intro": "Salaam Jamm Immobilier, bëgg naa saytu ngir sama kër.",
+  "estimate.wa.intro": "Salaam Jamm Immo, bëgg naa saytu ngir sama kër.",
   "estimate.lead.anonName": "Saytu bu gaaw",
 
   "_NOTE.budget": "Traduit + relu par agent expert wolof (2026-06-14). Miroir de l'outil budget acheteurs/locataires. Validation par un locuteur natif recommandée, surtout pour les chaînes à faible confiance.",
@@ -540,11 +540,11 @@
   "budget.capture.back": "Dellu ci résultat bi",
 
   "budget.done.title": "Bind nañ ko, jërëjëf!",
-  "budget.done.body": "Kilifa Jamm Immobilier mungiy defar ay kër yu la jëm te dina la jokkoo ci WhatsApp. Dinañu la xamal ci njëkk bés bu am kër bu jëm sa budget.",
+  "budget.done.body": "Kilifa Jamm Immo mungiy defar ay kër yu la jëm te dina la jokkoo ci WhatsApp. Dinañu la xamal ci njëkk bés bu am kër bu jëm sa budget.",
   "budget.done.wa": "Waxtaan léegi ci WhatsApp",
 
   "budget.recap.header": "Sama budget — détails yu mébét mi:",
-  "budget.wa.intro": "Salaam Jamm Immobilier, lii la sama budget ak sama wut.",
+  "budget.wa.intro": "Salaam Jamm Immo, lii la sama budget ak sama wut.",
   "budget.lead.anonName": "Wut budget",
   "budget.listings.cta": "Xamuloo sa budget? Gis lan nga mën a jëm",
 
@@ -634,13 +634,13 @@
   "safety.capture.back": "Dellu ci résultat bi",
 
   "safety.done.title": "Bind nañ ko, jërëjëf!",
-  "safety.done.body": "Boroom xam-xam Jamm Immobilier dina jël sa saytu te dina la jokkoo ci WhatsApp ngir saytu dossier bi ak yow, te du la jariñ.",
+  "safety.done.body": "Boroom xam-xam Jamm Immo dina jël sa saytu te dina la jokkoo ci WhatsApp ngir saytu dossier bi ak yow, te du la jariñ.",
   "safety.done.wa": "Waxtaan léegi ci WhatsApp",
 
   "safety.recap.header": "Kaaraange suuf — sama saytu:",
   "safety.recap.level": "Niveau moytuwaay",
   "safety.recap.flagsHeader": "Lu war a moytu:",
-  "safety.wa.intro": "Salaam Jamm Immobilier, bëgg naa ñu saytu benn kër laata may ko jënd.",
+  "safety.wa.intro": "Salaam Jamm Immo, bëgg naa ñu saytu benn kër laata may ko jënd.",
   "safety.lead.anonName": "Saytu suuf",
   "safety.detail.cta": "Yéena ngi seet it ci geneen barab? Saytul kër bu nekk — saytu bu amul njariñ",
 
@@ -649,7 +649,7 @@
   "safety.trust.point.deed": "Titre foncier bi saytu na laata benn seet",
   "safety.trust.point.seller": "Identité ak mandat jaaykat bi saytu nañu leen",
   "safety.trust.point.nodouble": "Kaaraange ci jaay bu ñaari yoon",
-  "safety.trust.band": "Kër bi saytu na ci Jamm Immobilier",
+  "safety.trust.band": "Kër bi saytu na ci Jamm Immo",
 
   "match.meta.title": "Gis sama kër — 3 kër yu la jëm",
   "match.meta.description": "Quiz bu 60 saa: waxal nu lan ngay wut, dinañu la won ci saa si 3 kër yu dëggu yu la jëm, su mujje kilifa Jamm dina la defaral lëkkaloo bi mat ak ay xibaar ci WhatsApp. Amul njariñ, du soxla nga bind sa tur.",
@@ -721,12 +721,12 @@
   "match.capture.back": "Dellu ci résultat bi",
 
   "match.done.title": "Bind nañ ko, jërëjëf!",
-  "match.done.body": "Kilifa Jamm Immobilier mungiy defar sa lëkkaloo te dina la jokkoo ci WhatsApp su amee kër bu la jëm.",
+  "match.done.body": "Kilifa Jamm Immo mungiy defar sa lëkkaloo te dina la jokkoo ci WhatsApp su amee kër bu la jëm.",
   "match.done.wa": "Waxtaan léegi ci WhatsApp",
 
   "match.recap.header": "Match-o-mètre — sama wut:",
   "match.recap.matchesHeader": "Kër yu jege ñu gis:",
-  "match.wa.intro": "Salaam Jamm Immobilier, lii la may wut.",
+  "match.wa.intro": "Salaam Jamm Immo, lii la may wut.",
   "match.lead.anonName": "Wut kër",
 
   "a11y.skipToContent": "Dem ci xët bu mag bi",
@@ -892,7 +892,7 @@
   "nav.frais": "Frais njënd",
   "toolseo.faqTitle": "Laaj yu dëgg-dëgg",
   "page.listings.description": "Annonces immobilières yépp yu Jamm saytu ci Dakar ak Senegaal: appartement, villa, tool ak biro yu jaay walla yu luwaa, mën nga leen sëtu ci dëkk, xeet ak budget, ak ab kart.",
-  "page.contact.description": "Jokkoo ak Jamm Immobilier ci Dakar (Sacré-Cœur 3): telefon, WhatsApp, email, adresse ak yoon wi. Benn équipe a ngi lay déglu ngir jënd, luwe walla batale ab kër ci Senegaal.",
+  "page.contact.description": "Jokkoo ak Jamm Immo ci Dakar (Sacré-Cœur 3): telefon, WhatsApp, email, adresse ak yoon wi. Benn équipe a ngi lay déglu ngir jënd, luwe walla batale ab kër ci Senegaal.",
   "toolseo.frais-acquisition.intro": "Bu ngay jënd benn kër ci Senegaal, jëndkat bi day fey ay frais ci kaw njëg li: droits d'enregistrement, publicité foncière ak honoraires notaire bi. Ngir jaayaat benn kër bu am titre, jël lu tollu ci 7 à 12 % ci njëg li.",
   "toolseo.frais-acquisition.q1": "Ñaata la frais notaire bi ci Senegaal?",
   "toolseo.frais-acquisition.a1": "Honoraires notaire bi dañu koy jël ci ay tranche yu dégressif (Décret 2006-1366, art. 150): 4,5 % ba 20 millions FCFA, 3 % ci 20 ba 80 millions, 1,5 % ci 80 ba 300 millions, ak 0,75 % bu mu weesoo, ak 18 % TVA ci honoraires yooyu.",
@@ -938,7 +938,7 @@
   "guides.eyebrow": "Ressources",
   "guides.hubTitle": "Guides immobilier",
   "guides.hubSubtitle": "Guides yu am njariñ te wér ngir jënd, luwe ak investir ci Senegaal ak kóolute.",
-  "guides.metaTitle": "Guides immobilier ci Senegaal — Jamm Immobilier",
+  "guides.metaTitle": "Guides immobilier ci Senegaal — Jamm Immo",
   "guides.metaDescription": "Guides yu am njariñ ngir jënd, luwe walla investir ci immobilier ci Senegaal : frais d’acquisition, sécurité foncière, njënd ci diaspora, estimation prix.",
   "guides.by": "Bind ko",
   "guides.freeTool": "Jumtukaay bu free",

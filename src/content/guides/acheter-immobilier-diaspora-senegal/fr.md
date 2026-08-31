@@ -2,7 +2,7 @@
 title: "Acheter un bien immobilier au Sénégal depuis la diaspora"
 description: "Acheter à Dakar ou Saly depuis la France, l'Italie ou les États-Unis : mandat, vérifications à distance, frais à prévoir et pièges à éviter quand on est loin."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Diaspora"
 order: 3
 relatedTool:

@@ -2,7 +2,7 @@
 title: "Gastos de adquisición inmobiliaria en Senegal: la guía completa"
 description: "Impuesto de registro, publicidad registral, honorarios del notario e IVA: cuánto prever además del precio para comprar un inmueble en Senegal, con un ejemplo con cifras y los baremos oficiales."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Compra"
 order: 1
 relatedTool:

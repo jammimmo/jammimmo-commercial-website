@@ -2,7 +2,7 @@
 title: "Buying property in Senegal from the diaspora"
 description: "Buying in Dakar or Saly from France, Italy or the United States: power of attorney, remote checks, costs to plan for and pitfalls to avoid when you are far away."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Diaspora"
 order: 3
 relatedTool:

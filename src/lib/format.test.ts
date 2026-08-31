@@ -97,6 +97,6 @@ describe('propertySeoTitle', () => {
     expect(title).toContain('Almadies');
     expect(title).toContain('Dakar');
     expect(title).toMatch(/\/ mois/);
-    expect(title).toContain('Jamm Immobilier');
+    expect(title).toContain('Jamm Immo');
   });
 });

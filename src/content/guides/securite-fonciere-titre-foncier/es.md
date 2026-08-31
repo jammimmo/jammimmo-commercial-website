@@ -2,7 +2,7 @@
 title: "Seguridad inmobiliaria en Senegal: verificar un título de propiedad y evitar las estafas"
 description: "Título de propiedad, arrendamiento, deliberación: cómo distinguir un documento seguro de uno arriesgado, verificar la titularidad ante la Conservaduría de la propiedad y comprar sin caer en trampas."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Seguridad"
 order: 2
 relatedTool:

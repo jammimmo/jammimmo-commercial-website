@@ -2,7 +2,7 @@
 title: "Come stimare il prezzo di un immobile a Dakar"
 description: "Stimare il valore di un appartamento, di una villa o di un terreno a Dakar: il metodo degli immobili comparabili, i fattori che determinano il prezzo e perché diffidare delle griglie preconfezionate."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Stima"
 order: 4
 relatedTool:

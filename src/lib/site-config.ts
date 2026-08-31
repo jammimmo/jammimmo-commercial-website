@@ -58,7 +58,7 @@ export const SITE: SiteConfig = {
   phoneDisplay: '+221 76 944 48 49',
   email: 'contact@jammimmo.com',
   whatsappUrl: 'https://wa.me/221769444849',
-  agencyName: 'Jamm Immobilier',
+  agencyName: 'Jamm Immo',
   agencyCity: 'Dakar',
   address: {
     street: 'RC 24, Sacré-Cœur 3 (près de chez Omar Pène)',

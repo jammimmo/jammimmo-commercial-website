@@ -1,5 +1,5 @@
 {
-  "site.name": "Jamm Immobilier",
+  "site.name": "Jamm Immo",
   "common.close": "Close",
   "propertyType.appartement": "Apartment",
   "propertyType.maison": "House",
@@ -38,7 +38,7 @@
   "hero.eyebrow": "Dakar · Saly · Mbour · Saint-Louis · Thiès",
   "hero.title.line1": "Real estate in Senegal,",
   "hero.title.line2": "made with jamm.",
-  "hero.subtitle": "Buy, rent, manage and develop your real estate project — Jamm Immobilier helps you invest with peace of mind, from the small coast plots to Plateau apartments.",
+  "hero.subtitle": "Buy, rent, manage and develop your real estate project — Jamm Immo helps you invest with peace of mind, from the small coast plots to Plateau apartments.",
   "hero.cta.primary": "Browse listings",
   "hero.cta.secondary": "Free estimate",
   "hero.scroll": "Discover",
@@ -114,7 +114,7 @@
   "band.quote": "\"Invest in Senegal, with a trusted local partner.\"",
   "band.sub": "Jamm — peace, in Wolof",
 
-  "why.tag": "Why Jamm Immobilier",
+  "why.tag": "Why Jamm Immo",
   "why.title": "A method before a catalogue.",
   "why.1.title": "Systematic land-title check",
   "why.1.desc": "Each property goes through a land-title / lease / municipal-decision check before publication. No surprises at the notary.",
@@ -143,7 +143,7 @@
   "testi.tag": "Testimonials",
   "testi.title": "They trusted us.",
   "testi.subtitle": "Over 320 projects handled since 2018 — individuals, investors and diaspora clients.",
-  "testi.1.quote": "Jamm Immobilier managed our villa purchase in Saly from Paris. Filmed visits, remote signature, near-daily progress updates. A real partner.",
+  "testi.1.quote": "Jamm Immo managed our villa purchase in Saly from Paris. Filmed visits, remote signature, near-daily progress updates. A real partner.",
   "testi.1.name": "A. Diop",
   "testi.1.role": "Investor — Paris / Saly",
   "testi.2.quote": "Three tenants in two years for our Mermoz apartment, zero unpaid rent, and a clear report every quarter. We sleep easy.",
@@ -186,7 +186,7 @@
   "footer.services": "Services",
   "footer.discover": "Discover",
   "footer.contact": "Contact",
-  "footer.copy": "© 2026 Jamm Immobilier — All rights reserved. Licensed RC SN-DKR-2018-B-XXXX",
+  "footer.copy": "© 2026 Jamm Immo — All rights reserved. Licensed RC SN-DKR-2018-B-XXXX",
   "footer.legal": "Legal notice",
   "footer.privacy": "Privacy",
   "footer.cookies": "Cookies",
@@ -202,7 +202,7 @@
   "page.favorites.eyebrow": "Your shortlist",
   "page.favorites.title": "My favorites",
   "page.favorites.subtitle": "Properties you've saved from this browser. Stored locally — no account, no cloud sync.",
-  "page.favorites.description": "All the Jamm Immobilier properties you've added to your favorites.",
+  "page.favorites.description": "All the Jamm Immo properties you've added to your favorites.",
   "page.favorites.empty.title": "No favorites yet",
   "page.favorites.empty.body": "Tap the heart on any listing to save it here. Your favorites stay on this device.",
   "page.favorites.empty.cta": "Browse listings",
@@ -211,7 +211,7 @@
   "page.favorites.clearConfirm": "Clear all favorites?",
 
   "owner.meta.title": "Sell or let us manage your property",
-  "owner.meta.description": "Owners, sellers and landlords: entrust your property to Jamm Immobilier. Free valuation, clear mandate, multichannel marketing with video reels, pre-qualified buyers and tenants, end-to-end support.",
+  "owner.meta.description": "Owners, sellers and landlords: entrust your property to Jamm Immo. Free valuation, clear mandate, multichannel marketing with video reels, pre-qualified buyers and tenants, end-to-end support.",
 
   "owner.eyebrow": "Sellers · Landlords · Owners",
   "owner.title": "Sell or rent your property with peace of mind.",
@@ -253,7 +253,7 @@
   "owner.final.lead": "Tell us in a few words what you'd like to sell or put up for rent. We'll call you back within 24 business hours, no commitment.",
 
   "partner.meta.title": "Become a business-introducer partner",
-  "partner.meta.description": "Agencies, brokers, partners and individuals: introduce a property or a client to Jamm Immobilier and get rewarded. Clear commission paid on closing, introduction protected against duplicates, transparent tracking of the deals you bring.",
+  "partner.meta.description": "Agencies, brokers, partners and individuals: introduce a property or a client to Jamm Immo and get rewarded. Clear commission paid on closing, introduction protected against duplicates, transparent tracking of the deals you bring.",
 
   "partner.eyebrow": "Agencies · Brokers · Business introducers",
   "partner.title": "Introduce a deal, get rewarded.",
@@ -365,7 +365,7 @@
   "breadcrumb.home": "Home",
   "geo.hub.eyebrow": "Real estate by neighbourhood",
   "geo.hub.title": "Our Dakar neighbourhoods",
-  "geo.hub.subtitle": "Explore real estate neighbourhood by neighbourhood — sale, rental and management, with listings verified by Jamm Immobilier.",
+  "geo.hub.subtitle": "Explore real estate neighbourhood by neighbourhood — sale, rental and management, with listings verified by Jamm Immo.",
   "geo.hub.linkLabel": "{count} property(ies) available",
   "geo.quartier.eyebrow": "Real estate · {city}",
   "geo.quartier.h1": "Real estate in {name}",
@@ -377,12 +377,12 @@
   "geo.quartier.empty.body": "New properties come in regularly. Tell us what you're looking for in {name} and we'll alert you as soon as something matches.",
   "geo.quartier.empty.cta": "Describe my project",
   "geo.quartier.allListings": "See all listings",
-  "geo.faq.generic.q": "Are Jamm Immobilier listings verified?",
+  "geo.faq.generic.q": "Are Jamm Immo listings verified?",
   "geo.faq.generic.a": "Yes. Every property is checked by our team before publication: title, availability, price and features. You deal with an agency, not an unfiltered listings directory.",
 
   "faq.eyebrow": "Frequently asked questions",
   "faq.title": "Everything to know before getting in touch",
-  "faq.q1": "What services does Jamm Immobilier offer?",
+  "faq.q1": "What services does Jamm Immo offer?",
   "faq.a1": "We handle sales, rentals, property management and real-estate advisory in Senegal. Whether you're an owner, buyer, tenant or investor, we manage your project end to end: valuation, staging, viewings, negotiation and administrative follow-up.",
   "faq.q2": "Which cities and neighbourhoods do you cover?",
   "faq.a2": "Our core area is Dakar — Almadies, Ngor, Ouakam, Mermoz, Point E, Fann, Plateau, Sacré-Cœur, Yoff, Grand Yoff, Liberté, Parcelles Assainies — and we also operate on the Petite-Côte (Saly, Mbour), in Thiès and Saint-Louis.",
@@ -396,7 +396,7 @@
   "faq.a6": "Our fees follow standard Senegalese market practice and are disclosed transparently before any commitment, with no hidden costs. Contact us for an estimate tailored to your project.",
 
   "estimate.meta.title": "Quick estimate — value your property in 1 minute",
-  "estimate.meta.description": "Describe your property in 1 minute and get a free, expert-prepared valuation from Jamm Immobilier within 24h. No commitment.",
+  "estimate.meta.description": "Describe your property in 1 minute and get a free, expert-prepared valuation from Jamm Immo within 24h. No commitment.",
   "estimate.page.eyebrow": "Selling & letting owners",
   "estimate.page.title": "Value your property in 1 minute",
   "estimate.page.subtitle": "Build your property step by step, free and without signing up. At the end, a Jamm expert sends you a priced valuation within 24h.",
@@ -452,7 +452,7 @@
   "estimate.result.factor.2": "Surface area and layout — an optimised floor plan and clear volumes appeal to buyers and tenants.",
   "estimate.result.factor.3": "Condition and standing — a move-in-ready or tastefully renovated property is worth more and sells faster.",
   "estimate.result.offerTitle": "Free priced valuation within 24h",
-  "estimate.result.offerBody": "No rough automatic number: a Jamm Immobilier expert reviews your property and sends you a precise, personalised valuation within 24h. It's free and with no commitment.",
+  "estimate.result.offerBody": "No rough automatic number: a Jamm Immo expert reviews your property and sends you a precise, personalised valuation within 24h. It's free and with no commitment.",
   "estimate.result.cta": "Get my priced valuation",
   "estimate.result.edit": "Edit",
 
@@ -466,11 +466,11 @@
   "estimate.capture.back": "Back to the result",
 
   "estimate.done.title": "Got it, thank you!",
-  "estimate.done.body": "A Jamm Immobilier expert is preparing your priced valuation and will contact you on WhatsApp within 24h.",
+  "estimate.done.body": "A Jamm Immo expert is preparing your priced valuation and will contact you on WhatsApp within 24h.",
   "estimate.done.wa": "Chat now on WhatsApp",
 
   "estimate.recap.header": "Quick estimate — property details:",
-  "estimate.wa.intro": "Hello Jamm Immobilier, I'd like an estimate for my property.",
+  "estimate.wa.intro": "Hello Jamm Immo, I'd like an estimate for my property.",
   "estimate.lead.anonName": "Quick estimate",
 
   "budget.meta.title": "My budget — find what you can aim for",
@@ -546,11 +546,11 @@
   "budget.capture.back": "Back to the result",
 
   "budget.done.title": "Got it, thank you!",
-  "budget.done.body": "A Jamm Immobilier advisor is preparing your personalised shortlist and will contact you on WhatsApp. You'll be told first whenever a property matches your budget.",
+  "budget.done.body": "A Jamm Immo advisor is preparing your personalised shortlist and will contact you on WhatsApp. You'll be told first whenever a property matches your budget.",
   "budget.done.wa": "Chat now on WhatsApp",
 
   "budget.recap.header": "My budget — project details:",
-  "budget.wa.intro": "Hello Jamm Immobilier, here is my budget and my search.",
+  "budget.wa.intro": "Hello Jamm Immo, here is my budget and my search.",
   "budget.lead.anonName": "Budget search",
   "budget.listings.cta": "Not sure of your budget? See what you can aim for",
 
@@ -640,13 +640,13 @@
   "safety.capture.back": "Back to the result",
 
   "safety.done.title": "Got it, thank you!",
-  "safety.done.body": "A Jamm Immobilier expert takes over your check and will contact you on WhatsApp to verify the file with you, free of charge.",
+  "safety.done.body": "A Jamm Immo expert takes over your check and will contact you on WhatsApp to verify the file with you, free of charge.",
   "safety.done.wa": "Chat now on WhatsApp",
 
   "safety.recap.header": "Land safety — my check:",
   "safety.recap.level": "Vigilance level",
   "safety.recap.flagsHeader": "Warning signs:",
-  "safety.wa.intro": "Hello Jamm Immobilier, I'd like to have a property checked before buying.",
+  "safety.wa.intro": "Hello Jamm Immo, I'd like to have a property checked before buying.",
   "safety.lead.anonName": "Land safety check",
   "safety.detail.cta": "Looking elsewhere too? Check any property — free diagnostic",
 
@@ -720,12 +720,12 @@
   "match.capture.back": "Back to the result",
 
   "match.done.title": "Got it, thank you!",
-  "match.done.body": "A Jamm Immobilier advisor is preparing your personalised shortlist and will contact you on WhatsApp as soon as a property matches.",
+  "match.done.body": "A Jamm Immo advisor is preparing your personalised shortlist and will contact you on WhatsApp as soon as a property matches.",
   "match.done.wa": "Chat now on WhatsApp",
 
   "match.recap.header": "Property matcher — my search:",
   "match.recap.matchesHeader": "Close matches found:",
-  "match.wa.intro": "Hello Jamm Immobilier, here is what I'm looking for.",
+  "match.wa.intro": "Hello Jamm Immo, here is what I'm looking for.",
   "match.lead.anonName": "Property search",
   "a11y.skipToContent": "Skip to main content",
   "geo.quartier.titlePrefix": "Real estate in",
@@ -759,7 +759,7 @@
   "safety.trust.point.deed": "Title deed verified before any viewing",
   "safety.trust.point.seller": "Seller identity & mandate checked",
   "safety.trust.point.nodouble": "Protected against double-selling",
-  "safety.trust.band": "Property verified by Jamm Immobilier",
+  "safety.trust.band": "Property verified by Jamm Immo",
   "listing.translate.seeTranslation": "View translation",
   "estimate.comps.eyebrow": "Market benchmark",
   "estimate.comps.rangeLabel": "Indicative range for your property",
@@ -893,7 +893,7 @@
   "nav.frais": "Purchase costs",
   "toolseo.faqTitle": "Frequently asked questions",
   "page.listings.description": "All of Jamm's verified property listings in Dakar and across Senegal: apartments, villas, land and offices for sale or rent, filterable by city, type and budget, with a map.",
-  "page.contact.description": "Get in touch with Jamm Immobilier in Dakar (Sacré-Cœur 3): phone, WhatsApp, email, address and directions. A team ready to help you buy, rent or entrust a property in Senegal.",
+  "page.contact.description": "Get in touch with Jamm Immo in Dakar (Sacré-Cœur 3): phone, WhatsApp, email, address and directions. A team ready to help you buy, rent or entrust a property in Senegal.",
   "toolseo.frais-acquisition.intro": "When you buy a property in Senegal, the buyer pays costs on top of the price: registration tax, land-registry fees and notary fees. For the resale of a titled property, expect roughly 7–12% of the price.",
   "toolseo.frais-acquisition.q1": "What are the notary fees in Senegal?",
   "toolseo.frais-acquisition.a1": "Notary fees follow a sliding scale by bracket (Décret 2006-1366, art. 150): 4.5% up to 20 million FCFA, 3% from 20 to 80 million, 1.5% from 80 to 300 million and 0.75% above that, plus 18% VAT on those fees.",
@@ -939,7 +939,7 @@
   "guides.eyebrow": "Resources",
   "guides.hubTitle": "Property guides",
   "guides.hubSubtitle": "Practical, sourced guides to buy, rent and invest in Senegal with confidence.",
-  "guides.metaTitle": "Real-estate guides in Senegal — Jamm Immobilier",
+  "guides.metaTitle": "Real-estate guides in Senegal — Jamm Immo",
   "guides.metaDescription": "Practical, sourced guides to buy, rent or invest in Senegalese real estate: acquisition costs, land security, buying from the diaspora, price estimation.",
   "guides.by": "By",
   "guides.freeTool": "Free tool",

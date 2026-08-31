@@ -1,6 +1,6 @@
 All code references are confirmed: `/api/leads` (Zod, phoneSn/phoneLoose, CORS, message≤2000), the analytics allowlist (search.performed exists, no estimator/alert/quiz events yet), quartiers.ts (rich editorial, no price grid), `wa.me/221769444849`, formatFCFA. The brief's claims hold. I now have everything needed to write the final deliverable.
 
-# Jamm Immobilier — Boîte à outils & lead magnets de la vitrine
+# Jamm Immo — Boîte à outils & lead magnets de la vitrine
 ### Livrable de brainstorming · 14 juin 2026 · Dakar, mobile-first, FR/EN/WO, FCFA
 
 ---

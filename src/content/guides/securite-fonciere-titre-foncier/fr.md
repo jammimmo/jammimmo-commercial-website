@@ -2,7 +2,7 @@
 title: "Sécurité foncière au Sénégal : vérifier un titre foncier et éviter les arnaques"
 description: "Titre foncier, bail, délibération : comment distinguer un document sûr d'un document risqué, vérifier la propriété auprès de la Conservation foncière et acheter sans se faire piéger."
 date: "2026-06-24"
-author: "Jamm Immobilier"
+author: "Jamm Immo"
 category: "Sécurité"
 order: 2
 relatedTool:
