@@ -29,6 +29,7 @@ export default function CompareBar({ lang }: Props) {
     <div
       role="region"
       aria-label="Comparateur"
+      data-chat-obstruction
       className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-2xl rounded-2xl bg-ink text-background shadow-2xl border border-ink/20 p-3 sm:p-4"
     >
       <div className="flex items-center gap-3 sm:gap-4">

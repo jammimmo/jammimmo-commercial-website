@@ -97,7 +97,9 @@ export interface PublicProperty {
   id: string;
   reference: string;            // displayed truncated as "Ref #00019"
   title: string;
-  type: PropertyType;
+  // The public catalogue already includes legacy types such as Studio,
+  // Terrain nu and Parking. Preserve them; typeLabel accepts these strings.
+  type: string;
   transaction_type: TransactionType;
   status: PropertyStatus;
   city: string;

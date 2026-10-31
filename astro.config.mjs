@@ -10,7 +10,9 @@ export default defineConfig({
   output: 'hybrid',
   adapter: cloudflare({
     imageService: 'compile',
-    platformProxy: { enabled: true },
+    // The local UI fixture uses no bindings. Avoid Wrangler's automatic
+    // remote Workers AI proxy during that explicitly opted-in dev session.
+    platformProxy: { enabled: process.env.PUBLIC_CHAT_UI_QA !== 'true' },
     // Tell the adapter to route ONLY /api/* into the Function. Everything
     // else is a pre-rendered static asset; unknown URLs fall back to the
     // emitted 404.html via the CF Pages static handler. Without this the

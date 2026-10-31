@@ -363,6 +363,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
       <button
         type="button"
         onClick={() => setMobileMapOpen(true)}
+        data-chat-obstruction
         className="lg:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-30 inline-flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold shadow-lg"
       >
         <MapIcon className="w-4 h-4" /> {t('listings.mapToggle', lang)} ({filtered.length})

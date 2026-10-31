@@ -16,6 +16,8 @@
  */
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import snapshotRaw from '../data/public-catalogue-20261031.json?raw';
+import { validateCatalogue, type PublicCatalogue } from './public-catalogue';
 import type { DbProperty, GpsZone, PublicProperty } from '@/types/property';
 import {
   PUBLIC_GEO_VIEW,
@@ -38,11 +40,36 @@ if (!isNodeBuild) {
   );
 }
 
+// Explicit release mode only. A misspelled mode, missing/wrong hash or invalid
+// capture aborts the build. Never fall through to the unhealthy DB or [] here.
+const snapshotMode = process.env.CATALOGUE_BUILD_SOURCE;
+if (snapshotMode !== undefined) {
+  if (snapshotMode !== 'public-snapshot-20261031') throw new Error('[supabase.build] invalid CATALOGUE_BUILD_SOURCE');
+  const expected = process.env.CATALOGUE_SNAPSHOT_SHA256;
+  if (!expected || !/^[a-f0-9]{64}$/.test(expected)) {
+    throw new Error('[supabase.build] public snapshot hash missing or mismatched');
+  }
+}
+let snapshotPromise: Promise<PublicCatalogue> | undefined;
+async function publicSnapshot(): Promise<PublicCatalogue | null> {
+  if (snapshotMode === undefined) return null;
+  // Astro 4's Cloudflare hybrid bundler rejects node:crypto even for a
+  // prerender-only reader. WebCrypto works in the Node build without adding
+  // a Node builtin to that bundle. Every existing reader is already async.
+  snapshotPromise ??= (async () => {
+    const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(snapshotRaw));
+    const actual = [...new Uint8Array(bytes)].map(value => value.toString(16).padStart(2, '0')).join('');
+    if (actual !== process.env.CATALOGUE_SNAPSHOT_SHA256) throw new Error('[supabase.build] public snapshot hash missing or mismatched');
+    return validateCatalogue(JSON.parse(snapshotRaw));
+  })();
+  return snapshotPromise;
+}
+
 const ADMIN_URL = process.env.ADMIN_SUPABASE_URL ?? '';
 const ADMIN_KEY =
   process.env.ADMIN_SUPABASE_SERVICE_ROLE_KEY ?? process.env.ADMIN_SUPABASE_ANON_KEY ?? '';
 
-if (!ADMIN_URL || !ADMIN_KEY) {
+if (snapshotMode === undefined && (!ADMIN_URL || !ADMIN_KEY)) {
   // Soft-fail at build time so a missing env var doesn't break the build;
   // the queries below short-circuit to [] and pages render fallback empty
   // states. CI logs surface the warning.
@@ -167,6 +194,22 @@ export async function listPublicProperties(
     priceMax?: number;
   } = {},
 ): Promise<PublicProperty[]> {
+  const snapshot = await publicSnapshot();
+  if (snapshot) {
+    const rows = snapshot.properties.filter(p => (!opts.type || p.type === opts.type)
+      && (!opts.transaction || p.transaction_type === opts.transaction)
+      && (!opts.city || p.city === opts.city)
+      && (opts.priceMin === undefined || p.price >= opts.priceMin)
+      && (opts.priceMax === undefined || p.price <= opts.priceMax));
+    // Match the existing query: published_at DESC NULLS LAST is primary;
+    // optional price order is secondary. Stable ties retain captured order.
+    rows.sort((a, b) => {
+      const published = a.published_at === null ? (b.published_at === null ? 0 : 1)
+        : b.published_at === null ? -1 : Date.parse(b.published_at) - Date.parse(a.published_at);
+      return published || (opts.order === 'price_asc' ? a.price - b.price : opts.order === 'price_desc' ? b.price - a.price : 0);
+    });
+    return structuredClone(opts.limit === undefined ? rows : rows.slice(0, Math.max(0, opts.limit)));
+  }
   if (!ADMIN_URL || !ADMIN_KEY) return [];
 
   let q = client()
@@ -199,6 +242,8 @@ export async function listPublicProperties(
 }
 
 export async function getPublicPropertyByRef(ref: string): Promise<PublicProperty | null> {
+  const snapshot = await publicSnapshot();
+  if (snapshot) return structuredClone(snapshot.properties.find(p => p.reference.toLowerCase() === ref.toLowerCase()) ?? null);
   if (!ADMIN_URL || !ADMIN_KEY) return null;
   const { data, error } = await client()
     .from('properties')
@@ -214,6 +259,8 @@ export async function getPublicPropertyByRef(ref: string): Promise<PublicPropert
 }
 
 export async function findSimilar(p: PublicProperty, n: number = 3): Promise<PublicProperty[]> {
+  const snapshot = await publicSnapshot();
+  if (snapshot) return structuredClone(snapshot.properties.filter(candidate => candidate.id !== p.id && candidate.type === p.type && candidate.city === p.city).slice(0, Math.max(0, n)));
   if (!ADMIN_URL || !ADMIN_KEY) return [];
   const { data, error } = await client()
     .from('properties')
@@ -233,6 +280,8 @@ export async function findSimilar(p: PublicProperty, n: number = 3): Promise<Pub
 export async function listAllPublicRefs(): Promise<
   Array<{ reference: string; updated_at: string; images: string[] }>
 > {
+  const snapshot = await publicSnapshot();
+  if (snapshot) return snapshot.properties.map(p => ({ reference: p.reference, updated_at: p.updated_at, images: p.images.slice(0, 10) }));
   if (!ADMIN_URL || !ADMIN_KEY) return [];
   const { data, error } = await client()
     .from('properties')
