@@ -28,6 +28,9 @@ jobs:
       - name: Unit tests (vitest)
         run: pnpm test
 
+      - name: Preview and production catalogue build containment
+        run: node --test scripts/build-approved-catalogue.test.mjs
+
       - name: Build (approved public snapshot — no admin database access)
         env:
           CATALOGUE_BUILD_SOURCE: public-snapshot-20261031

@@ -48,7 +48,11 @@ reader supports the existing lowercase-slug/uppercase-lookup round trip.
 
 ## Explicit build mode
 
-Use the normal reviewed release process with these build environment values:
+The normal `pnpm build` command runs `scripts/build-approved-catalogue.mjs`.
+It selects this approved capture by default for production **and automatic
+Pages previews**, and blanks the three admin database credentials only in
+the child build environment. Existing Cloudflare secrets are not removed.
+Explicitly supplied approval values must match exactly:
 
 ```sh
 CATALOGUE_BUILD_SOURCE=public-snapshot-20261031
@@ -59,10 +63,12 @@ All four `supabase.build.ts` readers use the validated snapshot before any
 client creation, credential handling or database query. An unknown mode,
 missing/wrong hash, invalid capture, missing row or unprojected field aborts
 the build; there is no DB or empty-catalogue fallback in this mode. When the
-mode is absent the previous reader behavior is retained. **A build without
-the approved mode is not proof that this release preserved the catalogue.**
-No dashboard variable, build command, credentials or cloud resource has been
-changed by this source work.
+mode is absent the low-level reader retains its previous behavior, but the
+normal build wrapper always supplies the reviewed mode and hash. Do not
+replace that wrapper with a direct Astro build in Pages. Returning to live
+database builds needs a deliberate reviewed release after recovery; there
+is no automatic database fallback. Source preparation alone does not prove
+the cloud build configuration, release or runtime activation.
 
 Filtering and limits preserve the four existing signatures. The existing
 query's publication-date order remains primary, optional price order remains
