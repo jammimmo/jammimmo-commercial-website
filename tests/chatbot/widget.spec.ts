@@ -141,7 +141,7 @@ async function receiptBeginningInViewport(page: Page) {
   }), { message: 'The handoff receipt must start inside the visible transcript, not beyond old attachments' }).toBe(true);
 }
 
-async function transcriptScrollInput(page: Page, direction: number, step: number) {
+async function transcriptScrollInput(page: Page, direction: number, step: number, target?: ReturnType<Page['locator']>) {
   const region = page.locator('.jamm-chat-transcript');
   const beforeFocus = await region.evaluate(element => element.scrollTop);
   const documentBefore = await page.evaluate(() => scrollY);
@@ -159,6 +159,21 @@ async function transcriptScrollInput(page: Page, direction: number, step: number
     expect(focused, 'The conversation log must be reachable by native keyboard Tab').toBe(true);
     await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
     before = await region.evaluate(element => element.scrollTop);
+    // Tab can itself scroll a later form control into view before cycling to
+    // the log. Do not demand an impossible further ArrowDown at the bottom.
+    if (target && (await transcriptTargetState(target)).fits) {
+      let lastGeometry = '', stableTarget = 0;
+      await expect.poll(async () => {
+        const state = await transcriptTargetState(target), geometry = JSON.stringify(state.geometry);
+        if (!state.fits || geometry !== lastGeometry) { lastGeometry = geometry; stableTarget = 0; return false; }
+        return ++stableTarget >= 2;
+      }, { timeout: 3_000, intervals: [50], message: 'Native Tab must leave the whole action stably painted' }).toBe(true);
+      await test.info().attach(`scroll-input-${++scrollInputSequence}.json`, { body: JSON.stringify({ beforeFocus, before,
+        after: await region.evaluate(element => element.scrollTop), keyCount: 0, method: 'native Tab reached the complete action before Arrow input',
+        target: await transcriptTargetState(target), domScrollInjected: false }), contentType: 'application/json' });
+      expect(await page.evaluate(() => scrollY), 'Native Tab must not scroll the page behind the chat').toBe(documentBefore);
+      return;
+    }
     const pageStep = step >= 1000;
     keyCount = pageStep ? 1 : Math.max(1, Math.min(8, Math.floor(step / 40)));
     for (let index = 0; index < keyCount; index++) {
@@ -170,12 +185,20 @@ async function transcriptScrollInput(page: Page, direction: number, step: number
     await page.mouse.wheel(0, direction * step);
   }
   let previous = -1, stable = 0;
-  await expect.poll(async () => {
+  try { await expect.poll(async () => {
     const next = await region.evaluate(element => element.scrollTop);
     if ((next - before) * direction <= 1) { previous = next; stable = 0; return false; }
     if (next !== previous) { previous = next; stable = 0; return false; }
     return ++stable >= 2;
-  }, { timeout: 3_000, intervals: [50], message: 'Real transcript input must settle before measuring' }).toBe(true);
+  }, { timeout: 3_000, intervals: [50], message: 'Real transcript input must settle before measuring' }).toBe(true); }
+  catch (failure) {
+    await test.info().attach(`scroll-input-${++scrollInputSequence}-failed.json`, { body: JSON.stringify({ beforeFocus, before,
+      direction, step, keyCount, documentBefore, documentAfter: await page.evaluate(() => scrollY),
+      region: await region.evaluate(element => ({ scrollTop: element.scrollTop, scrollHeight: element.scrollHeight,
+        clientHeight: element.clientHeight, focused: document.activeElement === element, overflowY: getComputedStyle(element).overflowY })),
+      target: target ? await transcriptTargetState(target) : null, domScrollInjected: false }), contentType: 'application/json' });
+    throw failure;
+  }
   const after = await region.evaluate(element => element.scrollTop);
   await test.info().attach(`scroll-input-${++scrollInputSequence}.json`, { body: JSON.stringify({ beforeFocus, before, after, keyCount, keyDwellMs: keyboard ? 60 : null, requestedStep: step, documentBefore, documentAfter: await page.evaluate(() => scrollY),
     method: keyboard ? 'native Tab to named log, then Arrow/Page input in mobile WebKit emulation; no touch/swipe claim' : 'native mouse wheel',
@@ -184,17 +207,26 @@ async function transcriptScrollInput(page: Page, direction: number, step: number
   expect(await page.evaluate(() => scrollY), 'Transcript input must not scroll the page behind the chat').toBe(documentBefore);
 }
 
+async function transcriptTargetState(target: ReturnType<Page['locator']>) {
+  return target.evaluate(element => {
+    const owner = element.closest('.jamm-chat-transcript')!;
+    const box = owner.getBoundingClientRect(), rect = element.getBoundingClientRect(), style = getComputedStyle(owner);
+    const top = Math.max(0, box.top + owner.clientTop + parseFloat(style.paddingTop));
+    const bottom = Math.min(innerHeight, box.top + owner.clientTop + owner.clientHeight - parseFloat(style.paddingBottom));
+    const left = Math.max(0, box.left + owner.clientLeft + parseFloat(style.paddingLeft));
+    const right = Math.min(innerWidth, box.left + owner.clientLeft + owner.clientWidth - parseFloat(style.paddingRight));
+    return { fits: rect.width > 0 && rect.height > 0 && rect.top >= top && rect.bottom <= bottom && rect.left >= left && rect.right <= right,
+      direction: rect.top < top ? -1 : 1, step: Math.max(50, owner.clientHeight * .55),
+      geometry: [rect.top, rect.bottom, rect.left, rect.right, top, bottom, left, right, owner.scrollTop, owner.clientHeight] };
+  });
+}
+
 async function reachTranscript(page: Page, target: ReturnType<Page['locator']>) {
   await expect(target).toBeVisible();
   for (let attempt = 0; attempt < 16; attempt++) {
-    const state = await target.evaluate(element => {
-      const owner = element.closest('.jamm-chat-transcript')!;
-      const box = owner.getBoundingClientRect(), rect = element.getBoundingClientRect();
-      return { fits: rect.top >= box.top + 2 && rect.bottom <= box.bottom - 2,
-        direction: rect.top < box.top + 2 ? -1 : 1, step: Math.max(50, box.height * .55) };
-    });
+    const state = await transcriptTargetState(target);
     if (state.fits) return;
-    await transcriptScrollInput(page, state.direction, state.step);
+    await transcriptScrollInput(page, state.direction, state.step, target);
   }
   throw new Error('Important chat action remains unreachable by bounded user scrolling');
 }
@@ -223,10 +255,12 @@ test('integrated conversation, precise sources, handoff and private controls', a
   await page.getByLabel('Ce que vous souhaitez savoir').fill('Je souhaite préciser mon projet avec l’équipe.');
   await page.getByLabel(/J’accepte de transmettre/).check();
   await reachTranscript(page, page.getByRole('button', { name: 'Transmettre ma demande', exact: true }));
+  await expect(page.getByRole('button', { name: 'Fermer la conversation' })).toBeInViewport({ ratio: 1 });
   await capture(page, '03-handoff-form');
   await page.getByRole('button', { name: 'Transmettre ma demande', exact: true }).click();
   await expect(page.getByText('Votre demande est enregistrée. Sa transmission à l’équipe est en attente.')).toBeVisible();
   await receiptBeginningInViewport(page);
+  await expect(page.getByRole('button', { name: 'Fermer la conversation' })).toBeInViewport({ ratio: 1 });
   await expect(page.getByText(/email envoyé/i)).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Joindre un fichier' })).toHaveCount(0);
   await capture(page, '04-recorded-not-notified');
