@@ -168,8 +168,50 @@ const canonical = 'https://jammimmo.com/confidentialite/';
           </p>
         </section>
 
+        <section id="assistant-du-site">
+          <h2 class="font-serif text-2xl mb-3">8. Assistant du site et relais vers un conseiller</h2>
+          <p class="text-muted-foreground leading-relaxed">
+            Lorsque l’assistant est activé, vos messages servent à retrouver une
+            information publiée sur le site ou à préparer votre demande à l’équipe
+            Jamm Immo. Une réponse automatisée ne confirme pas la disponibilité
+            actuelle d’un bien. Si l’IA intervient, Cloudflare Workers AI reçoit
+            le texte de votre question et des extraits publics du site.
+          </p>
+          <ul class="text-muted-foreground leading-relaxed list-disc pl-6 space-y-1.5">
+            <li>
+              <strong>Relais humain :</strong> le transfert de l’échange, de votre
+              prénom et des coordonnées que vous choisissez de fournir demande
+              votre accord dans le formulaire. Ces coordonnées et vos pièces
+              jointes ne sont pas ajoutées à la requête envoyée au modèle.
+            </li>
+            <li>
+              <strong>Durées :</strong> les échanges ont une durée de conservation
+              configurable, de 30 jours au maximum. L’accès aux pièces jointes
+              expire après 24 heures au plus tard ; leur suppression physique
+              automatique peut être différée. Vous pouvez demander l’effacement
+              depuis la conversation ou contacter l’équipe.
+            </li>
+            <li>
+              <strong>Pièces jointes, si disponibles :</strong> au maximum 3 fichiers
+              JPEG, PNG, WebP ou PDF, de 5 Mio chacun et 15 Mio au total. Ils sont
+              placés dans un stockage privé de quarantaine et ne deviennent
+              consultables par les opérateurs autorisés qu’après contrôle
+              antivirus. Un résultat antivirus ne garantit pas l’absence de tout
+              risque. N’envoyez pas de pièce d’identité ou de donnée sensible.
+            </li>
+            <li>
+              <strong>Protection de la conversation :</strong> l’hébergement et
+              le traitement technique utilisent Cloudflare. Un identifiant de
+              session technique expire au plus tard après 7 jours et une empreinte
+              pseudonymisée de l’adresse réseau limite les abus. Le contenu du
+              panneau de conversation est exclu des mesures de clic et masqué
+              dans les outils de relecture de session.
+            </li>
+          </ul>
+        </section>
+
         <section>
-          <h2 class="font-serif text-2xl mb-3">8. Modifications</h2>
+          <h2 class="font-serif text-2xl mb-3">9. Modifications</h2>
           <p class="text-muted-foreground leading-relaxed">
             Cette politique peut évoluer pour rester conforme à la loi et à nos
             pratiques. La date de mise à jour ci-dessous fait foi.
@@ -177,7 +219,7 @@ const canonical = 'https://jammimmo.com/confidentialite/';
         </section>
 
         <p class="text-xs text-muted-foreground/70 pt-4 border-t border-clay/40">
-          Dernière mise à jour : mai 2026.
+          Dernière mise à jour : 31 octobre 2026 (assistant du site).
         </p>
       </div>
     </div>
