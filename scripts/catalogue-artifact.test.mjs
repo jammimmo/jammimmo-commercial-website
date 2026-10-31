@@ -96,6 +96,34 @@ test('exact healthy zero is distinct from an error or an unknown count', async t
   const aliases = catalogueAliases(env, folder); assert.equal(JSON.parse(await readFile(aliases['@catalogue-public'], 'utf8')).properties.length, 0);
 });
 
+test('published environment text survives production preparation without inventing a distance', async t => {
+  const folder = await scratch(t), rows = sourceRows();
+  // Flow stores nearby_commerce as JSONB and preserves existing string labels;
+  // 100m/500m/1km are editor suggestions, not a constraint on historical rows.
+  const nearby = [
+    { name: 'Pharmacie', distance: '200m' }, { name: 'École', distance: '5 min' },
+    { name: 'Marché', distance: '' }, { name: 'A'.repeat(200), distance: 'B'.repeat(200) },
+    { name: '<em>Libellé public</em>', distance: '<b>200m</b>' },
+  ];
+  rows[0].nearby_commerce = nearby;
+  const deps = source(rows), env = await prepareCatalogueBuild(production(), folder, deps);
+  const catalogue = JSON.parse(await readFile(catalogueAliases(env, folder)['@catalogue-public'], 'utf8'));
+  assert.equal(deps.calls.length, 2); assert.deepEqual(catalogue.properties[0].nearby_commerce, nearby);
+  assert.equal(catalogue.properties.length, 97);
+});
+
+test('invalid environment labels fail before writing an artifact', async t => {
+  const folder = await scratch(t);
+  const invalid = [null, 200, true, {}, [], 'x'.repeat(201), '\u0000', '\t', '\n', '\r', '\u007f', '\u0085', '\u061c', '\u200e', '\u200f', '\u202e', '\u2066'];
+  for (const key of ['name', 'distance']) {
+    for (const value of invalid) {
+      const rows = sourceRows(); rows[0].nearby_commerce = [{ name: 'Pharmacie', distance: '200m', [key]: value }];
+      await assert.rejects(prepareCatalogueBuild(production(), folder, source(rows)), /invalid (?:text|environment text)/);
+      assert.deepEqual(await readdir(folder), []);
+    }
+  }
+});
+
 test('failed, truncated, oversized, malformed and inconsistent sources preserve previous artifacts and never start a renderer', async t => {
   const folder = await scratch(t), prior = join(folder, 'previous-deployment.txt'); await writeFile(prior, 'prior97');
   const rows = sourceRows();

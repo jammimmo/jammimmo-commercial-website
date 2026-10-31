@@ -17,6 +17,17 @@ function select(fresh: ReturnType<typeof artifact>) {
 afterEach(() => { vi.doUnmock('@catalogue-public?raw'); vi.doUnmock('@catalogue-facts'); vi.doUnmock('@catalogue-approval'); vi.resetModules(); vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
 
 describe('one fresh public revision across the actual consumers', () => {
+  it('preserves stored environment labels through the actual catalogue, detail and JSON readers', async () => {
+    const input = rows();
+    const nearby = [{ name: 'Pharmacie', distance: '200m' }, { name: 'École', distance: '5 min' }, { name: 'Marché', distance: '' }];
+    input[0].nearby_commerce = nearby; select(artifact(input));
+    const api = await import('./supabase.build'), json = await import('../pages/api/property/[ref].json');
+    expect((await api.listPublicProperties()).find(row => row.id === input[0].id)?.nearby_commerce).toEqual(nearby);
+    expect((await api.getPublicPropertyByRef(input[0].reference))?.nearby_commerce).toEqual(nearby);
+    const response = await json.GET({ params: { ref: input[0].reference.toLowerCase() } } as never);
+    expect((await response.json()).nearby_commerce).toEqual(nearby);
+    expect(fetch).not.toHaveBeenCalled();
+  });
   it('makes the added98th discoverable through all four readers, static JSON paths and chatbot citations', async () => {
     const input = rows(); const added = { ...input[0], id: '12345678-1234-4234-8234-123456789098', reference: 'JI-NEW-00098', title: 'Fixture newly published property', price: 987654321 };
     input.push(added); select(artifact(input));

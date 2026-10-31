@@ -29,7 +29,8 @@ export type FluxPassage = 'F1' | 'F2' | 'F3' | 'F4' | 'F5' | null;
 
 export interface NearbyCommerce {
   name: string;
-  distance: '100m' | '500m' | '1km';
+  /** Stored public label; the editor's suggested distances are not a DB enum. */
+  distance: string;
 }
 
 /**

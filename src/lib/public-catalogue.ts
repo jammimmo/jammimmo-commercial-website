@@ -108,7 +108,15 @@ export function validateCatalogue(value: unknown, expected: PublicCapture = APPR
     iso(row.published_at, true); iso(row.updated_at);
     for (const key of ['commodities', 'tags']) { const list = row[key]; check(Array.isArray(list) && list.length <= 100, 'invalid text array'); for (const item of list) text(item, 200); }
     check(Array.isArray(row.nearby_commerce) && row.nearby_commerce.length <= 100, 'invalid environment');
-    for (const item of row.nearby_commerce) { object(item); keys(item, ['name', 'distance']); text(item.name, 200); check(['100m', '500m', '1km'].includes(String(item.distance)), 'invalid distance'); }
+    for (const item of row.nearby_commerce) {
+      object(item); keys(item, ['name', 'distance']);
+      // Flow persists text labels, including legacy distances outside the three
+      // editor suggestions. Preserve them verbatim, never infer a metric value.
+      for (const key of ['name', 'distance']) {
+        text(item[key], 200);
+        check(!/[\u0000-\u001f\u007f-\u009f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/.test(item[key] as string), 'invalid environment text');
+      }
+    }
     for (const key of ['images', 'video_links']) {
       const list = row[key]; check(Array.isArray(list) && list.length <= (key === 'images' ? 100 : 30), 'invalid media array');
       const hosts = key === 'images' ? ['pub-15cb63d8148e4d51807e901562b85914.r2.dev', 'images.unsplash.com'] : ['www.youtube.com', 'youtube.com', 'youtu.be'];
