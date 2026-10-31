@@ -1,6 +1,7 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import ChatWidget from './ChatWidget';
 import { ChatClient, DEFAULT_POLICY, type Attachment, type Conversation, type MessageRequest } from './chat-client';
+type FixtureWindow = Window & { __jammChatQA?: { readonly held: boolean; releaseReply: () => void } };
 
 /** Dev-only visual fixture. No network, provider, live property or real handoff. */
 export default function ChatWidgetFixture({ simulateFiles = false }: { simulateFiles?: boolean }) {
@@ -8,6 +9,16 @@ export default function ChatWidgetFixture({ simulateFiles = false }: { simulateF
   const replies = useRef(new Map<string, unknown>());
   const files = useRef(new Map<string, Attachment>());
   const lostUploadAcknowledgements = useRef(new Set<string>());
+  const delayedReply = useRef<{ held: boolean; release?: () => void }>({ held: false });
+  useEffect(() => {
+    if (!import.meta.env.DEV || import.meta.env.PUBLIC_CHAT_UI_QA !== 'true') return;
+    const target = window as unknown as FixtureWindow;
+    const control = { get held() { return delayedReply.current.held; }, releaseReply() {
+      delayedReply.current.held = false; delayedReply.current.release?.(); delayedReply.current.release = undefined;
+    } };
+    target.__jammChatQA = control;
+    return () => { control.releaseReply(); if (target.__jammChatQA === control) delete target.__jammChatQA; };
+  }, []);
   const api = useRef(new ChatClient(async (input, init) => {
     const path = String(input);
     const body = typeof init?.body === 'string' ? JSON.parse(init.body) : {};
@@ -35,6 +46,10 @@ export default function ChatWidgetFixture({ simulateFiles = false }: { simulateF
       if (replies.current.has(body.requestId)) return json(replies.current.get(body.requestId));
       const message = body as MessageRequest;
       if (/erreur réseau/i.test(message.text)) return json({ error: 'fixture-network-failure' }, 503);
+      if (message.text === 'Réponse différée de recette') {
+        delayedReply.current.held = true;
+        await new Promise<void>(resolve => { delayedReply.current.release = resolve; });
+      }
       const human = /conseiller|personne|humain/i.test(message.text);
       conversation.current.messages.push({ id: `${message.requestId}-visitor`, role: 'visitor', content: message.text, citations: [] });
       const answer = { id: `${message.requestId}-reply`, role: 'assistant' as const, content: human ? 'Bien sûr. Choisissez comment poursuivre avec l’équipe.' : 'Pour préparer votre projet, commencez par les informations et les outils du site. Un conseiller peut ensuite vous aider à préciser votre recherche.', citations: human ? [] : [{ id: 'qa-tool', title: 'Les outils pour votre projet', url: '/outils', quote: 'Retrouvez les outils Jamm Immo pour préparer votre projet immobilier.' }] };

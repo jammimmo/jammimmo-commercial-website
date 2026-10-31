@@ -23,10 +23,15 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
   const launcher = useRef<HTMLButtonElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const transcript = useRef<HTMLDivElement>(null);
+  const messageNodes = useRef<HTMLDivElement>(null);
+  const receiptNode = useRef<HTMLDivElement>(null);
   const composer = useRef<HTMLTextAreaElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const atBottom = useRef(true);
   const lastMessageKey = useRef('');
+  const lastReceiptKey = useRef('');
+  const latestTarget = useRef<'exchange' | 'receipt'>('exchange');
+  const revealAfterRender = useRef(false);
   const uploadRetry = useRef<Array<{ file: File; requestId: string }>>([]);
   const [open, setOpen] = useState(false);
   const [session, setSession] = useState<SessionResponse | null>(null);
@@ -48,6 +53,8 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
   const human = conversation && conversation.status !== 'bot';
   const closed = conversation?.status === 'closed';
   const messages = conversation?.messages ?? [];
+  const lastVisitorIndex = messages.reduce((last, message, index) => message.role === 'visitor' ? index : last, -1);
+  const exchangeStart = Math.max(0, lastVisitorIndex < 0 ? messages.length - 1 : lastVisitorIndex);
   const [handoffDraft, setHandoffDraft] = useState({ name: '', channel: 'chat' as HandoffRequest['channel'], contact: '', summary: '', topic: 'property' as HandoffRequest['topic'], consent: false });
 
   function close() { setOpen(false); dialog.current?.close(); requestAnimationFrame(() => launcher.current?.focus()); }
@@ -56,12 +63,47 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
     setHandoffOpen(true); setConfirmClear(false);
   }
   function updateConversation(next: Conversation) {
-    const key = `${next.version}:${next.messages.length}:${next.messages.at(-1)?.id ?? ''}`;
-    const changed = key !== lastMessageKey.current;
-    lastMessageKey.current = key;
+    const key = `${next.id}:${next.messages.length}:${next.messages.at(-1)?.id ?? ''}`;
+    const receiptKey = next.receipt ? `${next.receipt.id}:${next.receipt.state}` : '';
+    const messageChanged = key !== lastMessageKey.current;
+    const receiptChanged = receiptKey !== lastReceiptKey.current;
+    const changed = messageChanged || receiptChanged;
+    lastMessageKey.current = key; lastReceiptKey.current = receiptKey;
+    if (receiptChanged && next.receipt) latestTarget.current = 'receipt';
+    else if (messageChanged) latestTarget.current = 'exchange';
+    revealAfterRender.current = changed && atBottom.current;
     setConversation(next);
-    if (atBottom.current) requestAnimationFrame(() => { if (transcript.current) transcript.current.scrollTop = next.messages.length ? transcript.current.scrollHeight : 0; });
-    else if (changed) setNewMessages(true);
+    if (changed && !atBottom.current) setNewMessages(true);
+  }
+  function latestElement() {
+    return latestTarget.current === 'receipt' ? receiptNode.current : (messageNodes.current?.lastElementChild as HTMLElement | null) ?? null;
+  }
+  function revealLatest() {
+    const region = transcript.current;
+    const target = latestElement();
+    if (!region) return;
+    if (!target) { region.scrollTop = 0; return; }
+    const frame = region.getBoundingClientRect(), style = getComputedStyle(region);
+    const top = frame.top + region.clientTop + parseFloat(style.paddingTop);
+    const bottom = frame.top + region.clientTop + region.clientHeight - parseFloat(style.paddingBottom);
+    const rect = target.getBoundingClientRect();
+    const start = latestTarget.current === 'exchange' ? messageNodes.current?.querySelector('[data-chat-exchange-start]') : target;
+    const startTop = start?.getBoundingClientRect().top ?? rect.top;
+    // Keep question and answer together when they fit. A long answer starts at
+    // its beginning, rather than jumping past it to old files or its last line.
+    const targetTop = rect.bottom - startTop <= bottom - top ? startTop : rect.top;
+    if (rect.bottom - targetTop > bottom - top || targetTop < top) region.scrollTop += targetTop - top;
+    else if (rect.bottom > bottom) region.scrollTop += rect.bottom - bottom;
+    setNewMessages(false);
+  }
+  function trackTranscriptPosition() {
+    const region = transcript.current, target = latestElement();
+    if (!region || !target) return;
+    const frame = region.getBoundingClientRect(), rect = target.getBoundingClientRect();
+    // The relevant end is the latest exchange/receipt, not the end of shared
+    // attachments or a handoff form. Reading older content suspends following.
+    atBottom.current = rect.bottom <= frame.top + region.clientTop + region.clientHeight + 48 && rect.bottom > frame.top + region.clientTop;
+    if (atBottom.current) setNewMessages(false);
   }
   async function bootstrap() {
     setLoading(true); setError(''); setFileAdvice(false);
@@ -69,6 +111,12 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
     catch (failure) { setError(errorText(failure)); }
     finally { setLoading(false); }
   }
+
+  useEffect(() => {
+    if (!open || !revealAfterRender.current) return;
+    revealAfterRender.current = false;
+    revealLatest();
+  }, [open, conversation]);
 
   useEffect(() => {
     if (!open) return;
@@ -146,6 +194,9 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
   }, [open, conversation?.id, !!human, !!closed]);
 
   async function execute(action: Pending) {
+    // Sending is an explicit return to the live exchange. A subsequent user
+    // scroll while awaiting the response can still suspend this follow mode.
+    atBottom.current = true; setNewMessages(false);
     setPending(action); setBusy(true); setError(''); setFileAdvice(false);
     try {
       if (!session) { const current = await api.current.session(); setSession(current); }
@@ -190,7 +241,7 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
 
   async function clearConversation() {
     setBusy(true); setError(''); setFileAdvice(false);
-    try { await api.current.clear(); uploadRetry.current = []; lastMessageKey.current = ''; atBottom.current = true; setConversation(null); setSession(null); setAttachments([]); setPending(null); setText(''); setHandoffOpen(false); setHandoffDraft({ name: '', channel: 'chat', contact: '', summary: '', topic: 'property', consent: false }); setConfirmClear(false); await bootstrap(); }
+    try { await api.current.clear(); uploadRetry.current = []; lastMessageKey.current = ''; lastReceiptKey.current = ''; latestTarget.current = 'exchange'; atBottom.current = true; setNewMessages(false); setConversation(null); setSession(null); setAttachments([]); setPending(null); setText(''); setHandoffOpen(false); setHandoffDraft({ name: '', channel: 'chat', contact: '', summary: '', topic: 'property', consent: false }); setConfirmClear(false); await bootstrap(); }
     catch (failure) { setError(errorText(failure)); }
     finally { setBusy(false); }
   }
@@ -212,7 +263,7 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
           <a href={SITE.whatsappUrl} target="_blank" rel="noopener noreferrer">WhatsApp <span aria-hidden="true">↗</span></a>
           <button onClick={() => { setConfirmClear(true); setHandoffOpen(false); }} disabled={!session || busy}>Effacer</button>
         </nav>
-        <div className="jamm-chat-transcript" ref={transcript} onScroll={() => { const element = transcript.current; if (element) { atBottom.current = element.scrollHeight - element.scrollTop - element.clientHeight < 48; if (atBottom.current) setNewMessages(false); } }} role="log" aria-label="Messages de la conversation" aria-live="polite" aria-relevant="additions text">
+        <div className="jamm-chat-transcript" ref={transcript} tabIndex={0} onScroll={trackTranscriptPosition} role="log" aria-label="Messages de la conversation" aria-live="polite" aria-relevant="additions text">
           {context && <div className="jamm-chat-context"><span>À propos de <strong>{context.title || context.propertyReference}</strong></span><button className="jamm-chat-icon" aria-label="Retirer le contexte de ce bien" onClick={() => setContext(null)}><X size={16} aria-hidden="true" /></button></div>}
           <div className="jamm-chat-welcome"><span className="jamm-chat-eyebrow">BIENVENUE CHEZ JAMM IMMO</span><h3>La bonne info.<br /><em>Au bon endroit.</em></h3><p>{policy.welcome}</p></div>
           {loading && <p className="jamm-chat-state" role="status"><LoaderCircle className="jamm-chat-spin" size={16} aria-hidden="true" /> Ouverture de votre échange…</p>}
@@ -220,9 +271,9 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
           {session && !messages.length && policy.enabled && !handoffOpen && <div className="jamm-chat-prompts" aria-label="Quelques pistes pour commencer">
             {['Trouver un bien', 'Comprendre un outil', 'Acheter, louer ou confier un bien'].map(label => <button key={label} onClick={() => { setText(label === 'Trouver un bien' ? 'Comment trouver un bien selon mon budget ?' : label === 'Comprendre un outil' ? 'Quels outils puis-je utiliser sur le site ?' : 'Comment Jamm Immo peut m’accompagner pour acheter, louer ou confier mon bien ?'); composer.current?.focus(); }}>{label}<ArrowUp size={15} aria-hidden="true" /></button>)}
           </div>}
-          {messages.map(message => <Message key={message.id} message={message} origin={origin} />)}
-          {conversation?.receipt && <div className="jamm-chat-receipt"><Check size={17} aria-hidden="true" /><div><p>{receiptText(conversation.receipt)}</p><small>Reçu {conversation.receipt.id.slice(0, 8).toUpperCase()}</small>{conversation.receipt.state === 'recorded' && <p>Vous pouvez aussi joindre l’agence sur <a href={SITE.whatsappUrl} target="_blank" rel="noopener noreferrer">WhatsApp</a>.</p>}</div></div>}
           {attachments.length > 0 && <ul className="jamm-chat-attachments" aria-label="Pièces jointes">{attachments.map(file => <li key={file.id}><FileText size={19} aria-hidden="true" /><div><strong>{file.name}</strong><small>{formatFileSize(file.size)} · {attachmentLabel(file.state)}</small></div></li>)}</ul>}
+          <div ref={messageNodes} className="jamm-chat-messages">{messages.map((message, index) => <Message key={message.id} message={message} origin={origin} exchangeStart={index === exchangeStart} />)}</div>
+          {conversation?.receipt && <div ref={receiptNode} className="jamm-chat-receipt"><Check size={17} aria-hidden="true" /><div><p>{receiptText(conversation.receipt)}</p><small>Reçu {conversation.receipt.id.slice(0, 8).toUpperCase()}</small>{conversation.receipt.state === 'recorded' && <p>Vous pouvez aussi joindre l’agence sur <a href={SITE.whatsappUrl} target="_blank" rel="noopener noreferrer">WhatsApp</a>.</p>}</div></div>}
           {handoffSuggested && !human && !handoffOpen && <button className="jamm-chat-secondary jamm-chat-wide" onClick={openHandoff}>Transmettre ma question à un conseiller</button>}
           {handoffOpen && !human && <form className="jamm-chat-handoff" onSubmit={event => {
             event.preventDefault(); if (busy || pending || !handoffDraft.consent) return;
@@ -244,7 +295,7 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
           {busy && <p className="jamm-chat-state" role="status"><LoaderCircle className="jamm-chat-spin" size={16} aria-hidden="true" /> {pending?.kind === 'message' ? human ? 'Envoi au conseiller…' : 'Je cherche dans les informations du site…' : 'Transmission en cours…'}</p>}
           {closed && <div className="jamm-chat-notice">Cet échange est terminé. Vous pouvez l’effacer pour ouvrir une nouvelle conversation.</div>}
         </div>
-        {newMessages && <button className="jamm-chat-new" onClick={() => { if (transcript.current) transcript.current.scrollTop = transcript.current.scrollHeight; atBottom.current = true; setNewMessages(false); }}><ArrowDown size={15} aria-hidden="true" /> Nouveau message</button>}
+        {newMessages && <button className="jamm-chat-new" onClick={() => { atBottom.current = true; revealLatest(); }}><ArrowDown size={15} aria-hidden="true" /> Nouveau message</button>}
         {error && <div className="jamm-chat-error" role="alert"><p>{error}</p>{fileAdvice ? <button disabled={busy || loading} onClick={() => { setError(''); setFileAdvice(false); setHandoffOpen(false); requestAnimationFrame(() => composer.current?.focus()); }}>Continuer sans ajouter de fichier</button> : <button disabled={busy || loading} onClick={() => pending ? void execute(pending) : uploadRetry.current.length ? void upload([], true) : void bootstrap()}>{pending || uploadRetry.current.length ? 'Réessayer le même envoi' : 'Réouvrir la connexion'}</button>}</div>}
         {!handoffOpen && !confirmClear && <form className="jamm-chat-compose" onSubmit={sendMessage}>
           <label htmlFor="jamm-chat-message" className="jamm-chat-sr-only">Votre question à Jamm Immo</label>
@@ -257,9 +308,9 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
   </div>;
 }
 
-function Message({ message, origin }: { message: ChatMessage; origin: string }) {
+function Message({ message, origin, exchangeStart }: { message: ChatMessage; origin: string; exchangeStart: boolean }) {
   const sources = (message.citations ?? []).map(source => ({ ...source, safeUrl: safeSourceUrl(source.url, origin) })).filter(source => source.safeUrl);
-  return <article className={`jamm-chat-message jamm-chat-message-${message.role}`} aria-label={message.role === 'visitor' ? 'Votre message' : message.role === 'operator' ? 'Message du conseiller' : 'Réponse de l’assistant'}>
+  return <article className={`jamm-chat-message jamm-chat-message-${message.role}`} data-chat-exchange-start={exchangeStart || undefined} aria-label={message.role === 'visitor' ? 'Votre message' : message.role === 'operator' ? 'Message du conseiller' : 'Réponse de l’assistant'}>
     {message.role !== 'visitor' && <span className="jamm-chat-author">{message.role === 'operator' ? 'L’équipe Jamm Immo' : message.role === 'system' ? 'Votre échange' : 'Assistant Jamm Immo'}</span>}
     <p>{message.content}</p>
     {sources.length > 0 && <div className="jamm-chat-sources"><strong>À consulter sur le site</strong>{sources.map(source => <a key={source.id} href={source.safeUrl!} target="_blank" rel="noopener noreferrer"><span>{source.title}<span aria-hidden="true"> ↗</span></span>{source.quote && !message.content.includes(source.quote) && <q>{source.quote}</q>}</a>)}</div>}

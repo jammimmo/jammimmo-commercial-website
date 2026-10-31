@@ -25,6 +25,10 @@ jobs:
       - name: Typecheck (astro check)
         run: pnpm check
 
+      - name: Typecheck chatbot acceptance harness and browser options
+        # Node types are already locked and privately hoisted by pnpm9.
+        run: pnpm exec tsc --noEmit --target ES2022 --module ESNext --moduleResolution bundler --strict --skipLibCheck --types node --typeRoots node_modules/.pnpm/node_modules/@types tests/chatbot/widget.spec.ts playwright.chatbot.config.ts
+
       - name: Unit tests (vitest)
         run: pnpm test
 
@@ -52,6 +56,17 @@ jobs:
           ADMIN_SUPABASE_ANON_KEY: ''
         run: pnpm exec playwright test --config=playwright.chatbot.config.ts
 
+      - name: Chatbot reduced-motion acceptance (isolated fixtures)
+        env:
+          CHAT_UI_WEBKIT: 'true'
+          CHAT_UI_MOTION: 'reduce'
+          CHAT_UI_EVIDENCE: 'test-results/chatbot-reduced'
+          PUBLIC_CHAT_UI_QA: 'true'
+          ADMIN_SUPABASE_URL: ''
+          ADMIN_SUPABASE_SERVICE_ROLE_KEY: ''
+          ADMIN_SUPABASE_ANON_KEY: ''
+        run: pnpm exec playwright test --config=playwright.chatbot.config.ts --project=desktop --project=webkit-portrait --grep='draft survives'
+
       - name: Preserve chatbot UI diagnostics
         if: always()
         # Artifact quota/transport failures must not replace the QA result.
@@ -62,5 +77,7 @@ jobs:
           path: |
             test-results/chatbot
             playwright-report/chatbot
+            test-results/chatbot-reduced
+            test-results/chatbot-reduced-report
           if-no-files-found: warn
           retention-days: 7

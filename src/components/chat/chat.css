@@ -20,14 +20,15 @@
 .jamm-chat-heading p { font-size: 0.6875rem; margin: 4px 0 0; color: #666476; line-height: 1.4; overflow-wrap: anywhere; }
 .jamm-chat-icon { border: 0; border-radius: 12px; color: #666476; background: transparent; width: 44px; min-width: 44px; height: 44px; display: inline-grid; place-items: center; flex: none; }
 .jamm-chat-icon:hover { color: var(--chat-indigo); background: #efedf7; }
-.jamm-chat-tools { display: flex; align-items: center; gap: 3px; padding: 3px 12px; background: #fffdfa; border-bottom: 1px solid var(--chat-clay); flex: none; }
-.jamm-chat-tools :is(button, a) { font-size: 0.6875rem; font-weight: 650; background: none; border: 0; color: var(--chat-indigo); border-radius: 7px; min-height: 44px; padding: 6px 7px; display: inline-flex; justify-content: center; align-items: center; text-align: center; line-height: 1.35; text-decoration: none; }
+.jamm-chat-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; padding: 3px 12px; background: #fffdfa; border-bottom: 1px solid var(--chat-clay); flex: none; }
+.jamm-chat-tools :is(button, a) { font-size: 0.6875rem; font-weight: 650; background: none; border: 0; color: var(--chat-indigo); border-radius: 7px; min-width: 0; max-width: 100%; min-height: 44px; padding: 6px 7px; display: inline-flex; justify-content: center; align-items: center; text-align: center; overflow-wrap: anywhere; line-height: 1.35; text-decoration: none; }
 .jamm-chat-tools button:first-child { margin-right: auto; text-align: left; }
 .jamm-chat-tools :is(button, a):hover { background: #efedf7; }
 .jamm-chat-context { display: flex; align-items: center; gap: 4px; font-size: 0.6875rem; background: #eeebf5; padding: 0 6px 0 12px; margin: 0 0 18px; border-radius: 10px; }
 .jamm-chat-context > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .jamm-chat-context strong { display: block; font-weight: 600; }
 .jamm-chat-transcript { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 22px 18px; scroll-padding-bottom: 18px; }
+.jamm-chat-transcript:focus-visible { outline: 3px solid #a18b37; outline-offset: -3px; }
 .jamm-chat-welcome { margin: 0 0 23px; }
 .jamm-chat-eyebrow { font-size: 0.6875rem; font-weight: 750; letter-spacing: .12em; color: #777367; }
 .jamm-chat-welcome h3 { font-family: 'Fraunces', Georgia, serif; font-size: 1.875rem; line-height: 1.15; font-weight: 500; margin: 10px 0 13px; letter-spacing: -.025em; }

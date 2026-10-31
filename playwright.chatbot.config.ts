@@ -2,12 +2,14 @@ import { defineConfig } from '@playwright/test';
 
 // Opt in only when the serial browser acceptance slot is available.
 const webkit = process.env.CHAT_UI_WEBKIT === 'true';
+const evidence = process.env.CHAT_UI_EVIDENCE ?? './test-results/chatbot';
+const motion = process.env.CHAT_UI_MOTION === 'reduce' ? 'reduce' : 'no-preference';
 
 export default defineConfig({
   testDir: './tests/chatbot', fullyParallel: false, workers: 1, retries: 0, maxFailures: 1,
-  outputDir: './test-results/chatbot', reporter: [['list'], ['html', { outputFolder: 'playwright-report/chatbot', open: 'never' }]],
+  outputDir: evidence, reporter: [['list'], ['html', { outputFolder: process.env.CHAT_UI_EVIDENCE ? evidence + '-report' : 'playwright-report/chatbot', open: 'never' }], ['json', { outputFile: evidence + '/results.json' }]],
   timeout: 45_000,
-  use: { baseURL: 'http://127.0.0.1:4324', reducedMotion: 'reduce', video: 'on', screenshot: 'on', trace: 'retain-on-failure' },
+  use: { baseURL: 'http://127.0.0.1:4324', contextOptions: { reducedMotion: motion }, video: 'on', screenshot: 'on', trace: 'retain-on-failure' },
   projects: [
     { name: 'desktop', use: { browserName: 'chromium', viewport: { width: 1366, height: 850 } } },
     { name: 'portrait', use: { browserName: 'chromium', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
