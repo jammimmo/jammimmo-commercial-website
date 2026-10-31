@@ -29,7 +29,7 @@ jobs:
         run: pnpm test
 
       - name: Preview and production catalogue build containment
-        run: node --test scripts/build-approved-catalogue.test.mjs
+        run: node --test --test-concurrency=1 scripts/build-approved-catalogue.test.mjs scripts/catalogue-artifact.test.mjs
 
       - name: Build (approved public snapshot — no admin database access)
         env:

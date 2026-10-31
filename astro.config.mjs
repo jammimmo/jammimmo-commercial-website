@@ -3,6 +3,8 @@ import { defineConfig } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
+import { fileURLToPath } from 'node:url';
+import { catalogueAliases } from './scripts/catalogue-artifact.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -39,6 +41,7 @@ export default defineConfig({
     defaultStrategy: 'viewport',
   },
   vite: {
+    resolve: { alias: catalogueAliases(process.env, fileURLToPath(new URL('.', import.meta.url))) },
     ssr: {
       noExternal: ['react-leaflet', '@react-leaflet/core'],
     },

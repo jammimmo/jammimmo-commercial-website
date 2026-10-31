@@ -48,11 +48,7 @@ describe('approved immutable public catalogue', () => {
     expect(client).not.toHaveBeenCalled(); expect(network).not.toHaveBeenCalled();
   });
   it('fails hard for a missing/wrong hash or unknown mode, never falling back to the DB', async () => {
-    snapshotMode('0'.repeat(64)); const wrongHash = await import('./supabase.build');
-    await expect(wrongHash.listAllPublicRefs()).rejects.toThrow('hash');
-    await expect(wrongHash.listPublicProperties()).rejects.toThrow('hash');
-    await expect(wrongHash.getPublicPropertyByRef('UNKNOWN-0000')).rejects.toThrow('hash');
-    await expect(wrongHash.findSimilar(validateCatalogue(JSON.parse(raw)).properties[0])).rejects.toThrow('hash');
+    snapshotMode('0'.repeat(64)); await expect(import('./supabase.build')).rejects.toThrow('hash');
     vi.resetModules(); vi.stubEnv('CATALOGUE_SNAPSHOT_SHA256', ''); await expect(import('./supabase.build')).rejects.toThrow('hash');
     vi.resetModules(); vi.stubEnv('CATALOGUE_BUILD_SOURCE', 'typo'); await expect(import('./supabase.build')).rejects.toThrow('CATALOGUE_BUILD_SOURCE');
     expect(client).not.toHaveBeenCalled();

@@ -1,13 +1,16 @@
 /** Deterministic public facts. The model never sees or supplies property values. */
-import rawFacts from '../../data/public-property-facts-20261031.json';
-import { CAPTURED_AT, PROPERTY_REVISION, safePropertyReference, validatePropertyFacts, type PropertyFact } from '../public-catalogue';
+import rawFacts from '@catalogue-facts';
+import rawApproval from '@catalogue-approval';
+import { safePropertyReference, validateCatalogueApproval, validatePropertyFacts, type PropertyFact } from '../public-catalogue';
 import { formatFCFA } from '../format';
 import type { Lang } from '../i18n';
 import type { Citation } from './types';
 import { elliptical, generalInformationQuestion, explicitCatalogueSearch, requestsListingFacts } from './context';
 import { catalogue } from './navigation';
 
-const corpus = validatePropertyFacts(rawFacts);
+const approval = validateCatalogueApproval(rawApproval);
+const corpus = validatePropertyFacts(rawFacts, approval.capture);
+const PROPERTY_REVISION = corpus.capture.sha256.slice(0, 12);
 export const PUBLIC_PROPERTY_FACTS: readonly PropertyFact[] = corpus.listings;
 const byId = new Map(corpus.listings.map(row => [row.id, row]));
 const byRef = new Map(corpus.listings.map(row => [row.reference.toLowerCase(), row]));
@@ -68,7 +71,8 @@ const labels: Record<FactField, string> = {
   title: 'Annonce', description: 'Description publiée', price: 'Prix affiché dans l’annonce', surface: 'Surface publiée', bedrooms: 'Nombre de chambres publié', location: 'Localisation publiée', type: 'Type publié',
   piscine: 'Piscine', parking: 'Parking', jardin: 'Jardin', terrasse: 'Terrasse', balcon: 'Balcon', ascenseur: 'Ascenseur', climatisation: 'Climatisation', etage: 'Étage', niveaux: 'Niveaux', toilettes: 'Salles de bain / toilettes', salons: 'Salons', cuisine: 'Cuisine',
 };
-const freshness = `Données publiques capturées le ${CAPTURED_AT.slice(0, 10).split('-').reverse().join('/')} à 09:29 UTC. La disponibilité et les conditions actuelles doivent être confirmées par notre équipe.`;
+const capturedAt = new Date(corpus.capture.capturedAt).toISOString();
+const freshness = `${approval.source === 'trusted-production' ? 'Catalogue public préparé' : 'Données publiques capturées'} le ${capturedAt.slice(0, 10).split('-').reverse().join('/')} à ${capturedAt.slice(11, 16)} UTC. La disponibilité et les conditions actuelles doivent être confirmées par notre équipe.`;
 export interface PropertyFactAnswer { content: string; citations: Citation[]; mode: 'sources'; handoffSuggested: boolean }
 export function propertyFactAnswer(question: string, current: string, page: Page, lang: Lang, allowed: readonly string[]): PropertyFactAnswer | null {
   if (generalInformationQuestion(current)) return null;
@@ -120,5 +124,8 @@ export function propertyFactAnswer(question: string, current: string, page: Page
   if (availability) lines.push('Je ne peux pas confirmer si ce bien est encore disponible.');
   if (unsupported) lines.push('Ces conditions ne sont pas confirmées par les données publiques capturées ; notre équipe peut vérifier.');
   if (!citations.length) citations.push(citation(row, 'title')!);
+  if (row.extrasCapturedAt && requested.some(field => Object.hasOwn(row.features, field) || (field === 'toilettes' && Object.hasOwn(row.features, 'salles_de_bain')))) {
+    lines.push(`Certaines caractéristiques proviennent de la capture publique du ${row.extrasCapturedAt.slice(0, 10).split('-').reverse().join('/')} ; elles n’ont pas été relues dans la base lors de cette actualisation.`);
+  }
   return { content: lines.join('\n') + '\n\n' + freshness, citations, mode: 'sources', handoffSuggested: availability || missing || unsupported };
 }

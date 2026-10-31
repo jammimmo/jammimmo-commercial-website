@@ -46,36 +46,107 @@ renamed. Each canonical URL encodes one path segment and is checked against
 the captured href. Their actual HTTP responses remain unverified. The build
 reader supports the existing lowercase-slug/uppercase-lookup round trip.
 
-## Explicit build mode
+## Build contexts and freshness
 
-The normal `pnpm build` command runs `scripts/build-approved-catalogue.mjs`.
-It selects this approved capture by default for production **and automatic
-Pages previews**, and blanks the three admin database credentials only in
-the child build environment. Existing Cloudflare secrets are not removed.
-Explicitly supplied approval values must match exactly:
+`pnpm build` runs `scripts/build-approved-catalogue.mjs` with Node **22.20+**.
+Local builds, CI and Pages previews use the immutable approved97 capture.
+They never initialize a database client or read source credential values.
+An explicitly supplied snapshot source/hash must match the values above.
 
-```sh
-CATALOGUE_BUILD_SOURCE=public-snapshot-20261031
-CATALOGUE_SNAPSHOT_SHA256=60f64ea76325fd5f5098e6938e768c983963a6ec892b11f9584c73f2fef8c8cb
-```
+A Pages production build must instead prepare a fresh public artifact. The
+wrapper requires `CF_PAGES=1`, branch `main`, a 40-character commit SHA and a
+HTTPS deployment URL under `jammimmo-vitrine.pages.dev`, together with
+`CATALOGUE_BUILD_SOURCE=trusted-production`. Missing/ambiguous context, another
+project, a child-only artifact override, or the former production snapshot
+source/hash fail before credentials or source I/O. These metadata checks detect
+mistakes; they do not protect secrets from hostile parent/checkout/install code.
 
-All four `supabase.build.ts` readers use the validated snapshot before any
-client creation, credential handling or database query. An unknown mode,
-missing/wrong hash, invalid capture, missing row or unprojected field aborts
-the build; there is no DB or empty-catalogue fallback in this mode. When the
-mode is absent the low-level reader retains its previous behavior, but the
-normal build wrapper always supplies the reviewed mode and hash. Do not
-replace that wrapper with a direct Astro build in Pages. Returning to live
-database builds needs a deliberate reviewed release after recovery; there
-is no automatic database fallback. Source preparation alone does not prove
-the cloud build configuration, release or runtime activation.
+Preparation uses only the existing public `PUBLIC_SUPABASE_URL` and
+`PUBLIC_SUPABASE_ANON_KEY` configuration for project `ygaawqgwxlbtkcuqecxh`.
+Their actual presence in Pages is a release prerequisite, not inferred from
+source. No key is created, copied from admin, or given a broader role. A legacy
+JWT must identify this project and role `anon`; a publishable key remains subject
+to server RLS. Secret/service-role substitutions are refused before I/O.
+`ADMIN_SUPABASE_*` are never read. Both public settings are also blanked in the
+Astro child because the renderer needs only the prepared public data.
 
-Filtering and limits preserve the four existing signatures. The existing
-query's publication-date order remains primary, optional price order remains
-secondary; tied rows keep capture order. Similar listings use the captured
-order after the same city/type/id filters. A future catalogue refresh must
-have a separately reviewed capture, projection and hashes; the date never
-advances merely because another build runs.
+The selected columns follow the existing anon allowlist in Estate Flow migration
+`20261023164421_anonymous_catalogue_containment.sql`. There is no new grant, RPC
+or RLS change. Address, the attributes bag (including JSON paths), documents,
+owner prices and exact GPS are not queried. Fresh address is null, documents are
+empty and rental period is unknown. Exact positive public commodity labels
+Climatisation/Ascenseur/Piscine/Jardin/Terrasse become corresponding true facts;
+absence never means false, tags are not evidence, and Parking public does not
+become a private parking claim.
+
+The 13 already-public attributes from the approved97 capture may be reused only
+when a fresh eligible row has the same UUID, reference, **full timestamp string**
+and every comparable public field, including arrays and price. There is no
+Date.parse/millisecond shortcut. Missing rows are never recreated; any field or
+timestamp difference discards these extras. Changed/new listings retain only
+fresh positive commodity evidence. The chatbot marks reused extras with their
+original capture date and explicitly says they were not reread from the database.
+This deliberately does not reconstruct an old address or rental period. The
+source trigger that maintains updated_at is not proof of its remote state;
+verify that prerequisite after recovery, without probing during the incident.
+
+Preparation reads only the existing published-property source and the existing
+public approximate-geography view. There are at most two GETs, no automatic
+retry or redirect, a shared 15-second deadline, 8 MiB per response and 1000 rows
+per source. The properties predicate includes `is_public=true`,
+`status=Disponible` and `deleted_at is null`. Exact counts, complete ranges,
+unique identifiers and validated public values are required. Geographic rows
+are joined only to freshly eligible UUIDs; an older view cannot resurrect a
+soft-deleted listing. Every incoming geographic row must meet the view contract. A successful exact `*/0` response is a genuinely empty public source
+(e.g. withdrawal of the final listing); missing counts, `*` totals, HTTP errors,
+invalid JSON or truncated rows never become an empty catalogue.
+
+Fresh geographic centres are independently coarsened with the exact existing
+Estate Flow `approximatePropertyCenter` algorithm (`src/lib/property-tour-map.ts`,
+source3df7904): stable ~1km grid, no random jitter, no exact GPS/address input.
+Coordinates outside that contract are rejected. A prepared zone has radius1500m
+so the expanded circle covers both the former500m zone and grid displacement.
+Validation rejects a prepared off-grid centre or finer radius. The historical97
+snapshot remains unchanged; none of its already-public500m zones establishes
+remote view health. Verify the authorized public view after database recovery.
+The facts corpus contains no geography or address.
+
+The validated output consists of catalogue, facts and approval JSON in a new
+immutable `.catalogue-build/<approval-sha256>/` directory. No secret or raw
+response is stored. Config-time hash checks and a pairwise comparison bind
+both files to one revision. Astro aliases select this same revision for the
+four existing readers and the facts Worker. The renderer has no database
+client or credential fallback. The child environment blanks all three
+`ADMIN_SUPABASE_*` values. The 200-row listing cap is removed; the source-wide
+1000-row bound is explicit and cannot silently truncate the main search page.
+Existing estimation/matching/quartier consumers retain their intentional200-row
+limits and home featured retains6; the201-row oracle does not prove exhaustive
+coverage of those bounded subsets.
+
+A failed preparation never starts Astro, never replaces the approved97 files
+and never promotes an empty/stale fallback build. The previous Pages deployment
+remains serving until a complete build is promoted by Pages. The HMAC-protected
+`/api/revalidate` endpoint still calls the existing production deploy hook;
+that build must run this wrapper. It does not itself change a JSON artifact.
+During the database incident a new production build may therefore fail safely;
+the already deployed catalogue remains available, and publication updates are
+pending rather than falsely reported by this build as refreshed.
+
+Before release, verify the real Pages production branch/build command and the
+source credential scope in the UI. Replace the old production
+`CATALOGUE_BUILD_SOURCE=public-snapshot-20261031` with `trusted-production` and
+**remove** `CATALOGUE_SNAPSHOT_SHA256`; keep Node22.20. Preview credentials must be
+absent at provisioning, including checkout/install, independently of the child
+scrubber. Do not copy admin credentials into Pages, add a secret, widen a grant
+or change an RLS policy for this release. Source preparation and mocked tests
+are not proof that these remote prerequisites have been met.
+
+Filtering and limits preserve the four existing signatures. Publication date
+remains the primary list order; price remains secondary when requested. All
+properties, detail paths, static JSON, sitemap entries and chatbot facts are
+built from one revision. Individual property URLs and real publication latency
+still need their own release acceptance; two source reads do not assert an
+atomic database snapshot or live availability at visitor request time.
 
 ## Chat facts and source controls
 
@@ -86,12 +157,12 @@ unique short references and validated page context resolve a listing. Ambiguous,
 unknown or conflicting references ask for clarification. Explicit new searches
 and guide/tool questions do not inherit the currently viewed property's facts.
 
-Every answer names the capture date and requires confirmation of present
+Every answer names the actual capture/preparation date and time and requires confirmation of present
 availability/conditions. Zero price/surface/bedroom values are unknown, never
-free, a zero-area property or an inferred studio. A rental period is retained
+free, a zero-area property or an inferred studio. In the historical capture only, a rental period is retained
 only if exactly one positive public `pricing.month/night/week` value equals
 the displayed price. Otherwise the period is explicitly unspecified; private
-owner tariffs are never consulted. Negative/missing amenity flags are not
+owner tariffs are never consulted. Fresh anon preparation leaves the period unknown. Negative/missing amenity flags are not
 promoted into claims of presence.
 
 Source IDs are `property:<public-id>:<capture-revision>`. As with the editorial
@@ -104,17 +175,19 @@ shorter than the editorial 20-character minimum.
 
 ## Prepared local validation
 
-Run only in the task's serialized test slot:
+Run only in the task's serialized test slot (all source tests use closed I/O fixtures):
 
 ```sh
+node --test --test-concurrency=1 scripts/build-approved-catalogue.test.mjs scripts/catalogue-artifact.test.mjs
 python3 scripts/test_public_catalogue.py
-pnpm exec vitest run src/lib/public-catalogue.test.ts src/lib/chat/property-facts.test.ts src/lib/chat/backend.test.ts src/lib/chat/retrieval.test.ts --maxWorkers=1 --minWorkers=1
+pnpm exec vitest run src/lib/catalogue-freshness.test.ts src/lib/supabase.build.security.test.ts src/lib/public-catalogue.test.ts src/lib/chat/property-facts.test.ts src/lib/chat/backend.test.ts src/lib/chat/retrieval.test.ts --maxWorkers=1 --minWorkers=1
 ```
 
 Use Node 22.20 for the actual SQLite backend tests. These cover hostile tuples,
 duplicate/prototype keys, missing rows, private metadata, references, four
 readers with network forbidden, hashes, source settings, citations, search/guide
 priority and visitor-response handoff notifications. They do not establish
-production routing or visual acceptance. The final approved snapshot build must
-still check generated detail routes, JSON endpoints and sitemap against all 97
-references, including the three historical references, before release.
+production routing or visual acceptance. The final builds must still check generated detail routes, JSON endpoints and
+sitemap against the selected revision: approved97, then a closed fixture with
+a new98th listing, a removal and a repricing. Include the historical references.
+These checks have not been run merely by preparing the source.

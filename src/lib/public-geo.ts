@@ -26,6 +26,19 @@ export const PUBLIC_GEO_COLUMNS = 'id, center_lat, center_lng, radius_m';
 /** Default zone radius when the view omits it (the view fixes it at 500 m). */
 export const DEFAULT_ZONE_RADIUS_M = 500;
 
+/** Same deterministic ~1km grid as Estate Flow src/lib/property-tour-map.ts
+ * approximatePropertyCenter (source3df7904). Never add independent random
+ * jitter or accept a more precise legacy-view centre in a new public build. */
+const METERS_PER_DEGREE = 111320;
+const rounded = (value: number) => Math.round(value * 1e6) / 1e6;
+export function approximatePropertyCenter(lat: number, lng: number): { lat: number; lng: number } | undefined {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 75 || Math.abs(lng) > 179.9) return;
+  const latitude = rounded(Math.round(lat * METERS_PER_DEGREE / 1000) * 1000 / METERS_PER_DEGREE);
+  const longitudeStep = 1000 / (METERS_PER_DEGREE * Math.cos(latitude * Math.PI / 180));
+  return { lat: latitude, lng: rounded(Math.round(lng / longitudeStep) * longitudeStep) };
+}
+export const PREPARED_PUBLIC_ZONE_RADIUS_M = 1500;
+
 export interface GeoViewRow {
   id: string;
   center_lat: number | null;

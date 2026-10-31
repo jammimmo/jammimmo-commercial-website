@@ -1,19 +1,18 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
+import { PROPERTY_SELECT } from '../../scripts/catalogue-artifact.mjs';
 
 /**
- * Regression guard for the cross-repo security fix: PUBLIC_COLUMNS (the build
- * reader's SELECT list) must never re-include the sensitive admin columns that
- * `maskRow` drops — they are what estate-flow needs to REVOKE from the `anon`
- * role. A source-level assertion is the right tool here: the constant is a
- * module-private template literal, and this catches an accidental re-add in PR.
+ * Keep the original cross-repo sensitive-column regression guard on the actual
+ * preparation SELECT. The renderer now consumes only a validated public file.
  */
 const SRC = fs.readFileSync(new URL('./supabase.build.ts', import.meta.url), 'utf8');
-const cols = (SRC.match(/const PUBLIC_COLUMNS = `([\s\S]*?)`/)?.[1] ?? '').toLowerCase();
+const cols = PROPERTY_SELECT.toLowerCase();
 
-describe('PUBLIC_COLUMNS leaks no sensitive admin column', () => {
-  it('defines the PUBLIC_COLUMNS literal', () => {
+describe('catalogue preparation leaks no sensitive admin column', () => {
+  it('has an explicit SELECT and no database client or credential path in the renderer', () => {
     expect(cols.length).toBeGreaterThan(0);
+    expect(SRC).not.toMatch(/createClient|ADMIN_SUPABASE_|\.from\(['"]properties/);
   });
 
   it.each(['commission_amount', 'negotiable_price', 'caution', 'avance', 'accessibility'])(
@@ -28,6 +27,11 @@ describe('PUBLIC_COLUMNS leaks no sensitive admin column', () => {
   // this regresses, the exact coordinate leaks into the static bundle again.
   it('excludes the exact gps column (#724972)', () => {
     expect(cols).not.toMatch(/\bgps\b/);
+  });
+
+  it('never selects whole private metadata bags', () => {
+    expect(cols.split(',')).not.toContain('attributes');
+    expect(cols.split(',')).not.toContain('documents');
   });
 
   it('still selects the columns the public site renders', () => {

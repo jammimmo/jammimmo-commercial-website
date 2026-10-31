@@ -1,186 +1,36 @@
 /**
- * Build-time admin DB reader. Tier 3 isolation:
- *
- * - Reads `process.env.ADMIN_SUPABASE_*` (not `import.meta.env`) so Vite
- *   cannot bundle the values into the client output. The variables are
- *   supplied by GitHub Actions secrets at build time and never reach the
- *   deployed Cloudflare Pages runtime.
- * - Uses the **service-role** key (full read of `properties`). The trade-off
- *   is acceptable because the key lives only in GH Actions, never on the
- *   public site. RLS becomes belt-and-suspenders, not the primary boundary.
- * - The runtime guard below throws if this module is imported outside of a
- *   build context (no `process.env` available, or `MODE === 'runtime'`).
- *
- * Anything that the deployed Worker needs to read from a DB goes through
- * `@/lib/intake` (separate Supabase project, anon key only).
+ * Build-only public catalogue reader. The trusted wrapper prepares/validates a
+ * complete immutable revision before Astro starts. No database client, secret,
+ * network fallback or empty-on-error path exists in the renderer.
  */
+import catalogueRaw from '@catalogue-public?raw';
+import rawApproval from '@catalogue-approval';
+import { validateCatalogue, validateCatalogueApproval, type PublicCatalogue } from './public-catalogue';
+import type { PublicProperty } from '@/types/property';
 
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import snapshotRaw from '../data/public-catalogue-20261031.json?raw';
-import { validateCatalogue, type PublicCatalogue } from './public-catalogue';
-import type { DbProperty, GpsZone, PublicProperty } from '@/types/property';
-import {
-  PUBLIC_GEO_VIEW,
-  PUBLIC_GEO_COLUMNS,
-  geoRowToZone,
-  type GeoViewRow,
-} from '@/lib/public-geo';
-
-const isNodeBuild =
-  typeof process !== 'undefined' &&
-  typeof process.env !== 'undefined' &&
-  // Astro/Vite set NODE_ENV during build; Cloudflare Workers runtime does not
-  // expose process.env at all by default.
-  typeof process.versions?.node === 'string';
-
-if (!isNodeBuild) {
-  throw new Error(
-    '[supabase.build] imported at runtime. This module is build-only — ' +
-      'use @/lib/intake for runtime DB access.',
-  );
+if (typeof process === 'undefined' || typeof process.versions?.node !== 'string') {
+  throw new Error('[supabase.build] imported at runtime; public catalogue readers are build-only');
 }
-
-// Explicit release mode only. A misspelled mode, missing/wrong hash or invalid
-// capture aborts the build. Never fall through to the unhealthy DB or [] here.
-const snapshotMode = process.env.CATALOGUE_BUILD_SOURCE;
-if (snapshotMode !== undefined) {
-  if (snapshotMode !== 'public-snapshot-20261031') throw new Error('[supabase.build] invalid CATALOGUE_BUILD_SOURCE');
-  const expected = process.env.CATALOGUE_SNAPSHOT_SHA256;
-  if (!expected || !/^[a-f0-9]{64}$/.test(expected)) {
-    throw new Error('[supabase.build] public snapshot hash missing or mismatched');
-  }
+const approval = validateCatalogueApproval(rawApproval);
+const mode = process.env.CATALOGUE_BUILD_SOURCE;
+if (mode !== undefined && !['public-snapshot-20261031', 'prepared-production'].includes(mode)) {
+  throw new Error('[supabase.build] invalid CATALOGUE_BUILD_SOURCE');
 }
-let snapshotPromise: Promise<PublicCatalogue> | undefined;
-async function publicSnapshot(): Promise<PublicCatalogue | null> {
-  if (snapshotMode === undefined) return null;
-  // Astro 4's Cloudflare hybrid bundler rejects node:crypto even for a
-  // prerender-only reader. WebCrypto works in the Node build without adding
-  // a Node builtin to that bundle. Every existing reader is already async.
-  snapshotPromise ??= (async () => {
-    const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(snapshotRaw));
+if ((mode === 'prepared-production') !== (approval.source === 'trusted-production')) {
+  throw new Error('[supabase.build] catalogue source mismatch');
+}
+if (mode === 'public-snapshot-20261031' && process.env.CATALOGUE_SNAPSHOT_SHA256 !== approval.catalogueSha256) {
+  throw new Error('[supabase.build] public snapshot hash missing or mismatched');
+}
+let cataloguePromise: Promise<PublicCatalogue> | undefined;
+async function publicCatalogue(): Promise<PublicCatalogue> {
+  cataloguePromise ??= (async () => {
+    const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(catalogueRaw));
     const actual = [...new Uint8Array(bytes)].map(value => value.toString(16).padStart(2, '0')).join('');
-    if (actual !== process.env.CATALOGUE_SNAPSHOT_SHA256) throw new Error('[supabase.build] public snapshot hash missing or mismatched');
-    return validateCatalogue(JSON.parse(snapshotRaw));
+    if (actual !== approval.catalogueSha256) throw new Error('[supabase.build] catalogue hash mismatch');
+    return validateCatalogue(JSON.parse(catalogueRaw), approval.capture);
   })();
-  return snapshotPromise;
-}
-
-const ADMIN_URL = process.env.ADMIN_SUPABASE_URL ?? '';
-const ADMIN_KEY =
-  process.env.ADMIN_SUPABASE_SERVICE_ROLE_KEY ?? process.env.ADMIN_SUPABASE_ANON_KEY ?? '';
-
-if (snapshotMode === undefined && (!ADMIN_URL || !ADMIN_KEY)) {
-  // Soft-fail at build time so a missing env var doesn't break the build;
-  // the queries below short-circuit to [] and pages render fallback empty
-  // states. CI logs surface the warning.
-  // eslint-disable-next-line no-console
-  console.warn(
-    '[supabase.build] ADMIN_SUPABASE_URL or ADMIN_SUPABASE_SERVICE_ROLE_KEY missing — ' +
-      'property fetch will return []. Fine for CI smoke build, not for prod.',
-  );
-}
-
-let _client: SupabaseClient | null = null;
-function client(): SupabaseClient {
-  if (!_client) {
-    _client = createClient(ADMIN_URL, ADMIN_KEY, {
-      auth: { persistSession: false, autoRefreshToken: false },
-      global: { headers: { 'x-application-name': 'jammimmo-vitrine-build' } },
-    });
-  }
-  return _client;
-}
-
-/**
- * Project a DB row to its render-safe public shape. Commission, apporteur,
- * source_*, caution, avance, accessibility, manager, deal_type and other
- * admin-internal fields are dropped here — the build process sees them in
- * memory but they never make it into the rendered HTML.
- *
- * The exact `gps` is NOT projected (#724972). The privacy-safe fuzzed `geo`
- * zone is supplied separately from the `properties_public_geo` view — see
- * `fetchGeoZones`. The exact coordinate never enters `PublicProperty`.
- */
-function maskRow(p: DbProperty, geo: GpsZone | null = null): PublicProperty {
-  return {
-    id: p.id,
-    reference: p.reference,
-    title: p.title,
-    type: p.type,
-    transaction_type: p.transaction_type,
-    status: p.status,
-    city: p.city,
-    quartier: p.quartier,
-    address: p.address,
-    geo,
-    price: p.price,
-    negotiable: p.negotiable,
-    commercial_message: p.commercial_message,
-    surface: p.surface,
-    bedrooms: p.bedrooms,
-    images: Array.isArray(p.images) ? p.images : [],
-    video_links: Array.isArray(p.video_links) ? p.video_links : [],
-    attributes: p.attributes ?? {},
-    commodities: Array.isArray(p.commodities) ? p.commodities : [],
-    nearby_commerce: Array.isArray(p.nearby_commerce) ? p.nearby_commerce : [],
-    documents: p.documents ?? {},
-    flux_passage: p.flux_passage,
-    tags: Array.isArray(p.tags) ? p.tags : [],
-    description: p.description ?? '',
-    published_at: p.published_at,
-    updated_at: p.updated_at,
-  };
-}
-
-// SELECT only the columns `maskRow` actually projects into PublicProperty.
-// Sensitive admin columns (caution, avance, commission_amount,
-// negotiable_price/floor price, accessibility) and bookkeeping columns
-// (is_public, created_at) are intentionally NOT selected: maskRow never
-// emitted them, and selecting them coupled the public site to columns the
-// estate-flow team needs to REVOKE from the `anon` role. Keeping this list
-// tight lets that REVOKE land without breaking the build. is_public/status
-// are still usable in WHERE filters without being in the projection.
-//
-// `gps` is deliberately ABSENT (#724972): the exact coordinate must never be
-// selected into the public build. The privacy-safe fuzzed zone comes from the
-// `properties_public_geo` view via `fetchGeoZones`. This is also what lets the
-// estate-flow team REVOKE the `gps` column from `anon` once the vitrine ships.
-const PUBLIC_COLUMNS = `
-  id, reference, title, type, transaction_type, status,
-  city, quartier, address,
-  price, negotiable, commercial_message,
-  surface, bedrooms,
-  images, video_links,
-  attributes, commodities, nearby_commerce, documents,
-  flux_passage, tags, description,
-  published_at, updated_at
-`
-  .replace(/\s+/g, ' ')
-  .trim();
-
-/**
- * Read privacy-safe fuzzed zones for the given listing ids from the
- * `properties_public_geo` view (decoy centre + 500 m radius). Returns a map of
- * id → zone; ids with no row (or an invalid centre) are simply absent, and the
- * caller renders the quartier/city approximate fallback. Never reads the exact
- * `gps` column.
- */
-async function fetchGeoZones(ids: string[]): Promise<Map<string, GpsZone>> {
-  const zones = new Map<string, GpsZone>();
-  if (ids.length === 0) return zones;
-  const { data, error } = await client().from(PUBLIC_GEO_VIEW).select(PUBLIC_GEO_COLUMNS).in('id', ids);
-  if (error || !data) {
-    if (error) {
-      // eslint-disable-next-line no-console
-      console.warn('[supabase.build] fetchGeoZones failed:', error.message);
-    }
-    return zones;
-  }
-  for (const row of data as unknown as GeoViewRow[]) {
-    const zone = geoRowToZone(row);
-    if (zone) zones.set(row.id, zone);
-  }
-  return zones;
+  return cataloguePromise;
 }
 
 export async function listPublicProperties(
@@ -194,108 +44,32 @@ export async function listPublicProperties(
     priceMax?: number;
   } = {},
 ): Promise<PublicProperty[]> {
-  const snapshot = await publicSnapshot();
-  if (snapshot) {
-    const rows = snapshot.properties.filter(p => (!opts.type || p.type === opts.type)
-      && (!opts.transaction || p.transaction_type === opts.transaction)
-      && (!opts.city || p.city === opts.city)
-      && (opts.priceMin === undefined || p.price >= opts.priceMin)
-      && (opts.priceMax === undefined || p.price <= opts.priceMax));
-    // Match the existing query: published_at DESC NULLS LAST is primary;
-    // optional price order is secondary. Stable ties retain captured order.
-    rows.sort((a, b) => {
-      const published = a.published_at === null ? (b.published_at === null ? 0 : 1)
-        : b.published_at === null ? -1 : Date.parse(b.published_at) - Date.parse(a.published_at);
-      return published || (opts.order === 'price_asc' ? a.price - b.price : opts.order === 'price_desc' ? b.price - a.price : 0);
-    });
-    return structuredClone(opts.limit === undefined ? rows : rows.slice(0, Math.max(0, opts.limit)));
-  }
-  if (!ADMIN_URL || !ADMIN_KEY) return [];
-
-  let q = client()
-    .from('properties')
-    .select(PUBLIC_COLUMNS)
-    .eq('is_public', true)
-    .eq('status', 'Disponible');
-
-  if (opts.type) q = q.eq('type', opts.type);
-  if (opts.transaction) q = q.eq('transaction_type', opts.transaction);
-  if (opts.city) q = q.eq('city', opts.city);
-  if (opts.priceMin !== undefined) q = q.gte('price', opts.priceMin);
-  if (opts.priceMax !== undefined) q = q.lte('price', opts.priceMax);
-
-  q = q.order('published_at', { ascending: false, nullsFirst: false });
-  if (opts.order === 'price_asc') q = q.order('price', { ascending: true });
-  if (opts.order === 'price_desc') q = q.order('price', { ascending: false });
-
-  if (opts.limit !== undefined) q = q.limit(opts.limit);
-
-  const { data, error } = await q;
-  if (error) {
-    // eslint-disable-next-line no-console
-    console.warn('[supabase.build] listPublicProperties failed:', error.message);
-    return [];
-  }
-  const rows = (data ?? []) as unknown as DbProperty[];
-  const zones = await fetchGeoZones(rows.map((r) => r.id));
-  return rows.map((row) => maskRow(row, zones.get(row.id) ?? null));
+  const catalogue = await publicCatalogue();
+  const rows = catalogue.properties.filter(p => (!opts.type || p.type === opts.type)
+    && (!opts.transaction || p.transaction_type === opts.transaction)
+    && (!opts.city || p.city === opts.city)
+    && (opts.priceMin === undefined || p.price >= opts.priceMin)
+    && (opts.priceMax === undefined || p.price <= opts.priceMax));
+  // Preserve the existing publication-date primary sort and stable ties.
+  rows.sort((a, b) => {
+    const published = a.published_at === null ? (b.published_at === null ? 0 : 1)
+      : b.published_at === null ? -1 : Date.parse(b.published_at) - Date.parse(a.published_at);
+    return published || (opts.order === 'price_asc' ? a.price - b.price : opts.order === 'price_desc' ? b.price - a.price : 0);
+  });
+  return structuredClone(opts.limit === undefined ? rows : rows.slice(0, Math.max(0, opts.limit)));
 }
 
 export async function getPublicPropertyByRef(ref: string): Promise<PublicProperty | null> {
-  const snapshot = await publicSnapshot();
-  if (snapshot) return structuredClone(snapshot.properties.find(p => p.reference.toLowerCase() === ref.toLowerCase()) ?? null);
-  if (!ADMIN_URL || !ADMIN_KEY) return null;
-  const { data, error } = await client()
-    .from('properties')
-    .select(PUBLIC_COLUMNS)
-    .eq('reference', ref)
-    .eq('is_public', true)
-    .eq('status', 'Disponible')
-    .maybeSingle();
-  if (error || !data) return null;
-  const row = data as unknown as DbProperty;
-  const zones = await fetchGeoZones([row.id]);
-  return maskRow(row, zones.get(row.id) ?? null);
+  const catalogue = await publicCatalogue();
+  return structuredClone(catalogue.properties.find(p => p.reference.toLowerCase() === ref.toLowerCase()) ?? null);
 }
 
 export async function findSimilar(p: PublicProperty, n: number = 3): Promise<PublicProperty[]> {
-  const snapshot = await publicSnapshot();
-  if (snapshot) return structuredClone(snapshot.properties.filter(candidate => candidate.id !== p.id && candidate.type === p.type && candidate.city === p.city).slice(0, Math.max(0, n)));
-  if (!ADMIN_URL || !ADMIN_KEY) return [];
-  const { data, error } = await client()
-    .from('properties')
-    .select(PUBLIC_COLUMNS)
-    .eq('is_public', true)
-    .eq('status', 'Disponible')
-    .eq('type', p.type)
-    .eq('city', p.city)
-    .neq('id', p.id)
-    .limit(n);
-  if (error || !data) return [];
-  const rows = data as unknown as DbProperty[];
-  const zones = await fetchGeoZones(rows.map((r) => r.id));
-  return rows.map((row) => maskRow(row, zones.get(row.id) ?? null));
+  const catalogue = await publicCatalogue();
+  return structuredClone(catalogue.properties.filter(candidate => candidate.id !== p.id && candidate.type === p.type && candidate.city === p.city).slice(0, Math.max(0, n)));
 }
 
-export async function listAllPublicRefs(): Promise<
-  Array<{ reference: string; updated_at: string; images: string[] }>
-> {
-  const snapshot = await publicSnapshot();
-  if (snapshot) return snapshot.properties.map(p => ({ reference: p.reference, updated_at: p.updated_at, images: p.images.slice(0, 10) }));
-  if (!ADMIN_URL || !ADMIN_KEY) return [];
-  const { data, error } = await client()
-    .from('properties')
-    .select('reference, updated_at, images')
-    .eq('is_public', true)
-    .eq('status', 'Disponible');
-  if (error || !data) return [];
-  // Keep only absolute https image URLs (Google's image sitemap rejects
-  // schemeless ones) and cap per listing to keep the sitemap lean.
-  return (data as Array<{ reference: string; updated_at: string; images: unknown }>).map((r) => ({
-    reference: r.reference,
-    updated_at: r.updated_at,
-    images: (Array.isArray(r.images) ? r.images : [])
-      .filter((i): i is string => typeof i === 'string' && /^https?:\/\//i.test(i))
-      .slice(0, 10),
-  }));
+export async function listAllPublicRefs(): Promise<Array<{ reference: string; updated_at: string; images: string[] }>> {
+  const catalogue = await publicCatalogue();
+  return catalogue.properties.map(p => ({ reference: p.reference, updated_at: p.updated_at, images: p.images.slice(0, 10) }));
 }

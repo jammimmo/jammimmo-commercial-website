@@ -1,0 +1,14 @@
+export const SNAPSHOT_SOURCE: 'public-snapshot-20261031';
+export const SNAPSHOT_SHA256: string;
+export const FACTS_SHA256: string;
+export const ADMIN_NAMES: string[];
+export const SOURCE_NAMES: string[];
+export const PROPERTY_SELECT: string;
+type Env = Record<string, string | undefined>;
+type Artifact = { catalogueText: string; factsText: string; approvalText: string };
+export function catalogueBuildContext(env: Env): 'local' | 'preview' | 'production';
+export function catalogueBuildMode(env: Env): 'public-snapshot-20261031' | 'trusted-production';
+export function childEnvironment(input: Env, selection?: Env): Env;
+export function projectProductionCatalogue(rows: Array<Record<string, unknown>>, zones: Array<Record<string, unknown>>, capturedAt: string, approvedExtras?: unknown): Artifact;
+export function prepareProductionArtifact(env: Env, root: string, dependencies?: { fetcher?: typeof fetch; now?: () => string }): Promise<Env>;
+export function catalogueAliases(env: Env, root: string): Record<'@catalogue-public?raw' | '@catalogue-public' | '@catalogue-facts' | '@catalogue-approval', string>;

@@ -12,7 +12,7 @@ test('a new Pages preview without configured variables uses the approved capture
   assert.equal(input.ADMIN_SUPABASE_SERVICE_ROLE_KEY, 'fixture-key');
 });
 
-test('an explicitly approved production build keeps the same captured catalogue', () => {
+test('an explicitly approved local build keeps the captured catalogue', () => {
   const result = catalogueBuildEnvironment({ CATALOGUE_BUILD_SOURCE: SNAPSHOT_SOURCE, CATALOGUE_SNAPSHOT_SHA256: SNAPSHOT_SHA256 });
   assert.equal(result.CATALOGUE_BUILD_SOURCE, SNAPSHOT_SOURCE);
   assert.equal(result.CATALOGUE_SNAPSHOT_SHA256, SNAPSHOT_SHA256);

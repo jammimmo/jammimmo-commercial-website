@@ -44,7 +44,7 @@ export interface GpsZone {
   centerLat: number;
   /** Decoy centre longitude (≠ the real position). */
   centerLng: number;
-  /** Radius of the displayed zone, in metres (500 m). */
+  /** Display radius: historical capture500m; freshly prepared coarse grid1500m. */
   radiusM: number;
 }
 
