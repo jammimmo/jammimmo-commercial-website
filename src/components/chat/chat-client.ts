@@ -18,7 +18,7 @@ export class ChatError extends Error {
 /** Cookies carry the capability. Neither it nor conversation content enters URLs/storage. */
 export class ChatClient {
   private csrf = '';
-  constructor(private readonly request: typeof fetch = fetch) {}
+  constructor(private readonly request: typeof fetch = (input, init) => globalThis.fetch(input, init)) {}
   private async send<T>(path: string, method = 'GET', body?: unknown, binary = false): Promise<T> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 30_000);
