@@ -15,7 +15,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22.20.0'
           cache: 'pnpm'
 
       - name: Install
@@ -26,6 +26,9 @@ jobs:
 
       - name: Unit tests (vitest)
         run: pnpm test
+
+      - name: Listing translation build preparation (offline)
+        run: node --experimental-strip-types --test scripts/prepare-listing-translations.test.mjs
 
       - name: Build (smoke — admin credentials optional on fork PRs)
         env:
