@@ -23,7 +23,7 @@ const anonymousSession: SessionResponse = {
   contacts: {}, attachments: [],
 };
 const hashes = () => Object.fromEntries(Object.keys(selected.pins).map(path =>
-  [path, createHash('sha256').update(readFileSync(resolve(root, path))).digest('hex')]));
+  [path, createHash('sha256').update(new Uint8Array(readFileSync(resolve(root, path)))).digest('hex')]));
 
 test.beforeEach(async ({ context, page }) => {
   expect(hashes()).toEqual(selected.pins);

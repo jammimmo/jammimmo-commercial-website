@@ -1,5 +1,5 @@
 {
-  "playwright.public-qualification.config.ts": "bad9d781b8b20065757208b771aff73f5047dd5f862d933dcf433f4b911f329a",
+  "playwright.public-qualification.config.ts": "dcafaed93a5cbc2035f578f880756e79cb2d7398e78f1185bb1ec8bec86b7f72",
   "qa/public-qualification/README.md": "4d8701d07cca0b3381369934032dd8b8f7da772a0f0a7e56d7028834ce6a98d5",
   "qa/public-qualification/astro.config.mjs": "04b9ac1bc9285c5430096fd10f92f82b1fd5e4c1e78da5a646b0656c70c0d211",
   "qa/public-qualification/catalogue.ts": "e67fff1bf76e0a2dd8ab94604aa2af54ec800fa1418365725c3b0602f182cde4",
@@ -43,7 +43,7 @@
   "src/pages/trouver-mon-bien.astro": "471887bbbf1e89b88f33b89f08191915fd0fb1a812bf566b5c74dbf5b6969fd9",
   "src/styles/globals.css": "44f3692fcf792f295f921cbac79012df0b5693d1a15e40719983b790f8938b95",
   "tailwind.config.ts": "7a57f3974c5fcada7c1a9801a1e82dcf693d46f9334fd2886eff43ba4e58b630",
-  "tests/public-qualification/selected.spec.ts": "c831c01645ac2bf9273424531fb650e57f5cd72a48bea3cad7bd63d8961e2038",
+  "tests/public-qualification/selected.spec.ts": "7e7a3f3e634df1d297c009f7c18b844d48e5019a0196c46c7d0ed1a6dac411d4",
   "src/components/chat/ChatWidget.tsx": "1555cce832fa5f69d1087104d1bafed71c1b347023b6602f51d8c76da19486ed",
   "src/components/chat/chat.css": "95926021362a9064fbf4eb67534434321d3ba6c7dde79c957659e718329b4d76",
   "src/components/chat/chat-client.ts": "facb808a12f6069240e6d6f59e2b924fe29ad3c9069dd9f63d6909b8e42d3bca"

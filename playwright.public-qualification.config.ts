@@ -8,7 +8,7 @@ export default defineConfig({
   fullyParallel: false, workers: 1, retries: 0, maxFailures: 1, timeout: 90_000,
   outputDir: selected.output + '/browser/' + selected.profile,
   reporter: [['list'], ['json', { outputFile: selected.output + '/' + selected.profile + '-results.json' }]],
-  use: { baseURL: origin, colorScheme: 'light', reducedMotion: 'no-preference',
+  use: { baseURL: origin, colorScheme: 'light', contextOptions: { reducedMotion: 'no-preference' },
     video: { mode: 'on', size: { width: selected.width, height: selected.height } },
     screenshot: 'on', trace: 'off', serviceWorkers: 'block', },
   projects: [{ name: selected.profile, use: { browserName: selected.browserName,
