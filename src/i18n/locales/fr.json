@@ -1030,5 +1030,6 @@
   "qualification.privacyNotice": "Vos informations servent à traiter votre demande et à vous recontacter.",
   "qualification.rateLimited": "L’envoi est temporairement limité. Vous pouvez réessayer le même envoi.",
   "qualification.retrySame": "Réessayer le même envoi",
-  "qualification.help": "Besoin d’aide ?"
+  "qualification.help": "Besoin d’aide ?",
+  "listing.translate.unavailable": "Texte original en français — traduction indisponible."
 }

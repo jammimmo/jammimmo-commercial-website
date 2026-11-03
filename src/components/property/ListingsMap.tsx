@@ -92,7 +92,7 @@ export default function ListingsMap({ properties, activeRef, onPinClick }: Props
       className: 'jamm-price-marker', // wrapper class — overridden below in CSS
       iconAnchor: [40, 32],
       html: `
-        <div class="price-pin ${isActive ? 'is-active' : ''}" data-ref="${p.reference}">
+        <div class="price-pin ${isActive ? 'is-active' : ''}" data-ref="${p.reference.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}">
           <span class="price-pin-label">${compactPrice(p)}</span>
           <span class="price-pin-tail"></span>
         </div>

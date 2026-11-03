@@ -1029,5 +1029,6 @@
   "qualification.privacyNotice": "Your information is used to process your request and contact you.",
   "qualification.rateLimited": "Submission is temporarily limited. You can retry the same submission.",
   "qualification.retrySame": "Retry the same submission",
-  "qualification.help": "Need help?"
+  "qualification.help": "Need help?",
+  "listing.translate.unavailable": "Original French text — translation unavailable."
 }

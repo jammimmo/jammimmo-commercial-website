@@ -5,6 +5,7 @@ import MiniCard from './MiniCard';
 import ListingsMap from './ListingsMap';
 import { t, type Lang } from '@/lib/i18n';
 import { MIN_QUERY_CHARS } from '@/lib/places';
+import { resolveListingText } from '@/lib/listing-localization';
 import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
 
 type SortKey = 'relevance' | 'price_asc' | 'price_desc' | 'newest';
@@ -107,6 +108,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
         const q = filters.q.toLowerCase();
         if (
           !p.title.toLowerCase().includes(q) &&
+          !resolveListingText(p, lang).title.toLowerCase().includes(q) &&
           !p.city.toLowerCase().includes(q) &&
           !(p.quartier?.toLowerCase().includes(q))
         ) return false;
@@ -122,7 +124,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
         return db - da;
       });
     return result;
-  }, [properties, filters, sort]);
+  }, [properties, filters, lang, sort]);
 
   // ── Sync URL when filters change ────────────────────────────
   useEffect(() => {

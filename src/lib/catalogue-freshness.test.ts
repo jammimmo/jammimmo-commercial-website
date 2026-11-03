@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import original from '../data/public-catalogue-20261031.json';
 import { validateCatalogue, validatePropertyFacts, validateCataloguePair } from './public-catalogue';
 import { projectProductionCatalogue } from '../../scripts/catalogue-artifact.mjs';
+import { hashListingText, LISTING_TRANSLATION_LOCALES, resolveListingText } from './listing-localization';
 
 const rows = () => validateCatalogue(original).properties.map(row => ({ ...row, is_public: true, deleted_at: null }));
 function artifact(input: Array<Record<string, unknown>>) {
@@ -14,9 +15,47 @@ function select(fresh: ReturnType<typeof artifact>) {
   vi.stubEnv('CATALOGUE_BUILD_SOURCE', 'prepared-production');
   vi.stubGlobal('fetch', vi.fn(() => { throw new Error('Renderer network forbidden'); }));
 }
-afterEach(() => { vi.doUnmock('@catalogue-public?raw'); vi.doUnmock('@catalogue-facts'); vi.doUnmock('@catalogue-approval'); vi.resetModules(); vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
+afterEach(() => { vi.doUnmock('@catalogue-public?raw'); vi.doUnmock('@catalogue-facts'); vi.doUnmock('@catalogue-approval'); vi.doUnmock('@/data/listing-localizations.json'); vi.resetModules(); vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
 
 describe('one fresh public revision across the actual consumers', () => {
+  it('adds current-source locale overlays to the artifact readers and JSON without changing French or structured facts', async () => {
+    const input = rows(), row = input[0];
+    const source = { title: row.title, commercial_message: row.commercial_message, description: row.description };
+    const translated = Object.fromEntries(LISTING_TRANSLATION_LOCALES.map(lang => [lang, {
+      title: 'Fictional title ' + lang,
+      commercial_message: source.commercial_message.trim() ? 'Fictional message ' + lang : '',
+      description: source.description.trim() ? 'Fictional description ' + lang : '',
+    }]));
+    const sourceHash = await hashListingText(source);
+    vi.doMock('@/data/listing-localizations.json', () => ({ default: { version: 1, entries: {
+      [row.reference]: { source, sourceHash, translations: translated },
+    } } }));
+    select(artifact(input));
+    const api = await import('./supabase.build'), json = await import('../pages/api/property/[ref].json');
+    const property = (await api.getPublicPropertyByRef(row.reference))!;
+    expect(resolveListingText(property, 'fr')).toEqual({ ...source, translated: false });
+    for (const lang of LISTING_TRANSLATION_LOCALES) expect(resolveListingText(property, lang)).toMatchObject({ title: 'Fictional title ' + lang, translated: true });
+    expect(property).toMatchObject({ price: row.price, reference: row.reference, title: row.title, description: row.description });
+    expect((await api.listPublicProperties()).find(p => p.id === row.id)?.translations).toEqual(translated);
+    expect((await api.findSimilar({ ...property, id: '12345678-1234-4234-8234-123456789098' }, 1000)).find(p => p.id === row.id)?.translations).toEqual(translated);
+    const response = await json.GET({ params: { ref: row.reference.toLowerCase() } } as never);
+    expect(await response.json()).toMatchObject({ title: row.title, translations: translated });
+    expect(fetch).not.toHaveBeenCalled();
+  });
+  it('does not attach a previous-source overlay after any narrative edit in the prepared artifact', async () => {
+    const input = rows(), old = input[0];
+    const source = { title: old.title, commercial_message: old.commercial_message, description: old.description };
+    const sourceHash = await hashListingText(source);
+    const translations = { en: { title: 'Fictional old title', commercial_message: source.commercial_message.trim() ? 'Old message' : '', description: source.description.trim() ? 'Old description' : '' } };
+    vi.doMock('@/data/listing-localizations.json', () => ({ default: { version: 1, entries: { [old.reference]: { source, sourceHash, translations } } } }));
+    for (const field of ['title', 'commercial_message', 'description'] as const) {
+      vi.resetModules(); const changed = rows(); changed[0][field] += ' Changed source'; select(artifact(changed));
+      const api = await import('./supabase.build'), property = (await api.getPublicPropertyByRef(old.reference))!;
+      expect(property.translations).toBeUndefined();
+      expect(resolveListingText(property, 'en')).toMatchObject({ [field]: changed[0][field], translated: false });
+      expect(fetch).not.toHaveBeenCalled();
+    }
+  });
   it('preserves stored environment labels through the actual catalogue, detail and JSON readers', async () => {
     const input = rows();
     const nearby = [{ name: 'Pharmacie', distance: '200m' }, { name: 'École', distance: '5 min' }, { name: 'Marché', distance: '' }];

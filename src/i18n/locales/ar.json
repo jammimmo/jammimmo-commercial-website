@@ -1030,5 +1030,6 @@
   "qualification.privacyNotice": "تُستخدم بياناتك لمعالجة طلبك والتواصل معك.",
   "qualification.rateLimited": "الإرسال محدود مؤقتاً. يمكنك إعادة محاولة الإرسال نفسه.",
   "qualification.retrySame": "إعادة محاولة الإرسال نفسه",
-  "qualification.help": "تحتاج إلى مساعدة؟"
+  "qualification.help": "تحتاج إلى مساعدة؟",
+  "listing.translate.unavailable": "النص الأصلي بالفرنسية — الترجمة غير متاحة."
 }

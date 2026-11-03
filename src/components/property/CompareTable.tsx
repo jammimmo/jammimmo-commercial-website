@@ -1,3 +1,4 @@
+import { resolveListingText } from '@/lib/listing-localization';
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { t, type Lang, localizedPath } from '@/lib/i18n';
@@ -114,12 +115,12 @@ export default function CompareTable({ lang }: Props) {
           >
             <div className="aspect-[4/3] rounded-xl overflow-hidden bg-ink mb-3">
               {p.images[0] ? (
-                <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover" />
+                <img src={p.images[0]} alt={resolveListingText(p, lang).title} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-primary to-primary/60" />
               )}
             </div>
-            <h3 className="font-serif text-lg leading-tight group-hover:text-primary transition">{p.title}</h3>
+            <h3 className="font-serif text-lg leading-tight group-hover:text-primary transition">{resolveListingText(p, lang).title}</h3>
           </a>
         ))}
       </div>
@@ -147,7 +148,7 @@ export default function CompareTable({ lang }: Props) {
       <RecallCta
         lang={lang}
         keyPrefix="page.compare.recall"
-        items={data.map((p) => ({ reference: p.reference, title: p.title }))}
+        items={data.map((p) => ({ reference: p.reference, title: resolveListingText(p, lang).title }))}
       />
     </div>
   );

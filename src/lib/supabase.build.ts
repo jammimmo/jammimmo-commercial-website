@@ -7,6 +7,8 @@ import catalogueRaw from '@catalogue-public?raw';
 import rawApproval from '@catalogue-approval';
 import { validateCatalogue, validateCatalogueApproval, type PublicCatalogue } from './public-catalogue';
 import type { PublicProperty } from '@/types/property';
+import listingLocalizations from '@/data/listing-localizations.json';
+import { selectCachedTranslations } from '@/lib/listing-localization';
 
 if (typeof process === 'undefined' || typeof process.versions?.node !== 'string') {
   throw new Error('[supabase.build] imported at runtime; public catalogue readers are build-only');
@@ -28,7 +30,13 @@ async function publicCatalogue(): Promise<PublicCatalogue> {
     const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(catalogueRaw));
     const actual = [...new Uint8Array(bytes)].map(value => value.toString(16).padStart(2, '0')).join('');
     if (actual !== approval.catalogueSha256) throw new Error('[supabase.build] catalogue hash mismatch');
-    return validateCatalogue(JSON.parse(catalogueRaw), approval.capture);
+    const catalogue = validateCatalogue(JSON.parse(catalogueRaw), approval.capture);
+    // Overlay only after the public artifact and its source hash are validated.
+    // French facts remain unchanged; stale/missing narrative cache has no overlay.
+    return { ...catalogue, properties: catalogue.properties.map(property => {
+      const translations = selectCachedTranslations(property.reference, property, listingLocalizations);
+      return Object.keys(translations).length ? { ...property, translations } : property;
+    }) };
   })();
   return cataloguePromise;
 }

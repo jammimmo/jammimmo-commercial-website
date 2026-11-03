@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { X } from 'lucide-react';
 import { t, type Lang, localizedPath } from '@/lib/i18n';
-import { COMPARE_KEY, readCompare, writeCompare, clearCompare } from '@/lib/compare';
+import { COMPARE_KEY, MAX_COMPARE, readCompare, writeCompare, clearCompare } from '@/lib/compare';
+import { resolveListingText } from '@/lib/listing-localization';
+import { formatPublicRef } from '@/lib/reference';
+import type { PublicProperty } from '@/types/property';
 
 interface Props {
   lang: Lang;
@@ -9,9 +12,10 @@ interface Props {
 
 export default function CompareBar({ lang }: Props) {
   const [list, setList] = useState<ReturnType<typeof readCompare>>([]);
+  const [titles, setTitles] = useState<{ lang: Lang; values: Record<string, string> }>({ lang, values: {} });
 
   useEffect(() => {
-    const refresh = () => setList(readCompare());
+    const refresh = () => setList(readCompare().slice(0, MAX_COMPARE));
     refresh();
     window.addEventListener(`${COMPARE_KEY}:update`, refresh);
     window.addEventListener('storage', refresh);
@@ -20,6 +24,28 @@ export default function CompareBar({ lang }: Props) {
       window.removeEventListener('storage', refresh);
     };
   }, []);
+
+  // Stored titles may come from another language or an older publication.
+  // Read at most three existing static public DTOs; never translate on a view.
+  const references = useMemo(() => list.map(item => item.reference), [list]);
+  useEffect(() => {
+    let current = true;
+    setTitles({ lang, values: {} });
+    void Promise.all(references.map(async reference => {
+      try {
+        const response = await fetch(`/api/property/${encodeURIComponent(reference.trim().toLowerCase())}.json`);
+        if (!response.ok) return null;
+        const property: PublicProperty = await response.json();
+        if (property.reference !== reference) return null;
+        return [reference, resolveListingText(property, lang).title] as const;
+      } catch { return null; }
+    })).then(values => {
+      if (current) setTitles({ lang, values: Object.fromEntries(values.filter((value): value is readonly [string, string] => value !== null)) });
+    });
+    return () => { current = false; };
+  }, [references, lang]);
+  const titleFor = (reference: string) => titles.lang === lang && Object.prototype.hasOwnProperty.call(titles.values, reference)
+    ? titles.values[reference] || formatPublicRef(reference) : formatPublicRef(reference);
 
   if (list.length === 0) return null;
 
@@ -43,10 +69,10 @@ export default function CompareBar({ lang }: Props) {
                 key={p.reference}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background/10 text-[12.5px] max-w-[200px]"
               >
-                <span className="truncate">{p.title}</span>
+                <span className="truncate">{titleFor(p.reference)}</span>
                 <button
                   type="button"
-                  aria-label={`Retirer ${p.title}`}
+                  aria-label={`Retirer ${titleFor(p.reference)}`}
                   onClick={() => writeCompare(list.filter((x) => x.reference !== p.reference))}
                   className="opacity-70 hover:opacity-100 shrink-0"
                 >

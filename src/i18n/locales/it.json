@@ -1029,5 +1029,6 @@
   "qualification.privacyNotice": "I tuoi dati servono a gestire la richiesta e a contattarti.",
   "qualification.rateLimited": "L’invio è temporaneamente limitato. Puoi riprovare lo stesso invio.",
   "qualification.retrySame": "Riprova lo stesso invio",
-  "qualification.help": "Serve aiuto?"
+  "qualification.help": "Serve aiuto?",
+  "listing.translate.unavailable": "Testo originale in francese — traduzione non disponibile."
 }
