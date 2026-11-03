@@ -21,6 +21,7 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
   const api = useRef(suppliedClient ?? new ChatClient());
   const dialog = useRef<HTMLDialogElement>(null);
   const launcher = useRef<HTMLButtonElement>(null);
+  const returnFocus = useRef<HTMLElement | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const transcript = useRef<HTMLDivElement>(null);
   const messageNodes = useRef<HTMLDivElement>(null);
@@ -57,7 +58,14 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
   const exchangeStart = Math.max(0, lastVisitorIndex < 0 ? messages.length - 1 : lastVisitorIndex);
   const [handoffDraft, setHandoffDraft] = useState({ name: '', channel: 'chat' as HandoffRequest['channel'], contact: '', summary: '', topic: 'property' as HandoffRequest['topic'], consent: false });
 
-  function close() { setOpen(false); dialog.current?.close(); requestAnimationFrame(() => launcher.current?.focus()); }
+  function close() {
+    const target = returnFocus.current; returnFocus.current = null;
+    setOpen(false); dialog.current?.close();
+    requestAnimationFrame(() => {
+      if (target?.isConnected && !target.closest('[hidden]')) target.focus();
+      else launcher.current?.focus();
+    });
+  }
   function openHandoff() {
     setHandoffDraft(current => ({ ...current, summary: current.summary || text || [...messages].reverse().find(message => message.role === 'visitor')?.content || '' }));
     setHandoffOpen(true); setConfirmClear(false);
@@ -248,7 +256,7 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
 
   const origin = typeof location === 'undefined' ? 'https://jammimmo.com' : location.origin;
   return <div className="jamm-chat-root rr-block" data-chat-private data-clarity-mask="true">
-    <button ref={launcher} className="jamm-chat-launcher" style={{ '--chat-bottom': `${launcherBottom}px` } as CSSProperties} onClick={() => setOpen(true)} aria-expanded={open} aria-controls="jamm-chat-dialog" aria-label="Ouvrir l’assistant Jamm Immo">
+    <button ref={launcher} className="jamm-chat-launcher" style={{ '--chat-bottom': `${launcherBottom}px` } as CSSProperties} onClick={event => { const active = document.activeElement; returnFocus.current = active instanceof HTMLElement && active.hasAttribute('data-qualification-help') ? active : event.currentTarget; setOpen(true); }} aria-expanded={open} aria-controls="jamm-chat-dialog" aria-label="Ouvrir l’assistant Jamm Immo">
       <MessageCircle size={22} aria-hidden="true" /><span>Une question&nbsp;?</span>
     </button>
     <dialog ref={dialog} id="jamm-chat-dialog" className="jamm-chat-dialog" aria-labelledby="jamm-chat-title" onCancel={event => { event.preventDefault(); close(); }} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); close(); } }}>

@@ -8,6 +8,8 @@
 .jamm-chat-launcher { position: fixed; left: max(20px, env(safe-area-inset-left)); bottom: max(var(--chat-bottom, 20px), env(safe-area-inset-bottom)); z-index: 45; min-height: 52px; padding: 12px 18px; display: inline-flex; align-items: center; gap: 10px; border: 1px solid #fff7; border-radius: 100px; background: var(--chat-indigo); color: white; font-weight: 650; box-shadow: 0 8px 30px #29245733; transition: transform .18s ease, background .18s ease; }
 .jamm-chat-launcher:hover { background: #292560; transform: translateY(-2px); }
 .jamm-chat-launcher[aria-expanded='true'] { visibility: hidden; }
+/* The open qualification form provides inline access to this same assistant. */
+body:has([data-qualification-open='true']) .jamm-chat-launcher { visibility: hidden; }
 .jamm-chat-dialog { position: fixed; inset: auto auto 86px max(20px, env(safe-area-inset-left)); width: min(420px, calc(100vw - 40px)); height: min(720px, calc(100dvh - 112px)); max-width: none; max-height: none; margin: 0; padding: 0; border: 1px solid var(--chat-clay); border-radius: 25px; color: var(--chat-ink); background: var(--chat-sand); box-shadow: 0 24px 100px #1e20352b, 0 4px 15px #1e203514; z-index: 65; overflow: hidden; }
 .jamm-chat-dialog:not([open]) { display: none; }
 .jamm-chat-dialog[open] { display: block; animation: jamm-chat-appear .2s ease-out; }

@@ -5,10 +5,13 @@ import { z } from 'zod';
 import { Loader2, ArrowRight, Check } from 'lucide-react';
 import { t, type Lang } from '@/lib/i18n';
 import { track } from '@/lib/analytics';
+import { QualificationEntry } from './PublicQualificationForm';
 
 interface Props {
   lang: Lang;
   propertyId?: string;
+  /** Public catalogue reference, distinct from the legacy propertyId. */
+  propertyReference?: string;
   propertyTitle?: string;
   compact?: boolean;
 }
@@ -32,7 +35,7 @@ const makeSchema = (lang: Lang) =>
 
 type FormValues = z.infer<ReturnType<typeof makeSchema>>;
 
-export default function ContactForm({ lang, propertyId, propertyTitle, compact = false }: Props) {
+function LegacyContactForm({ lang, propertyId, propertyTitle, compact = false }: Props) {
   const [submitState, setSubmitState] = useState<'idle' | 'sending' | 'ok' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const {
@@ -255,4 +258,13 @@ export default function ContactForm({ lang, propertyId, propertyTitle, compact =
       </button>
     </form>
   );
+}
+
+/** Both forms retain their drafts when switching; qualification is optional. */
+export default function ContactForm(props: Props) {
+  const [expanded, setExpanded] = useState(false);
+  return <>
+    <div hidden={expanded}><LegacyContactForm {...props} /></div>
+    <QualificationEntry lang={props.lang} propertyReference={props.propertyReference} onOpenChange={setExpanded} />
+  </>;
 }

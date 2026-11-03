@@ -40,6 +40,7 @@ import { t, type Lang } from '@/lib/i18n';
 import { track } from '@/lib/analytics';
 import { SITE } from '@/lib/site-config';
 import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
+import { QualificationEntry, type QualificationPrefill } from '@/components/forms/PublicQualificationForm';
 import { formatRentalPrice } from '@/lib/format';
 import { rankMatches } from '@/lib/match-filter';
 import { buildBiensLink } from '@/lib/biens-filter';
@@ -96,6 +97,8 @@ interface FormState {
 const INITIAL: FormState = { transaction: '', type: '', bedrooms: '', budget: '', zone: '' };
 
 export default function MatchTool({ lang, properties, hrefByRef }: Props) {
+  const [qualificationPending, setQualificationPending] = useState(false);
+  const [qualificationExpanded, setQualificationExpanded] = useState(false);
   const [phase, setPhase] = useState<'wizard' | 'result' | 'capture' | 'done'>('wizard');
   const [form, setForm] = useState<FormState>(INITIAL);
   const [stepIndex, setStepIndex] = useState(0);
@@ -227,8 +230,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
   }
 
   // ─────────────────────────── Success ───────────────────────────
-  if (phase === 'done') {
-    return (
+  const completed = phase === 'done' ? (
       <div
         role="status"
         aria-live="polite"
@@ -248,11 +250,11 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
           {t('match.done.wa', lang)}
         </a>
       </div>
-    );
-  }
+    ) : null;
 
   return (
-    <div className="bg-background text-foreground rounded-3xl shadow-xl p-6 sm:p-9">
+    <>
+    <div hidden={phase === 'done' || qualificationExpanded} className="bg-background text-foreground rounded-3xl shadow-xl p-6 sm:p-9">
       <div className="mb-6">
         <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-secondary-strong mb-2">
           <Sparkles className="w-4 h-4" aria-hidden="true" />
@@ -394,7 +396,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
       )}
 
       {/* ─────────────────────────── Result (real listings) ─────────────────────────── */}
-      {phase === 'result' && (
+      {phase === 'result' && !qualificationExpanded && (
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-wider text-secondary-strong mb-1.5">
             {t('match.result.eyebrow', lang)}
@@ -588,6 +590,18 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
         </form>
       )}
     </div>
+    <div hidden={qualificationExpanded}>{completed}</div>
+      <div hidden={phase !== 'result' && !qualificationPending && !qualificationExpanded}>
+        <QualificationEntry lang={lang} onOpenChange={setQualificationExpanded} onPendingChange={setQualificationPending} prefill={{
+          operation: form.transaction === 'acheter' ? 'buy' : form.transaction === 'louer' ? 'rent' : undefined,
+          propertyType: form.type ? ({ appartement: 'apartment', villa: 'villa', maison: 'house', terrain: 'land', bureau: 'office', commerce: 'shop' } satisfies Record<PropertyTypeKey, QualificationPrefill['propertyType']>)[form.type] : undefined,
+          zone: form.zone || undefined, budgetMax: form.budget ? Number(form.budget) : undefined,
+          // 4+ is a floor, not an exact count; do not manufacture that answer.
+          bedrooms: form.bedrooms && form.bedrooms !== '4' ? Number(form.bedrooms) : undefined,
+          fullName: firstName || undefined, phone: phone || undefined,
+        }} />
+      </div>
+    </>
   );
 }
 

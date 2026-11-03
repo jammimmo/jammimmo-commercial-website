@@ -604,7 +604,7 @@ const trLabels = {
       <div class="max-w-3xl mx-auto rounded-2xl bg-card border border-clay px-6 sm:px-10 py-8 sm:py-10 shadow-sm">
         <h2 class="font-serif text-2xl sm:text-3xl text-center mb-2">{t('property.detail.contact', lang)}</h2>
         <p class="text-muted-foreground text-center mb-7">{t('property.detail.contactSub', lang)}</p>
-        <ContactForm client:visible lang={lang} propertyId={p.id} propertyTitle={p.title} compact />
+        <ContactForm client:visible lang={lang} propertyId={p.id} propertyReference={p.reference} propertyTitle={p.title} compact />
       </div>
     </div>
   </section>
