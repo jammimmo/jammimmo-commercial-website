@@ -4,6 +4,8 @@ Site marketing public pour Jamm Immobilier. Reconstruction greenfield en Astro 4
 
 ## Architecture — Tier 3 (vitrine ↔ admin isolation)
 
+**Contrat courant du catalogue :** voir [préparation et fraîcheur](docs/public-catalogue-snapshot.md). Local/CI/preview utilisent la capture publique approuvée97. Production prépare un artefact frais avec la clé **anon publique existante**, la RLS et les colonnes déjà autorisées ; aucun credential admin n’est lu. Les métadonnées Pages et les valeurs publiques réellement configurées restent à attester avant release. Le schéma et les estimations historiques ci-dessous décrivent l’ancienne voie GitHub ; `deploy.yml` n’existe pas dans cette branche et `/api/revalidate` appelle désormais un deploy hook Pages. Ils ne prouvent pas le pipeline actuel ni une latence mesurée.
+
 La vitrine est **complètement statique** côté visiteurs. Aucun secret d'admin n'existe au runtime ; admin et intake vivent chez deux fournisseurs différents (Supabase pour admin, Cloudflare D1 pour intake) :
 
 ```
@@ -63,7 +65,7 @@ Bursts (5 toggles en 30 s) sont collapsés en 1 build via le debounce KV + `conc
 - **Tailwind CSS 3.4** + tokens **Jamm Sahel** (cf. [`DESIGN.md`](https://github.com/jammimmo/jammimmo-estate-flow/blob/main/DESIGN.md))
 - **@supabase/supabase-js v2** — deux clients distincts (build-only admin, runtime intake)
 - **shadcn/ui**, **Lucide React**, **Leaflet + react-leaflet@4**, **react-hook-form + zod**
-- **pnpm 9** + **Node 20+**
+- **pnpm 9** + **Node 22.20+**
 
 ## Routes
 
@@ -88,10 +90,11 @@ Migration **`20260524130000_add_public_visibility.sql`** (PR #3 sur `jammimmo-es
 
 | Fichier | Quand | Pour quoi |
 |---|---|---|
-| `src/lib/supabase.build.ts` | build-only (Node, GH Actions) | lecture admin via `process.env.ADMIN_SUPABASE_*` — jamais bundlé dans le runtime |
+| `scripts/catalogue-artifact.mjs` | préparation production Pages | deux lectures publiques bornées, projection stricte et artefact complet ; aucun ADMIN |
+| `src/lib/supabase.build.ts` | build-only Astro | lecture de l’artefact public validé, sans client DB |
 | `src/lib/intake.ts` | runtime (CF Pages Worker) | INSERT intake via le binding D1 `INTAKE_DB` (wrangler.toml) |
-| `src/pages/api/revalidate.ts` | runtime | HMAC verify + KV debounce + GitHub dispatch |
-| `.github/workflows/deploy.yml` | CI | build + deploy déclenchés par push/dispatch |
+| `src/pages/api/revalidate.ts` | runtime | HMAC verify + KV debounce + deploy hook Pages |
+| `.github/workflows/check.yml` | CI PR | qualification isolée sur snapshot97 ; aucun déploiement |
 
 ## Données — règle de masquage
 
@@ -108,7 +111,7 @@ L'anon RLS retourne toute la ligne, mais on **ne rend jamais** les champs sensib
 | commercial_message (accroche) | created_at, updated_at (côté front) |
 | description, documents (URLs R2), tags publics, flux_passage | comments |
 
-Le masquage est appliqué dans [`src/lib/supabase.build.ts`](src/lib/supabase.build.ts) → `maskRow()`. La fonction renvoie un `PublicProperty` (séparé du `DbProperty` interne).
+La projection courante est appliquée dans [`scripts/catalogue-artifact.mjs`](scripts/catalogue-artifact.mjs), puis validée par [`src/lib/public-catalogue.ts`](src/lib/public-catalogue.ts). Les anciennes indications du tableau concernant `gps`, adresse et documents ne sont pas le contrat actuel : GPS exact et documents sont exclus ; la source anon ne lit pas l’adresse ni les attributs internes. Seules les zones publiques approximatives existantes sont utilisées. Les extras de la capture approuvée ne sont réemployés qu’avec concordance stricte de la ligne fraîche et gardent leur provenance historique.
 
 ## Setup local
 
@@ -146,6 +149,12 @@ pnpm preview  # serve dist/ localement
 ⚠️ **CF Pages git auto-deploy doit rester désactivé.** Le build doit passer par GitHub Actions pour que la clé `service_role` admin ne se retrouve jamais dans l'env Pages. Le bouton `Settings → Builds & deployments → Git integration` doit être OFF.
 
 ## Déploiement initial
+
+Pour le chatbot, suivre aussi [`docs/chatbot-deployment.md`](docs/chatbot-deployment.md) : bindings existants, migration dédiée, secrets runtime et activation progressive. Les références historiques ci-dessous à `deploy.yml` ne prouvent pas le chemin de release actuel ; ce fichier n'est pas présent dans cette branche. Vérifier le pipeline Pages approuvé avant toute publication.
+
+La commande `pnpm build` conserve le snapshot97 pour les prévisualisations/CI/local et exige une préparation fraîche pour la production Pages de confiance. La source doit être complète et valide ; tout échec empêche la promotion et laisse le déploiement précédent servir. Remplacer l’ancien mode snapshot production par `CATALOGUE_BUILD_SOURCE=trusted-production` et retirer son ancien hash est un prérequis de configuration, **pas une action déjà effectuée**. Attester les valeurs publiques existantes et l’absence réelle de secrets admin des previews dès leur provisionnement ; vider le processus enfant ne suffit pas contre du code parent hostile. Voir le [contrat de fraîcheur](docs/public-catalogue-snapshot.md). Ne pas remplacer le wrapper par `astro build`.
+
+Les étapes de création historiques suivantes ne sont pas une autorisation de créer des ressources, secrets ou permissions pour cette correction. La voie actuelle réutilise les ressources existantes et doit être vérifiée avant publication.
 
 1. **Créer la D1 intake** : `wrangler d1 create jammimmo-intake` → copier `database_id` dans `wrangler.toml` → `wrangler d1 execute jammimmo-intake --remote --file=d1/migrations/0001_init.sql`. Voir [`d1/README.md`](d1/README.md).
 2. **Créer un KV namespace** : `wrangler kv:namespace create REFRESH_KV` → copier l'`id` dans `wrangler.toml`.

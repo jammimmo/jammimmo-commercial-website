@@ -10,6 +10,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@catalogue-public?raw': fileURLToPath(new URL('./src/data/public-catalogue-20261031.json', import.meta.url)) + '?raw',
+      '@catalogue-public': fileURLToPath(new URL('./src/data/public-catalogue-20261031.json', import.meta.url)),
+      '@catalogue-facts': fileURLToPath(new URL('./src/data/public-property-facts-20261031.json', import.meta.url)),
+      '@catalogue-approval': fileURLToPath(new URL('./src/data/public-catalogue-approval.json', import.meta.url)),
     },
   },
   test: {

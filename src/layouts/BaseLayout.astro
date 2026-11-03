@@ -2,7 +2,7 @@
 import '@/styles/globals.css';
 import Header from '@/components/layout/Header.astro';
 import Footer from '@/components/layout/Footer.astro';
-import WhatsAppFab from '@/components/layout/WhatsAppFab.astro';
+import ChatWidget from '@/components/chat/ChatWidget';
 import SeoTags from '@/components/seo/SeoTags.astro';
 import JsonLdOrg from '@/components/seo/JsonLdOrg.astro';
 import { getLang, getDir, t, PREFIXED_LANGS } from '@/lib/i18n';
@@ -103,7 +103,7 @@ const isHome = homePaths.has(Astro.url.pathname);
 
     <Header lang={lang} solid={solidNav} />
     <main id="main" class={solidNav ? 'pt-[78px]' : ''}><slot /></main>
-    {!hideWhatsappFab && <WhatsAppFab lang={lang} />}
+    <ChatWidget client:idle reserveBottom={Boolean(hideWhatsappFab)} />
     <Footer lang={lang} />
 
     {/* Cloudflare Web Analytics — privacy-friendly, no cookies, no consent
@@ -227,6 +227,8 @@ const isHome = homePaths.has(Astro.url.pathname);
         }
         document.addEventListener('click', function (e) {
           var el = e.target;
+          // Chat text, actions and source context never enter analytics/replay.
+          if (el && el.closest && el.closest('[data-chat-private]')) return;
           while (el && el !== document) {
             if (el.dataset && el.dataset.track) {
               var name = el.dataset.track;

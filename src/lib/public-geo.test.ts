@@ -1,7 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { geoRowToZone, PUBLIC_GEO_VIEW, PUBLIC_GEO_COLUMNS } from './public-geo';
+import { approximatePropertyCenter, geoRowToZone, PUBLIC_GEO_VIEW, PUBLIC_GEO_COLUMNS } from './public-geo';
 
 describe('public-geo (fuzzed public geolocation)', () => {
+  it('coarsens newer builds with the existing stable1km policy, never random jitter', () => {
+    const exact = { lat: 14.723456789, lng: -17.478123456 }, coarse = approximatePropertyCenter(exact.lat, exact.lng)!;
+    expect(coarse).toBeDefined(); expect(coarse).not.toEqual(exact);
+    expect(approximatePropertyCenter(coarse.lat, coarse.lng)).toEqual(coarse);
+    expect(approximatePropertyCenter(coarse.lat + .0001, coarse.lng - .0001)).toEqual(coarse);
+    for (const point of [[NaN, 0], [Infinity, 0], [90, 0], [0, 180], [-76, 0]]) expect(approximatePropertyCenter(point[0], point[1])).toBeUndefined();
+  });
   it('maps a fuzzed view row (snake_case) to a GpsZone (camelCase)', () => {
     const zone = geoRowToZone({
       id: 'abc',

@@ -5,7 +5,9 @@ import CompareBar from './CompareBar.tsx';
 import { t, getLang, localizedPath } from '@/lib/i18n';
 
 const lang = getLang(Astro.url);
-const properties = await listPublicProperties({ limit: 200 });
+// The validated artifact is bounded at preparation. Do not silently hide newer
+// public rows when the catalogue grows beyond the former 200-row page cap.
+const properties = await listPublicProperties();
 const cities = [...new Set(properties.map((p) => p.city).filter(Boolean))].sort();
 
 // Build a ref → /biens/<ref> map server-side so the React island doesn't

@@ -143,6 +143,9 @@ async function startRecording(): Promise<void> {
         }
       },
       maskAllInputs: true,
+      // Blocking the entire subtree also hides rendered replies and citations;
+      // masking inputs alone does not protect conversation contents.
+      blockSelector: '[data-chat-private]',
       // Don't record <video>/<iframe> contents (YouTube tour) — saves bytes +
       // avoids cross-origin frame capture warnings.
       recordCanvas: false,

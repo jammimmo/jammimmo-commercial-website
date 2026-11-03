@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "source": "public-snapshot-20261031",
+  "capture": {
+    "url": "https://jammimmo.com/biens/",
+    "capturedAt": "2026-10-31T09:29:04Z",
+    "sha256": "700e106adaf9d1cbcd466c551bda83d4873cfd045809678bf9c4579e74ce6f38",
+    "listingCount": 97
+  },
+  "catalogueSha256": "60f64ea76325fd5f5098e6938e768c983963a6ec892b11f9584c73f2fef8c8cb",
+  "factsSha256": "880983b46ceafa034130abab5183eba239d3cab65c4f704a8bfbb2a025ae0ea2"
+}
