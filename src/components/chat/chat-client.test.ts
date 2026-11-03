@@ -4,6 +4,23 @@ import { ChatClient, DEFAULT_POLICY, formatFileSize, safeSourceUrl, validateFile
 afterEach(() => { vi.unstubAllGlobals(); });
 
 describe('public chat client safety and retry contract', () => {
+  it('uses the global receiver for the default anonymous session transport', async () => {
+    const session = { csrf: 'fictitious-default-csrf',
+      conversation: { id: 'fa000000-0000-4000-8000-000000000006', status: 'bot', version: 1, messages: [] },
+      policy: DEFAULT_POLICY, contacts: {}, attachments: [] };
+    const globalReceiver: boolean[] = [];
+    const request = vi.fn(function (this: unknown, _input: Parameters<typeof fetch>[0], _init?: Parameters<typeof fetch>[1]) {
+      globalReceiver.push(this === globalThis);
+      if (this !== globalThis) throw new TypeError('Illegal invocation');
+      return Promise.resolve(new Response(JSON.stringify(session)));
+    });
+    vi.stubGlobal('fetch', request);
+    await expect(new ChatClient().session()).resolves.toEqual(session);
+    expect(globalReceiver).toEqual([true]); expect(request).toHaveBeenCalledTimes(1);
+    expect(request.mock.calls[0][0]).toBe('/api/chat/session');
+    expect(request.mock.calls[0][1]).toMatchObject({ method: 'POST', credentials: 'same-origin', cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' }, body: '{}' });
+  });
   it('keeps capability out of payloads and carries CSRF only in same-origin requests', async () => {
     const request = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify({ csrf: 'csrf-test', conversation: {}, policy: {} }))).mockResolvedValueOnce(new Response(JSON.stringify({ conversation: {}, message: {} })));
     const client = new ChatClient(request as typeof fetch);
