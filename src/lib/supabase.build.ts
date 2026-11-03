@@ -16,6 +16,8 @@
  */
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import listingLocalizations from '@/data/listing-localizations.json';
+import { selectCachedTranslations } from '@/lib/listing-localization';
 import type { DbProperty, GpsZone, PublicProperty } from '@/types/property';
 import {
   PUBLIC_GEO_VIEW,
@@ -75,7 +77,10 @@ function client(): SupabaseClient {
  * `fetchGeoZones`. The exact coordinate never enters `PublicProperty`.
  */
 function maskRow(p: DbProperty, geo: GpsZone | null = null): PublicProperty {
+  const source = { title: p.title, commercial_message: p.commercial_message ?? '', description: p.description ?? '' };
+  const translations = selectCachedTranslations(p.reference, source, listingLocalizations);
   return {
+    ...(Object.keys(translations).length ? { translations } : {}),
     id: p.id,
     reference: p.reference,
     title: p.title,
@@ -88,7 +93,7 @@ function maskRow(p: DbProperty, geo: GpsZone | null = null): PublicProperty {
     geo,
     price: p.price,
     negotiable: p.negotiable,
-    commercial_message: p.commercial_message,
+    commercial_message: source.commercial_message,
     surface: p.surface,
     bedrooms: p.bedrooms,
     images: Array.isArray(p.images) ? p.images : [],

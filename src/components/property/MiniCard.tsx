@@ -1,3 +1,4 @@
+import { resolveListingText } from '@/lib/listing-localization';
 import { useEffect, useRef, useState } from 'react';
 import { Bed, Maximize2, Play, Images } from 'lucide-react';
 import type { PublicProperty } from '@/types/property';
@@ -33,6 +34,7 @@ function formatPrice(p: PublicProperty): string {
  * primary border + lifted shadow.
  */
 export default function MiniCard({ property: p, href, active, lang = 'fr', onEnter, onLeave }: Props) {
+  const localizedText = resolveListingText(p, lang);
   const videoId = youtubeIdFromUrl(p.video_links[0]);
   const videoThumb = youtubeThumb(p.video_links[0]);
   const split = !!videoId && p.images.length >= 1;
@@ -57,7 +59,7 @@ export default function MiniCard({ property: p, href, active, lang = 'fr', onEnt
       <div className="relative aspect-[4/3] overflow-hidden bg-ink">
         {split ? (
           <div className="absolute inset-0 grid grid-cols-2 gap-1 bg-ink">
-            <VideoThumb videoId={videoId!} videoThumb={videoThumb!} title={p.title} lang={lang} />
+            <VideoThumb videoId={videoId!} videoThumb={videoThumb!} title={localizedText.title} lang={lang} />
             <div className="grid grid-cols-2 grid-rows-2 gap-1">
               {Array.from({ length: 4 }).map((_, i) => {
                 const src = mosaicImgs[i] ?? mosaicImgs[mosaicImgs.length - 1];
@@ -77,7 +79,7 @@ export default function MiniCard({ property: p, href, active, lang = 'fr', onEnt
         ) : heroImage ? (
           <img
             src={heroImage}
-            alt={p.title}
+            alt={localizedText.title}
             loading="lazy"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
@@ -108,7 +110,7 @@ export default function MiniCard({ property: p, href, active, lang = 'fr', onEnt
 
       <div className="p-4">
         <div className="font-serif text-[19px] font-normal tracking-tight"><span className="bidi-ltr">{formatPrice(p)}</span></div>
-        <div className="mt-1.5 text-[14px] font-medium text-foreground/85 line-clamp-1">{p.title}</div>
+        <div className="mt-1.5 text-[14px] font-medium text-foreground/85 line-clamp-1">{localizedText.title}</div>
         <div className="mt-2 flex flex-wrap gap-3 text-[12.5px] text-muted-foreground">
           {p.bedrooms > 0 && (
             <span className="inline-flex items-center gap-1">
@@ -129,7 +131,7 @@ export default function MiniCard({ property: p, href, active, lang = 'fr', onEnt
       {/* Heart toggle — sibling of the card <a> (not nested) to avoid an
           interactive element inside a link. Absolute against this relative
           wrapper → lands on the thumbnail's top-right corner. */}
-      <FavoriteToggle reference={p.reference} title={p.title} lang={lang} variant="icon" />
+      <FavoriteToggle reference={p.reference} title={localizedText.title} lang={lang} variant="icon" />
     </div>
   );
 }

@@ -16,6 +16,7 @@ import JsonLdBreadcrumb from '@/components/seo/JsonLdBreadcrumb.astro';
 import MatchTool from '@/components/match/MatchTool.tsx';
 import Ornament from '@/components/decor/Ornament.astro';
 import { listPublicProperties } from '@/lib/supabase.build';
+import { listingDisplayView } from '@/lib/listing-localization';
 import { getLang, t, localizedPath } from '@/lib/i18n';
 
 export const prerender = true;
@@ -63,7 +64,7 @@ const hrefByRef = Object.fromEntries(
 
   <section class="py-12 sm:py-16 bg-background">
     <div class="container max-w-2xl">
-      <MatchTool client:load lang={lang} properties={properties} hrefByRef={hrefByRef} />
+      <MatchTool client:load lang={lang} properties={properties.map(property => listingDisplayView(property, lang))} hrefByRef={hrefByRef} />
     </div>
   </section>
 

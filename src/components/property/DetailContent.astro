@@ -14,7 +14,7 @@ import { formatPublicRef } from '@/lib/reference';
 import { getStatusBadge, getTransactionBadge, statusLabel, transactionLabel, typeLabel } from '@/lib/status';
 import { approximateLocation } from '@/lib/dakar-geo';
 import { SITE, TEL_URI, MAILTO_URI } from '@/lib/site-config';
-import listingTranslations from '@/data/listing-translations.json';
+import { resolveListingText } from '@/lib/listing-localization';
 import {
   Bed, Maximize2, MapPin, Tag, FileText, Download,
   Phone, MessageCircle, Mail, Bath, Building2, Sparkles, ShieldCheck, Languages, Check, Camera,
@@ -98,20 +98,15 @@ const videoLabel = t('common.videoTour', lang);
 // PropertyMap (fuzzed zone → approximate quartier/city centroid).
 const hasMap = !!(p.geo || approximateLocation(p.quartier, p.city));
 
-// ── Traduction des titres/descriptions ───────────────────────────────────
-// Le contenu traduit est cuit AU BUILD : prioritairement depuis le champ
-// `translations` du bien (à venir côté estate-flow / DB), sinon depuis le
-// snapshot local `listing-translations.json`. On rend la VERSION TRADUITE par
-// défaut sur les pages non-FR quand elle existe, l'original est gardé dans
-// `data-tr-orig`, et un toggle (100 % client, AUCUN appel réseau) bascule
-// entre les deux. Pas de traduction dispo → on affiche l'original, SANS badge
-// ni bouton (donc plus jamais de « Traduit automatiquement » mensonger).
-const trMap = (listingTranslations as Record<string, Record<string, Record<string, string>>>);
-const trData = (p as any).translations?.[lang] ?? trMap[p.reference]?.[lang] ?? null;
-const titleTr = lang !== 'fr' && trData?.title ? trData.title : null;
-const msgTr = lang !== 'fr' && trData?.commercial_message ? trData.commercial_message : null;
-const descTr = lang !== 'fr' && trData?.description ? trData.description : null;
-const showTranslate = !!(titleTr || msgTr || descTr);
+// Current-source overlays are attached once by the build reader. No provider
+// call occurs on a page view or when toggling the French original.
+const localizedText = resolveListingText(p, lang);
+const showTranslate = localizedText.translated;
+const titleTr = showTranslate ? localizedText.title : null;
+const msgTr = showTranslate ? localizedText.commercial_message : null;
+const descTr = showTranslate ? localizedText.description : null;
+const textLang = showTranslate ? lang : 'fr';
+const textDir = textLang === 'ar' ? 'rtl' : 'ltr';
 const trLabels = {
   badge: t('listing.translate.badge', lang),
   toOriginal: t('listing.translate.original', lang),
@@ -159,6 +154,7 @@ const trLabels = {
 
         <h1
           class="font-serif font-light text-[clamp(28px,4vw,52px)] leading-tight tracking-tight [text-wrap:balance]"
+          lang={textLang} dir={textDir}
           {...(titleTr ? { 'data-tr-field': 'title', 'data-tr-orig': p.title } : {})}
         >
           {titleTr ?? p.title}
@@ -199,7 +195,7 @@ const trLabels = {
                   le relais des interactions — même image, transition invisible. */}
               <img
                 src={photos[0]}
-                alt={p.title}
+                alt={localizedText.title}
                 width="1280"
                 height="800"
                 fetchpriority="high"
@@ -207,7 +203,7 @@ const trLabels = {
                 class="absolute inset-0 w-full h-full object-cover"
               />
               <div class="absolute inset-0">
-                <PropertyGallery client:visible images={photos} title={p.title} />
+                <PropertyGallery client:visible images={photos} title={localizedText.title} />
               </div>
             </div>
           )}
@@ -363,7 +359,7 @@ const trLabels = {
                   <MessageCircle className="w-4 h-4" /> {t('property.detail.whatsapp', lang)}
                 </a>
               </div>
-              <FavoriteToggle client:visible reference={p.reference} title={p.title} lang={lang} variant="pill" />
+              <FavoriteToggle client:visible reference={p.reference} title={localizedText.title} lang={lang} variant="pill" />
             </div>
           </div>
 
@@ -416,6 +412,7 @@ const trLabels = {
         <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary flex items-center gap-2 flex-wrap">
           <span class="w-6 h-px bg-primary"></span>
           {t('property.detail.description', lang)}
+          {lang !== 'fr' && !showTranslate && (p.title || p.commercial_message || p.description) && <span class="text-xs font-normal normal-case tracking-normal text-muted-foreground">{t('listing.translate.unavailable', lang)}</span>}
           {showTranslate && (
             <span class="ms-auto inline-flex items-center gap-2.5 normal-case tracking-normal">
               <span data-tr-badge class="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
@@ -424,9 +421,10 @@ const trLabels = {
               <button
                 type="button"
                 data-tr-toggle
+                data-tr-lang={lang}
                 data-tr-to-original={trLabels.toOriginal}
                 data-tr-to-translated={trLabels.toTranslated}
-                class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-secondary underline underline-offset-2"
+                class="inline-flex min-h-11 min-w-11 items-center gap-1 whitespace-normal break-words text-start text-sm font-semibold text-primary hover:text-secondary underline underline-offset-2"
               >
                 <Languages className="w-3.5 h-3.5" /><span data-tr-toggle-label>{trLabels.toOriginal}</span>
               </button>
@@ -471,11 +469,12 @@ const trLabels = {
           <div>
             {p.commercial_message && (
               <p class="font-serif italic text-[clamp(17px,1.3vw,21px)] text-foreground/85 leading-relaxed max-w-[58ch] mb-5">
-                « <span {...(msgTr ? { 'data-tr-field': 'commercial_message', 'data-tr-orig': p.commercial_message } : {})}>{msgTr ?? p.commercial_message}</span> »
+                « <span lang={textLang} dir={textDir} {...(msgTr ? { 'data-tr-field': 'commercial_message', 'data-tr-orig': p.commercial_message } : {})}>{msgTr ?? p.commercial_message}</span> »
               </p>
             )}
             <div
               class="description-body text-foreground/85 leading-[1.75] text-[15.5px] whitespace-pre-line max-w-[68ch]"
+              lang={textLang} dir={textDir}
               {...(descTr ? { 'data-tr-field': 'description', 'data-tr-orig': p.description } : {})}
             >{descTr ?? p.description}</div>
             {p.address && (
@@ -492,7 +491,7 @@ const trLabels = {
                 geo={p.geo}
                 quartier={p.quartier}
                 city={p.city}
-                title={p.title}
+                title={localizedText.title}
                 className="w-full h-full block"
               />
             </div>
@@ -604,7 +603,7 @@ const trLabels = {
       <div class="max-w-3xl mx-auto rounded-2xl bg-card border border-clay px-6 sm:px-10 py-8 sm:py-10 shadow-sm">
         <h2 class="font-serif text-2xl sm:text-3xl text-center mb-2">{t('property.detail.contact', lang)}</h2>
         <p class="text-muted-foreground text-center mb-7">{t('property.detail.contactSub', lang)}</p>
-        <ContactForm client:visible lang={lang} propertyId={p.id} propertyTitle={p.title} compact />
+        <ContactForm client:visible lang={lang} propertyId={p.id} propertyTitle={localizedText.title} compact />
       </div>
     </div>
   </section>
@@ -712,7 +711,9 @@ const trLabels = {
   /* The description left accent rule — logical so it flips under RTL. */
   .prop-description .prop-rule { inset-inline-start: 0; }
 
-  .prop-description .description-body::first-letter {
+  /* Drop caps suit Latin text. Splitting Arabic's first letter breaks its
+     joined word; the exact French original can still use this Latin style. */
+  .prop-description .description-body[dir='ltr']::first-letter {
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 300;
     font-size: 3.6em;
@@ -720,11 +721,6 @@ const trLabels = {
     float: left;
     margin: 0.08em 0.14em 0 0;
     color: hsl(var(--primary));
-  }
-  /* RTL: the drop-cap floats to the right + mirrored margin. */
-  [dir='rtl'] .prop-description .description-body::first-letter {
-    float: right;
-    margin: 0.08em 0 0 0.14em;
   }
 </style>
 
@@ -789,9 +785,12 @@ const trLabels = {
       toOriginal: toggle.getAttribute('data-tr-to-original') || '',
       toTranslated: toggle.getAttribute('data-tr-to-translated') || '',
     };
+    var translatedLang = toggle.getAttribute('data-tr-lang') || 'fr';
     var state = 'tr'; // traduit par défaut
     function apply() {
       fields.forEach(function (el) {
+        var currentLang = state === 'tr' ? translatedLang : 'fr';
+        el.setAttribute('lang', currentLang); el.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
         el.textContent = state === 'tr'
           ? el.getAttribute('data-tr-translated')
           : el.getAttribute('data-tr-orig');

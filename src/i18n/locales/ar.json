@@ -946,5 +946,6 @@
   "guides.freeTool": "أداة مجانية",
   "guides.relatedQuartiers": "أحياء ذات صلة",
   "guides.allGuides": "كل الأدلة",
-  "guides.readGuide": "اقرأ الدليل"
+  "guides.readGuide": "اقرأ الدليل",
+  "listing.translate.unavailable": "النص الأصلي بالفرنسية — الترجمة غير متاحة."
 }
