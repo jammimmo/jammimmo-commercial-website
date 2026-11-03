@@ -35,6 +35,9 @@ jobs:
       - name: Preview and production catalogue build containment
         run: node --test --test-concurrency=1 scripts/build-approved-catalogue.test.mjs scripts/catalogue-artifact.test.mjs
 
+      - name: Listing translation build preparation (offline)
+        run: node --experimental-strip-types --test scripts/prepare-listing-translations.test.mjs
+
       - name: Build (approved public snapshot — no admin database access)
         env:
           CATALOGUE_BUILD_SOURCE: public-snapshot-20261031

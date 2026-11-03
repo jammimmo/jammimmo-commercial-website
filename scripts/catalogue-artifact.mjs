@@ -53,7 +53,8 @@ export function catalogueBuildMode(env) {
 export function childEnvironment(input, selection = {}) {
   // Do not read credential values even from accessors in preview/local tests.
   const child = {};
-  for (const key of Object.keys(input)) if (!ADMIN_NAMES.includes(key) && !SOURCE_NAMES.includes(key) && !key.startsWith('CATALOGUE_')) child[key] = input[key];
+  for (const key of Object.keys(input)) if (!ADMIN_NAMES.includes(key) && !SOURCE_NAMES.includes(key)
+    && key !== 'LISTING_TRANSLATION_SECRET' && !key.startsWith('CATALOGUE_')) child[key] = input[key];
   for (const name of ADMIN_NAMES) child[name] = '';
   for (const name of SOURCE_NAMES) child[name] = '';
   return { ...child, ...selection };

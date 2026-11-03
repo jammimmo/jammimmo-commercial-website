@@ -1,0 +1,40 @@
+name: Refresh pending listing translations
+
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Maximum pending language rows (1–5)'
+        required: true
+        default: '3'
+        type: choice
+        options: ['1', '2', '3', '4', '5']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: listing-translations-main
+  cancel-in-progress: false
+
+jobs:
+  pending:
+    if: github.ref == 'refs/heads/main' && vars.LISTING_TRANSLATIONS_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: production
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.20.0'
+      # Pending mode imports only Node built-ins and the pure TS contract.
+      # No package install, catalogue credential, provider key or deploy hook.
+      - name: Process bounded pending translations
+        env:
+          LISTING_TRANSLATIONS_ENABLED: ${{ vars.LISTING_TRANSLATIONS_ENABLED }}
+          LISTING_TRANSLATION_SECRET: ${{ secrets.LISTING_TRANSLATION_SECRET }}
+          LISTING_TRANSLATION_PENDING_LIMIT: ${{ inputs.limit || '3' }}
+        run: node --experimental-strip-types scripts/prepare-listing-translations.mjs --retry-pending "--limit=${LISTING_TRANSLATION_PENDING_LIMIT}"

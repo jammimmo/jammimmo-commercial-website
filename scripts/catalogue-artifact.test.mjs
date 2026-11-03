@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { catalogueBuildMode, catalogueBuildContext, catalogueAliases, SNAPSHOT_SOURCE, SNAPSHOT_SHA256, PROPERTY_SELECT } from './catalogue-artifact.mjs';
 import { FEATURE_KEYS } from '../src/lib/public-catalogue.ts';
 import { prepareCatalogueBuild } from './build-approved-catalogue.mjs';
+import { LISTING_TRANSLATION_LOCALES, hashListingText } from '../src/lib/listing-localization.ts';
+import { TRANSLATION_ENDPOINT } from './prepare-listing-translations.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const original = JSON.parse(await readFile(new URL('../src/data/public-catalogue-20261031.json', import.meta.url), 'utf8'));
@@ -190,4 +192,108 @@ test('tampered artifacts and a mixed facts revision fail before rendering', asyn
   await writeFile(aliases['@catalogue-facts'], JSON.stringify(facts));
   assert.throws(() => catalogueAliases(env, folder), /hash mismatch/); assert.equal(await readFile(aliases['@catalogue-public'], 'utf8'), before);
   assert.throws(() => catalogueAliases({ ...env, CATALOGUE_ARTIFACT_DIR: '../elsewhere' }, folder));
+});
+
+const translationSecret = 'fictitious-composition-signing-key-not-a-credential';
+const localizedProduction = () => ({ ...production(), LISTING_TRANSLATIONS_ENABLED: 'true', LISTING_TRANSLATION_SECRET: translationSecret });
+const emptyTranslations = () => ({ version: 1, entries: {} });
+const narrative = row => ({ title: row.title, commercial_message: row.commercial_message, description: row.description });
+function localizedRow() {
+  return { ...sourceRows()[0], title: 'Bien public fictif', commercial_message: '', description: 'Description publique fictive.' };
+}
+async function translationCache(row, locales = LISTING_TRANSLATION_LOCALES) {
+  const text = narrative(row);
+  return { version: 1, entries: { [row.reference]: { source: text, sourceHash: await hashListingText(text),
+    translations: Object.fromEntries(locales.map(lang => [lang, { title: 'Fictional ' + lang,
+      commercial_message: text.commercial_message.trim() ? 'Fictional message ' + lang : '', description: 'Fictional description ' + lang }])) } } };
+}
+function translationIO(previous = emptyTranslations()) {
+  const calls = { reads: 0, requests: [], writes: [] };
+  return { calls, options: {
+    now: () => 1793692800000,
+    readCache: async () => { calls.reads++; return structuredClone(previous); },
+    writeCache: async cache => { calls.writes.push(structuredClone(cache)); },
+    request: async (url, init) => {
+      calls.requests.push({ url, init });
+      const body = JSON.parse(init.body);
+      return new Response(JSON.stringify({ cache: await translationCache(body.property, body.languages), counts: { ready: body.languages.length, pending: 0 } }));
+    },
+  } };
+}
+
+test('enabled production prepares only the three narratives from the same validated public artifact before returning the renderer environment', async t => {
+  const folder = await scratch(t), row = localizedRow(), deps = source([row]), io = translationIO();
+  row.attributes = { privateOwner: 'never translate' }; row.gps = 'never translate';
+  const input = poisonCredentials(localizedProduction(), ['ADMIN_SUPABASE_URL', 'ADMIN_SUPABASE_SERVICE_ROLE_KEY', 'ADMIN_SUPABASE_ANON_KEY']);
+  const env = await prepareCatalogueBuild(input, folder, { ...deps, translations: io.options });
+  assert.equal(deps.calls.length, 2); assert.equal(io.calls.requests.length, 1);
+  assert.equal(io.calls.requests[0].url, TRANSLATION_ENDPOINT);
+  assert.equal(io.calls.requests[0].init.redirect, 'error');
+  const body = JSON.parse(io.calls.requests[0].init.body);
+  const rendered = JSON.parse(await readFile(catalogueAliases(env, folder)['@catalogue-public'], 'utf8')).properties[0];
+  assert.deepEqual(body, { mode: 'prepare', property: { reference: rendered.reference, ...narrative(rendered) }, languages: [...LISTING_TRANSLATION_LOCALES] });
+  assert.equal(io.calls.writes[0].entries[row.reference].sourceHash, await hashListingText(narrative(rendered)));
+  assert.deepEqual(Object.keys(io.calls.writes[0].entries[row.reference].translations), [...LISTING_TRANSLATION_LOCALES]);
+  assert.equal(env.LISTING_TRANSLATION_SECRET, undefined);
+  for (const key of ['ADMIN_SUPABASE_URL', 'ADMIN_SUPABASE_SERVICE_ROLE_KEY', 'ADMIN_SUPABASE_ANON_KEY', 'PUBLIC_SUPABASE_URL', 'PUBLIC_SUPABASE_ANON_KEY']) assert.equal(env[key], '');
+});
+
+test('local, preview and disabled production never read the translation secret or translation I/O', async t => {
+  for (const input of [
+    { LISTING_TRANSLATIONS_ENABLED: 'true' },
+    { ...production(), CF_PAGES_BRANCH: 'preview', CATALOGUE_BUILD_SOURCE: undefined, LISTING_TRANSLATIONS_ENABLED: 'true' },
+    { ...production(), LISTING_TRANSLATIONS_ENABLED: 'false' },
+  ]) {
+    const folder = input.CF_PAGES_BRANCH === 'main' ? await scratch(t) : root;
+    const deps = source([localizedRow()]);
+    Object.defineProperty(input, 'LISTING_TRANSLATION_SECRET', { enumerable: true, get() { throw new Error('Secret was read'); } });
+    const forbidden = () => { throw new Error('Translation I/O forbidden'); };
+    const env = await prepareCatalogueBuild(input, folder, { ...deps, translations: { readCache: forbidden, writeCache: forbidden, request: forbidden } });
+    assert.equal(env.LISTING_TRANSLATION_SECRET, undefined);
+    assert.equal(deps.calls.length, input.CF_PAGES_BRANCH === 'main' ? 2 : 0);
+  }
+});
+
+test('composed build preserves exact-source cache on repricing and invalidates each changed narrative', async t => {
+  const old = localizedRow(), previous = await translationCache(old);
+  for (const change of [{ price: old.price + 1 }, { title: old.title + ' ' }, { commercial_message: 'Nouvelle accroche' }, { description: old.description + ' ' }]) {
+    const folder = await scratch(t), row = { ...old, ...change }, io = translationIO(previous);
+    await prepareCatalogueBuild(localizedProduction(), folder, { ...source([row]), translations: io.options });
+    const textChanged = !Object.hasOwn(change, 'price');
+    assert.equal(io.calls.requests.length, textChanged ? 1 : 0);
+    assert.equal(io.calls.writes.length, textChanged ? 1 : 0);
+    if (textChanged) {
+      assert.deepEqual(JSON.parse(io.calls.requests[0].init.body).property, { reference: row.reference, ...narrative(row) });
+      assert.equal(io.calls.writes[0].entries[row.reference].sourceHash, await hashListingText(narrative(row)));
+    }
+  }
+});
+
+test('translation transport, forged source or missing secret refuses the composed build without publishing a cache', async t => {
+  const row = localizedRow();
+  for (const failure of ['transport', 'source', 'secret']) {
+    const folder = await scratch(t), io = translationIO(), input = localizedProduction();
+    if (failure === 'secret') delete input.LISTING_TRANSLATION_SECRET;
+    io.options.request = async () => {
+      if (failure === 'transport') return new Response('{}', { status: 503 });
+      const cache = await translationCache(row); cache.entries[row.reference].sourceHash = '0'.repeat(64);
+      return new Response(JSON.stringify({ cache, counts: { ready: 5, pending: 0 } }));
+    };
+    await assert.rejects(prepareCatalogueBuild(input, folder, { ...source([row]), translations: io.options }));
+    assert.equal(io.calls.writes.length, 0);
+  }
+});
+
+test('a refused public catalogue never reaches translation preparation; honest pending retains French and unchanged cache', async t => {
+  const row = localizedRow(), failed = translationIO(), invalidFolder = await scratch(t);
+  await assert.rejects(prepareCatalogueBuild(localizedProduction(), invalidFolder, {
+    ...source([row], { properties: () => response([row], 2) }), translations: failed.options,
+  }));
+  assert.deepEqual(failed.calls, { reads: 0, requests: [], writes: [] });
+  const previous = await translationCache(row, ['en']), io = translationIO(previous), folder = await scratch(t);
+  io.options.request = async () => new Response(JSON.stringify({ cache: emptyTranslations(), counts: { ready: 0, pending: 4 } }));
+  const env = await prepareCatalogueBuild(localizedProduction(), folder, { ...source([row]), translations: io.options });
+  const rendered = JSON.parse(await readFile(catalogueAliases(env, folder)['@catalogue-public'], 'utf8')).properties[0];
+  assert.deepEqual(narrative(rendered), narrative(row)); assert.equal(io.calls.writes.length, 0);
+  assert.deepEqual(Object.keys(previous.entries[row.reference].translations), ['en']);
 });
