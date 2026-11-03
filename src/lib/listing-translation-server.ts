@@ -236,7 +236,7 @@ export async function handleListingTranslationRequest(request: Request, env: Lis
     const dirty = input.mode === 'pending' ? (await rows(db, keys)).filter((row): row is Row => !!row
       && row.state === 'ready' && row.is_current === 1 && row.revalidation_pending === 1) : [];
     if (dirty.length && hook) {
-      const result = await (dependencies.fetcher ?? fetch)(hook, { method: 'POST', redirect: 'error', signal: AbortSignal.timeout(10_000) });
+      const result = await (dependencies.fetcher ?? fetch)(hook, { method: 'POST', redirect: 'manual', signal: AbortSignal.timeout(10_000) });
       await result.body?.cancel(); if (!result.ok) fail(503, 'translation_revalidation_unavailable');
       const acknowledged = await db.batch(dirty.map(row => db.prepare(`UPDATE listing_translations SET revalidation_pending=0
         WHERE ${WHERE_KEY} AND state='ready' AND revalidation_pending=1`).bind(...values(row))));

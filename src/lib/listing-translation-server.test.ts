@@ -189,6 +189,19 @@ describe('HMAC-only listing translation service with real SQLite', () => {
     await call({ mode: 'pending' }, env, NOW, fetcher); expect(fetcher).toHaveBeenCalledTimes(2);
     expect(item.sql.prepare('SELECT revalidation_pending FROM listing_translations').get()?.revalidation_pending).toBe(0);
   });
+  it('refuses a redirect without acknowledging ready translations and retries the same cache', async () => {
+    const item = fixture(), { env, run } = environment(item, { REVALIDATE_DEPLOY_HOOK_URL: HOOK });
+    await call(prepare(), env);
+    const fetcher = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>()
+      .mockResolvedValueOnce(new Response(null, { status: 302, headers: { Location: 'https://foreign.invalid/' } }))
+      .mockResolvedValue(new Response(null, { status: 204 }));
+    expect((await call({ mode: 'pending' }, env, NOW, fetcher)).status).toBe(503);
+    expect(fetcher).toHaveBeenCalledWith(new URL(HOOK), expect.objectContaining({ method: 'POST', redirect: 'manual' }));
+    expect(item.sql.prepare('SELECT revalidation_pending FROM listing_translations').get()?.revalidation_pending).toBe(1);
+    expect((await call({ mode: 'pending' }, env, NOW, fetcher)).status).toBe(200);
+    expect(item.sql.prepare('SELECT revalidation_pending FROM listing_translations').get()?.revalidation_pending).toBe(0);
+    expect(fetcher).toHaveBeenCalledTimes(2); expect(run).toHaveBeenCalledTimes(1);
+  });
   it('fences refresh acknowledgement to the exact hash while a new ready hash appears during the hook', async () => {
     const item = fixture(), { env } = environment(item, { REVALIDATE_DEPLOY_HOOK_URL: HOOK });
     await call(prepare(), { ...env, LISTING_TRANSLATION_DAILY_NEURON_BUDGET: '0' });
