@@ -7,6 +7,8 @@ import PropertyMap from '@/components/property/PropertyMap.tsx';
 import { t, type Lang, localizedPath } from '@/lib/i18n';
 import { ArrowRight, MapPin } from 'lucide-react';
 import Ornament from '@/components/decor/Ornament.astro';
+import { resolveListingText } from '@/lib/listing-localization';
+import { serializeJsonLd } from '@/lib/json-ld';
 
 interface Props {
   quartier: Quartier;
@@ -57,7 +59,7 @@ const collection = {
         '@type': 'ListItem',
         position: i + 1,
         url: `${siteUrl}${p(`/biens/${prop.reference.toLowerCase()}`)}`,
-        name: prop.title,
+        name: resolveListingText(prop, lang).title,
       })),
     },
   }),
@@ -73,9 +75,9 @@ const faqLd = {
 };
 ---
 
-<script type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumb)}></script>
-<script type="application/ld+json" is:inline set:html={JSON.stringify(collection)}></script>
-<script type="application/ld+json" is:inline set:html={JSON.stringify(faqLd)}></script>
+<script type="application/ld+json" is:inline set:html={serializeJsonLd(breadcrumb)}></script>
+<script type="application/ld+json" is:inline set:html={serializeJsonLd(collection)}></script>
+<script type="application/ld+json" is:inline set:html={serializeJsonLd(faqLd)}></script>
 
 <div class="property-detail-bg">
   <!-- HERO BAND -->
