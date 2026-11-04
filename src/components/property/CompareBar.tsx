@@ -33,7 +33,7 @@ export default function CompareBar({ lang }: Props) {
     setTitles({ lang, values: {} });
     void Promise.all(references.map(async reference => {
       try {
-        const response = await fetch(`/api/property/${encodeURIComponent(reference.trim().toLowerCase())}.json`);
+        const response = await fetch(`/api/property/${encodeURIComponent(reference.trim().toLowerCase())}.json`, { cache: 'no-store' });
         if (!response.ok) return null;
         const property: PublicProperty = await response.json();
         if (property.reference !== reference) return null;

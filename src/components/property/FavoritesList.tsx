@@ -46,7 +46,7 @@ export default function FavoritesList({ lang }: Props) {
     setLoading(true);
     Promise.all(
       refs.map((r) =>
-        fetch(`/api/property/${encodeURIComponent(r.reference.trim().toLowerCase())}.json`).then(
+        fetch(`/api/property/${encodeURIComponent(r.reference.trim().toLowerCase())}.json`, { cache: 'no-store' }).then(
           (res) => (res.ok ? res.json() : null),
         ),
       ),
