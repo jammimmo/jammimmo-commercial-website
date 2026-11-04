@@ -51,6 +51,7 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
   const [context, setContext] = useState<{ path: string; title?: string; propertyReference?: string } | null>(null);
   const [launcherBottom, setLauncherBottom] = useState(reserveBottom ? 94 : 20);
   const [launcherContactOverlap, setLauncherContactOverlap] = useState(false);
+  const [launcherMeasured, setLauncherMeasured] = useState(false);
   const policy = session?.policy ?? DEFAULT_POLICY;
   const human = conversation && conversation.status !== 'bot';
   const closed = conversation?.status === 'closed';
@@ -182,14 +183,17 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
       bottom = Math.min(bottom, Math.max(20, innerHeight - 100));
       setLauncherBottom(bottom);
       const own = launcher.current?.getBoundingClientRect();
-      // Property contact controls already offer direct contact. Never paint the
-      // floating launcher over them; inline qualification help still opens us.
+      // Keep SSR/initial hydration hidden until real geometry is available.
+      // Contacts and marked reassurance text must stay clear of the launcher;
+      // inline qualification help still opens the same mounted dialog.
+      const measured = !!own && own.width > 0 && own.height > 0;
       const top = innerHeight - bottom - (own?.height ?? 0);
-      setLauncherContactOverlap(!!own && [...document.querySelectorAll<HTMLElement>('[data-property-contact]')].some(element => {
+      setLauncherContactOverlap(!!own && measured && [...document.querySelectorAll<HTMLElement>('[data-property-contact], [data-chat-keep-clear]')].some(element => {
         const rect = element.getBoundingClientRect();
         return rect.width > 0 && rect.height > 0 && rect.left < own.right && rect.right > own.left
           && rect.top < innerHeight - bottom && rect.bottom > top;
       }));
+      setLauncherMeasured(measured);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(measure); };
     const observer = new MutationObserver(schedule);
@@ -267,7 +271,7 @@ export default function ChatWidget({ reserveBottom = false, client: suppliedClie
 
   const origin = typeof location === 'undefined' ? 'https://jammimmo.com' : location.origin;
   return <div className="jamm-chat-root rr-block" data-chat-private data-clarity-mask="true">
-    <button ref={launcher} className="jamm-chat-launcher" style={{ '--chat-bottom': `${launcherBottom}px`, visibility: launcherContactOverlap ? 'hidden' : undefined } as CSSProperties} onClick={event => { const active = document.activeElement; returnFocus.current = active instanceof HTMLElement && active.hasAttribute('data-qualification-help') ? active : event.currentTarget; setOpen(true); }} aria-expanded={open} aria-controls="jamm-chat-dialog" aria-label="Ouvrir l’assistant Jamm Immo">
+    <button ref={launcher} className="jamm-chat-launcher" style={{ '--chat-bottom': `${launcherBottom}px`, visibility: !launcherMeasured || launcherContactOverlap ? 'hidden' : undefined } as CSSProperties} onClick={event => { const active = document.activeElement; returnFocus.current = active instanceof HTMLElement && active.hasAttribute('data-qualification-help') ? active : event.currentTarget; setOpen(true); }} aria-expanded={open} aria-controls="jamm-chat-dialog" aria-label="Ouvrir l’assistant Jamm Immo">
       <MessageCircle size={22} aria-hidden="true" /><span>Une question&nbsp;?</span>
     </button>
     <dialog ref={dialog} id="jamm-chat-dialog" className="jamm-chat-dialog" aria-labelledby="jamm-chat-title" onCancel={event => { event.preventDefault(); close(); }} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); close(); } }}>

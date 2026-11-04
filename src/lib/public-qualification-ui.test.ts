@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { createElement, Fragment } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
 import { act, Simulate } from 'react-dom/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ContactForm from '../components/forms/ContactForm';
@@ -19,18 +20,27 @@ function change(label: string, value: string) { const node = [...host.querySelec
 async function contactStep(operation = 'invest') { change('Votre projet', operation); await click('Continuer'); await click('Continuer'); change('Nom et prénom', 'Personne fictive Awa'); change('Numéro WhatsApp', '+221000000003'); }
 function fakeFetch(lost = false) { vi.stubGlobal('fetch', vi.fn(async (_url: string, init: RequestInit) => { const body = JSON.parse(String(init.body)); calls.push(body); if (lost && calls.length === 1) throw new Error('lost response'); return new Response(JSON.stringify({ ok: true, submission_id: body.submission_id, qualification_version: 1 }), { status: 201 }); })); }
 describe('optional public qualification', () => {
-  it('hides only the floating launcher while it overlaps marked property contacts and restores it after scrolling away without opening a session', async () => {
+  it('keeps the actual SSR launcher hidden and mounted before any geometry measurement or request', () => {
+    const requests = vi.fn(async () => { throw new Error('SSR must not open a chat session'); });
+    const markup = renderToString(createElement(ChatWidget, { client: new ChatClient(requests) }));
+    const parsed = document.createElement('div'); parsed.innerHTML = markup;
+    const launcher = parsed.querySelector<HTMLButtonElement>('.jamm-chat-launcher');
+    expect(launcher).not.toBeNull(); expect(launcher!.style.visibility).toBe('hidden');
+    expect(launcher!.disabled).toBe(false); expect(parsed.querySelector('#jamm-chat-dialog')).not.toBeNull();
+    expect(requests).not.toHaveBeenCalled();
+  });
+  it.each(['data-property-contact', 'data-chat-keep-clear'])('hides the launcher over %s and restores it after scrolling away without opening a session', async marker => {
     vi.stubGlobal('innerHeight', 844);
     let contactTop = 730;
     const rectangles = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
-      if (this.hasAttribute('data-property-contact')) return new DOMRect(0, contactTop, 390, 100);
+      if (this.hasAttribute(marker)) return new DOMRect(0, contactTop, 390, 100);
       if (this.classList.contains('jamm-chat-launcher')) return new DOMRect(20, 772, 170, 52);
       return new DOMRect();
     });
     const requests = vi.fn(async () => { throw new Error('A geometry change must not open a chat session'); });
     const client = new ChatClient(requests);
     try {
-      act(() => root.render(createElement(Fragment, null, createElement('section', { 'data-property-contact': true }, 'Contacts fictifs'), createElement(ChatWidget, { client }))));
+      act(() => root.render(createElement(Fragment, null, createElement('section', { [marker]: true }, 'Zone fictive à garder lisible'), createElement(ChatWidget, { client }))));
       const launcher = host.querySelector<HTMLButtonElement>('.jamm-chat-launcher')!;
       expect(launcher.style.visibility).toBe('hidden'); expect(requests).not.toHaveBeenCalled();
       contactTop = 300;
