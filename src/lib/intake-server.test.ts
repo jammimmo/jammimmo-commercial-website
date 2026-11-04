@@ -79,7 +79,8 @@ function env(db: D1Database): Record<string, unknown> {
 }
 async function post(body: unknown, runtime: Record<string, unknown>, headers: Record<string, string> = {}) {
   const request = new Request('https://jammimmo.com/api/leads', { method: 'POST', headers: { origin: 'https://jammimmo.com', 'content-type': 'application/json', ...headers }, body: JSON.stringify(body) });
-  const response = await POST({ request, locals: { runtime: { env: runtime } }, clientAddress: '192.0.2.7' } as Parameters<typeof POST>[0]);
+  // This route fixture supplies only the Astro context members consumed by POST.
+  const response = await POST({ request, locals: { runtime: { env: runtime } }, clientAddress: '192.0.2.7' } as unknown as Parameters<typeof POST>[0]);
   if (!(response instanceof Response)) throw new Error('Expected route response');
   return response;
 }
