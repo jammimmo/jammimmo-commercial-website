@@ -16,6 +16,6 @@ export const GET: APIRoute = async ({ params }) => {
   if (!p) return new Response('Not found', { status: 404 });
   return new Response(JSON.stringify(p), {
     status: 200,
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' },
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache, max-age=0, must-revalidate' },
   });
 };

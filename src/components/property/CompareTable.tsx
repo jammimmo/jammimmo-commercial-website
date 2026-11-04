@@ -42,7 +42,7 @@ export default function CompareTable({ lang }: Props) {
     // their original casing, so we trim + lower-case here before fetching.
     Promise.all(
       refs.map((r) =>
-        fetch(`/api/property/${encodeURIComponent(r.trim().toLowerCase())}.json`).then((res) =>
+        fetch(`/api/property/${encodeURIComponent(r.trim().toLowerCase())}.json`, { cache: 'no-store' }).then((res) =>
           res.ok ? res.json() : null,
         ),
       ),
