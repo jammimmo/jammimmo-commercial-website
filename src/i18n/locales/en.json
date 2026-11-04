@@ -945,5 +945,6 @@
   "guides.freeTool": "Free tool",
   "guides.relatedQuartiers": "Related neighbourhoods",
   "guides.allGuides": "All guides",
-  "guides.readGuide": "Read the guide"
+  "guides.readGuide": "Read the guide",
+  "listing.translate.unavailable": "Original French text — translation unavailable."
 }

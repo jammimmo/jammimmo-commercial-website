@@ -1,3 +1,5 @@
+import type { ListingTranslationMap } from '@/lib/listing-localization';
+
 /**
  * Source of truth for the Property shape, kept in sync with the admin DB.
  * After applying a migration on the admin side, regenerate Supabase types:
@@ -94,6 +96,8 @@ export interface DbProperty {
  * This is the ONLY shape that should ever leave the server boundary.
  */
 export interface PublicProperty {
+  /** Current-source public narrative overlays; French fields remain unchanged. */
+  translations?: ListingTranslationMap;
   id: string;
   reference: string;            // displayed truncated as "Ref #00019"
   title: string;

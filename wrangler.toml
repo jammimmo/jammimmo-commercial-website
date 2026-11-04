@@ -20,6 +20,11 @@ binding = "INTAKE_DB"
 database_name = "jammimmo-intake"
 database_id = "b4847f4d-9c30-4996-9770-077a73e5b0c1"
 
+# Trusted publication-time localization only. Requests require a separate HMAC
+# secret and a durable daily reservation before any inference is made.
+[ai]
+binding = "AI"
+
 # No [vars] block on purpose — runtime env (REVALIDATE_HMAC_SECRET,
 # GH_DISPATCH_TOKEN, GH_REPO) is set via the Cloudflare Pages dashboard /
 # `wrangler pages secret put` so secrets never sit in this repo.

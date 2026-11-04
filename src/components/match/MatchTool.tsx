@@ -1,3 +1,4 @@
+import { resolveListingText } from '@/lib/listing-localization';
 /**
  * « Match-o-mètre » — quiz acheteur/locataire (60 s) qui affiche 3 biens RÉELS
  * correspondants, puis capture WhatsApp. Distinct de BudgetTool (qui filtre puis
@@ -175,7 +176,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
     if (form.zone.trim()) lines.push(`- ${t('match.label.zone', lang)}: ${form.zone.trim()}`);
     if (matches.length) {
       lines.push('', t('match.recap.matchesHeader', lang));
-      for (const p of matches) lines.push(`• ${p.title} (${p.reference}) — ${p.quartier}, ${p.city}`);
+      for (const p of matches) lines.push(`• ${resolveListingText(p, lang).title} (${p.reference}) — ${p.quartier}, ${p.city}`);
     }
     return lines.join('\n');
   }, [lang, transactionLabel, typeLabel, bedroomsLabel, budgetNumber, budgetDisplay, form.zone, matches]);
@@ -419,13 +420,13 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
                   >
                     <span className="w-20 h-16 shrink-0 rounded-xl overflow-hidden bg-muted grid place-items-center">
                       {p.images[0] ? (
-                        <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover" loading="lazy" />
+                        <img src={p.images[0]} alt={resolveListingText(p, lang).title} className="w-full h-full object-cover" loading="lazy" />
                       ) : (
                         <Home className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
                       )}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block font-serif text-[15px] leading-snug truncate">{p.title}</span>
+                      <span className="block font-serif text-[15px] leading-snug truncate">{resolveListingText(p, lang).title}</span>
                       <span className="block text-xs text-muted-foreground mt-0.5 truncate">
                         {p.quartier}
                         {p.quartier && p.city ? ' · ' : ''}

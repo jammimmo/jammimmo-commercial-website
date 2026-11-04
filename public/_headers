@@ -34,9 +34,9 @@
 /brand/*
   Cache-Control: public, max-age=2592000
 
-# JSON property feeds — let CDN cache for an hour, allow stale-while-revalidate
+# Property snapshots must follow the current publication, including narratives.
 /api/property/*
-  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  Cache-Control: no-cache, max-age=0, must-revalidate
 
 # Webhook + intake APIs — never cache
 /api/leads

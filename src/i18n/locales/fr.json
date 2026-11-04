@@ -946,5 +946,6 @@
   "guides.freeTool": "Outil gratuit",
   "guides.relatedQuartiers": "Quartiers liés",
   "guides.allGuides": "Tous les guides",
-  "guides.readGuide": "Lire le guide"
+  "guides.readGuide": "Lire le guide",
+  "listing.translate.unavailable": "Texte original en français — traduction indisponible."
 }

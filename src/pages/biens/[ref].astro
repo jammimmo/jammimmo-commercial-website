@@ -4,6 +4,7 @@ import DetailContent from '@/components/property/DetailContent.astro';
 import JsonLdProperty from '@/components/seo/JsonLdProperty.astro';
 import { listAllPublicRefs, getPublicPropertyByRef, findSimilar } from '@/lib/supabase.build';
 import { metaDescription, propertySeoTitle } from '@/lib/format';
+import { resolveListingText } from '@/lib/listing-localization';
 import { slugToRef } from '@/lib/reference';
 import { t, getLang } from '@/lib/i18n';
 
@@ -31,9 +32,10 @@ if (!property) {
 const similar = await findSimilar(property, 3);
 
 const seoTitle = propertySeoTitle(property, lang);
+const localizedText = resolveListingText(property, lang);
 // Fall back to the SEO title when a listing has neither commercial_message nor
 // description (else we'd emit an empty <meta name="description">).
-const seoDescription = metaDescription(property.commercial_message, property.description) || seoTitle;
+const seoDescription = metaDescription(localizedText.commercial_message, localizedText.description) || seoTitle;
 const seoImage = property.images[0];
 const canonical = `${Astro.site?.toString().replace(/\/$/, '') ?? 'https://jammimmo.com'}${Astro.url.pathname}`;
 // Preload the hero photo (LCP) so the browser starts fetching it in parallel
