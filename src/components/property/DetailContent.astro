@@ -282,7 +282,7 @@ const trLabels = {
         </div>
 
         <!-- STICKY RAIL — price + contact + anti-scam -->
-        <aside class="xl:sticky xl:top-24 self-start flex flex-col gap-3">
+        <aside data-property-contact class="xl:sticky xl:top-24 self-start flex flex-col gap-3">
           <div class="rounded-2xl bg-gradient-to-br from-primary via-primary to-[hsl(var(--primary)/0.85)] text-primary-foreground shadow-xl overflow-hidden">
             <div class="p-5">
               <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary-foreground/70">
@@ -598,7 +598,7 @@ const trLabels = {
   )}
 
   <!-- 6. CONTACT FORM -->
-  <section id="contact-bien" class="py-3 lg:py-6 scroll-mt-24">
+  <section id="contact-bien" data-property-contact class="py-3 lg:py-6 scroll-mt-24">
     <div class="container">
       <div class="max-w-3xl mx-auto rounded-2xl bg-card border border-clay px-6 sm:px-10 py-8 sm:py-10 shadow-sm">
         <h2 class="font-serif text-2xl sm:text-3xl text-center mb-2">{t('property.detail.contact', lang)}</h2>
@@ -633,24 +633,25 @@ const trLabels = {
 <!-- Mobile sticky bottom CTA bar -->
 <div
   id="mobile-cta-bar"
-  class="xl:hidden fixed bottom-0 inset-x-0 z-40 bg-background/96 backdrop-blur border-t border-clay px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-center gap-3 shadow-[0_-8px_24px_-12px_hsl(var(--ink)/.25)] transform translate-y-full transition-transform duration-300"
+  hidden
+  class="xl:hidden fixed bottom-0 inset-x-0 z-40 bg-background text-foreground border-t border-clay px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-center gap-3 shadow-[0_-8px_24px_-12px_hsl(var(--ink)/.25)]"
   data-cta-bar
 >
   <div class="flex-1 min-w-0">
     <div class="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold leading-none">
       {isRental ? t('property.priceShort.rent', lang) : t('property.priceShort.sale', lang)}
     </div>
-    <div class="font-serif text-[18px] font-normal leading-tight tracking-tight truncate bidi-ltr">
+    <div data-cta-price class="font-serif text-[18px] font-normal leading-tight tracking-tight break-words bidi-ltr">
       {priceLabel}
     </div>
   </div>
-  <a href={TEL_URI} data-track="phone.tapped" data-track-prop-source="sticky" aria-label={t('property.detail.call', lang)} class="w-11 h-11 grid place-items-center rounded-full bg-card border border-clay text-primary">
+  <a href={TEL_URI} data-track="phone.tapped" data-track-prop-source="sticky" aria-label={t('property.detail.call', lang)} class="w-11 h-11 shrink-0 grid place-items-center rounded-full bg-card border border-clay text-primary">
     <Phone className="w-4 h-4" />
   </a>
-  <a href={SITE.whatsappUrl} target="_blank" rel="noopener noreferrer" data-track="whatsapp.tapped" data-track-prop-source="sticky" aria-label="WhatsApp" class="w-11 h-11 grid place-items-center rounded-full bg-emerald/15 text-emerald border border-emerald/30">
+  <a href={SITE.whatsappUrl} target="_blank" rel="noopener noreferrer" data-track="whatsapp.tapped" data-track-prop-source="sticky" aria-label="WhatsApp" class="w-11 h-11 shrink-0 grid place-items-center rounded-full bg-emerald/15 text-emerald border border-emerald/30">
     <MessageCircle className="w-4 h-4" />
   </a>
-  <a href="#contact-bien" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm shadow-md whitespace-nowrap">
+  <a href="#contact-bien" class="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm shadow-md whitespace-nowrap">
     {t('property.cta.contact', lang)}
   </a>
 </div>
@@ -707,6 +708,8 @@ const trLabels = {
   /* `hidden` attribute must win over any `display` utility (e.g. the video
      lightbox keeps `grid place-items-center` permanently). Known [hidden] bug. */
   [hidden] { display: none !important; }
+  /* Keep the footer's final links scrollable above the visible fixed bar. */
+  :global(body:has([data-cta-bar]:not([hidden]))) { padding-bottom: var(--property-contact-bar-height, 0px); }
 
   /* The description left accent rule — logical so it flips under RTL. */
   .prop-description .prop-rule { inset-inline-start: 0; }
@@ -738,12 +741,18 @@ const trLabels = {
 
   const ctaBar = document.querySelector('[data-cta-bar]');
   if (ctaBar) {
-    const onScroll = () => {
-      const past = window.scrollY > 420;
-      ctaBar.style.transform = past ? 'translateY(0)' : 'translateY(100%)';
+    const contact = document.getElementById('contact-bien');
+    const update = () => {
+      const rect = contact?.getBoundingClientRect();
+      const contactVisible = rect && rect.top < innerHeight && rect.bottom > 0;
+      // The inline form, its help and its receipt replace the floating shortcut.
+      ctaBar.hidden = window.scrollY <= 420 || !!contactVisible;
+      document.documentElement.style.setProperty('--property-contact-bar-height', `${ctaBar.offsetHeight}px`);
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    if (contact) new ResizeObserver(update).observe(contact);
+    update();
   }
 
   // Référence copiable : clic → copie la réf complète + feedback « ✓ Copié ».

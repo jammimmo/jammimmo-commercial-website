@@ -19,6 +19,28 @@ function change(label: string, value: string) { const node = [...host.querySelec
 async function contactStep(operation = 'invest') { change('Votre projet', operation); await click('Continuer'); await click('Continuer'); change('Nom et prénom', 'Personne fictive Awa'); change('Numéro WhatsApp', '+221000000003'); }
 function fakeFetch(lost = false) { vi.stubGlobal('fetch', vi.fn(async (_url: string, init: RequestInit) => { const body = JSON.parse(String(init.body)); calls.push(body); if (lost && calls.length === 1) throw new Error('lost response'); return new Response(JSON.stringify({ ok: true, submission_id: body.submission_id, qualification_version: 1 }), { status: 201 }); })); }
 describe('optional public qualification', () => {
+  it('hides only the floating launcher while it overlaps marked property contacts and restores it after scrolling away without opening a session', async () => {
+    vi.stubGlobal('innerHeight', 844);
+    let contactTop = 730;
+    const rectangles = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      if (this.hasAttribute('data-property-contact')) return new DOMRect(0, contactTop, 390, 100);
+      if (this.classList.contains('jamm-chat-launcher')) return new DOMRect(20, 772, 170, 52);
+      return new DOMRect();
+    });
+    const requests = vi.fn(async () => { throw new Error('A geometry change must not open a chat session'); });
+    const client = new ChatClient(requests);
+    try {
+      act(() => root.render(createElement(Fragment, null, createElement('section', { 'data-property-contact': true }, 'Contacts fictifs'), createElement(ChatWidget, { client }))));
+      const launcher = host.querySelector<HTMLButtonElement>('.jamm-chat-launcher')!;
+      expect(launcher.style.visibility).toBe('hidden'); expect(requests).not.toHaveBeenCalled();
+      contactTop = 300;
+      await act(async () => { window.dispatchEvent(new Event('scroll')); await new Promise<void>(resolve => requestAnimationFrame(() => resolve())); });
+      expect(launcher.style.visibility).toBe(''); expect(requests).not.toHaveBeenCalled();
+      contactTop = 730;
+      await act(async () => { window.dispatchEvent(new Event('resize')); await new Promise<void>(resolve => requestAnimationFrame(() => resolve())); });
+      expect(launcher.style.visibility).toBe('hidden'); expect(requests).not.toHaveBeenCalled();
+    } finally { rectangles.mockRestore(); }
+  });
   it('allows uncertain funding and missing optional criteria without a document gate', async () => {
     fakeFetch(); act(() => root.render(createElement(PublicQualificationForm, { lang: 'fr', onBack: vi.fn() })));
     change('Votre projet', 'invest'); await click('Continuer'); change('Financement disponible ?', 'no'); await click('Continuer');
