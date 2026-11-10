@@ -5,6 +5,7 @@ import { renderToString } from 'react-dom/server';
 import { act, Simulate } from 'react-dom/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ContactForm from '../components/forms/ContactForm';
+import MatchTool from '../components/match/MatchTool';
 vi.mock('@/lib/analytics', () => ({ track: () => { throw new Error('Analytics outside qualification UI test'); } }));
 import PublicQualificationForm, { QualificationEntry } from '../components/forms/PublicQualificationForm';
 import ChatWidget from '../components/chat/ChatWidget';
@@ -16,7 +17,7 @@ beforeEach(() => { Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 afterEach(() => { act(() => root.unmount()); host.remove(); vi.unstubAllGlobals(); });
 function button(text: string) { const found = [...host.querySelectorAll('button')].find(node => !node.closest('[hidden]') && node.textContent === text); if (!found) throw new Error(`Missing button ${text}`); return found; }
 async function click(text: string) { await act(async () => { button(text).click(); }); }
-function change(label: string, value: string) { const node = [...host.querySelectorAll('label')].find(node => node.textContent === label); if (!node) throw new Error(`Missing field ${label}`); const input = document.getElementById(node.htmlFor) as HTMLInputElement | HTMLSelectElement; act(() => { input.value = value; Simulate.change(input); }); }
+function change(label: string, value: string, scope: ParentNode = host) { const node = [...scope.querySelectorAll('label')].find(node => node.textContent === label); if (!node) throw new Error(`Missing field ${label}`); const input = document.getElementById(node.htmlFor) as HTMLInputElement | HTMLSelectElement; act(() => { input.value = value; Simulate.change(input); }); }
 async function contactStep(operation = 'invest') { change('Votre projet', operation); await click('Continuer'); await click('Continuer'); change('Nom et prénom', 'Personne fictive Awa'); change('Numéro WhatsApp', '+221000000003'); }
 function fakeFetch(lost = false) { vi.stubGlobal('fetch', vi.fn(async (_url: string, init: RequestInit) => { const body = JSON.parse(String(init.body)); calls.push(body); if (lost && calls.length === 1) throw new Error('lost response'); return new Response(JSON.stringify({ ok: true, submission_id: body.submission_id, qualification_version: 1 }), { status: 201 }); })); }
 describe('optional public qualification', () => {
@@ -90,6 +91,72 @@ describe('optional public qualification', () => {
     await click('Reprendre le même envoi'); expect(button('Vérifier le même envoi')).toBeTruthy(); expect(calls).toHaveLength(1);
     await click('Vérifier le même envoi'); expect(calls).toHaveLength(2); expect(calls[1]).toEqual({ ...calls[0], delivery_mode: 'recover' });
     expect(host.textContent).toContain('Votre demande a été reçue');
+  });
+  it('suspends the mounted contact form until the qualified request is confirmed', async () => {
+    let loseResponse: (() => void) | undefined;
+    vi.stubGlobal('fetch', vi.fn(async (_url: string, init: RequestInit) => {
+      const body = JSON.parse(String(init.body)); calls.push(body);
+      if (calls.length === 1) return new Promise<Response>((_resolve, reject) => { loseResponse = () => reject(new Error('lost response')); });
+      return new Response(JSON.stringify({ ok: true, submission_id: body.submission_id, qualification_version: 1 }));
+    }));
+    act(() => root.render(createElement(ContactForm, { lang: 'fr', propertyId: 'c9000000-0000-4000-8000-000000000001', propertyReference: 'JA-FICTIF-001' })));
+    const legacyForm = host.querySelector('form')!;
+    const legacySubmit = legacyForm.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    change(t('form.firstName', 'fr'), 'Awa');
+    change(t('form.lastName', 'fr'), 'Fictive');
+    change(t('form.phone', 'fr'), '+221000000004');
+
+    await click('Préciser mon projet');
+    const qualifiedForm = host.querySelector<HTMLFormElement>('[data-qualification-open="true"] form')!;
+    change(t('qualification.operation', 'fr'), 'buy', qualifiedForm);
+    await act(async () => { qualifiedForm.requestSubmit(); });
+    expect(qualifiedForm.querySelector('[name="financing.availability"]')).not.toBeNull();
+    await act(async () => { qualifiedForm.requestSubmit(); });
+    change(t('qualification.name', 'fr'), 'Personne fictive Awa', qualifiedForm);
+    change(t('qualification.phone', 'fr'), '+221000000003', qualifiedForm);
+    await act(async () => { qualifiedForm.requestSubmit(); });
+    await click('Retour');
+    expect(legacyForm.isConnected).toBe(true);
+    expect(legacyForm.closest('[hidden]')).not.toBeNull();
+    expect(legacySubmit.disabled).toBe(true);
+    await act(async () => { Simulate.submit(legacyForm); });
+    expect(calls).toHaveLength(1);
+
+    await act(async () => { loseResponse!(); });
+    expect(legacyForm.closest('[hidden]')).not.toBeNull();
+    expect(legacySubmit.disabled).toBe(true);
+    expect(host.textContent).toContain('La réception n’est pas confirmée');
+    await click('Reprendre le même envoi'); await click('Vérifier le même envoi');
+    expect(calls).toEqual([calls[0], { ...calls[0], delivery_mode: 'recover' }]);
+    await click('Retour');
+    expect(host.querySelector('form')).toBe(legacyForm);
+    expect(legacyForm.closest('[hidden]')).toBeNull();
+    expect(legacySubmit.disabled).toBe(false);
+    expect(legacyForm.querySelector<HTMLInputElement>('#first_name')?.value).toBe('Awa');
+    expect(legacyForm.querySelector<HTMLInputElement>('#phone')?.value).toBe('+221000000004');
+  });
+  it('keeps MatchTool results but suspends its alternate lead capture during recovery', async () => {
+    fakeFetch(true);
+    act(() => root.render(createElement(MatchTool, { lang: 'fr', properties: [], hrefByRef: {} })));
+    await click(t('match.transaction.acheter', 'fr'));
+    for (let step = 0; step < 4; step++) await click(t('match.next', 'fr'));
+    await click(t('match.seeResult', 'fr'));
+    const alternateCapture = t('match.result.cta', 'fr');
+    await click(alternateCapture);
+    change(t('match.capture.firstName', 'fr'), 'Awa');
+    change(t('match.capture.whatsapp', 'fr'), '+221000000004');
+    await click(t('match.capture.back', 'fr'));
+
+    await click('Préciser mon projet'); await contactStep('buy'); await click('Envoyer ma demande');
+    await click('Retour');
+    expect(host.textContent).not.toContain(alternateCapture);
+    expect(button(t('match.result.edit', 'fr'))).toBeTruthy();
+    expect(calls).toHaveLength(1);
+    await click('Reprendre le même envoi'); await click('Vérifier le même envoi');
+    expect(calls).toEqual([calls[0], { ...calls[0], delivery_mode: 'recover' }]);
+    await click('Retour'); await click(alternateCapture);
+    expect(host.querySelector<HTMLInputElement>('#match-firstname')?.value).toBe('Awa');
+    expect(host.querySelector<HTMLInputElement>('#match-phone')?.value).toBe('+221000000004');
   });
   it('keeps unsupported storage text local instead of throwing or sending it', async () => {
     fakeFetch(); act(() => root.render(createElement(PublicQualificationForm, { lang: 'fr', onBack: vi.fn() })));

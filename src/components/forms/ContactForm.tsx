@@ -35,7 +35,7 @@ const makeSchema = (lang: Lang) =>
 
 type FormValues = z.infer<ReturnType<typeof makeSchema>>;
 
-function LegacyContactForm({ lang, propertyId, propertyTitle, compact = false }: Props) {
+function LegacyContactForm({ lang, propertyId, propertyTitle, compact = false, inactive }: Props & { inactive: boolean }) {
   const [submitState, setSubmitState] = useState<'idle' | 'sending' | 'ok' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const {
@@ -45,6 +45,7 @@ function LegacyContactForm({ lang, propertyId, propertyTitle, compact = false }:
   } = useForm<FormValues>({ resolver: zodResolver(makeSchema(lang)) });
 
   async function onSubmit(values: FormValues) {
+    if (inactive) return;
     setSubmitState('sending');
     setErrorMsg('');
     try {
@@ -241,7 +242,7 @@ function LegacyContactForm({ lang, propertyId, propertyTitle, compact = false }:
 
       <button
         type="submit"
-        disabled={isSubmitting || submitState === 'sending'}
+        disabled={inactive || isSubmitting || submitState === 'sending'}
         className="mt-5 w-full inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-secondary text-secondary-foreground font-semibold text-[15px] shadow-lg disabled:opacity-50 hover:translate-y-[-1px] transition-transform"
       >
         {submitState === 'sending' ? (
@@ -263,8 +264,10 @@ function LegacyContactForm({ lang, propertyId, propertyTitle, compact = false }:
 /** Both forms retain their drafts when switching; qualification is optional. */
 export default function ContactForm(props: Props) {
   const [expanded, setExpanded] = useState(false);
+  const [pending, setPending] = useState(false);
+  const legacyInactive = expanded || pending;
   return <>
-    <div hidden={expanded}><LegacyContactForm {...props} /></div>
-    <QualificationEntry lang={props.lang} propertyReference={props.propertyReference} onOpenChange={setExpanded} />
+    <div hidden={legacyInactive}><LegacyContactForm {...props} inactive={legacyInactive} /></div>
+    <QualificationEntry lang={props.lang} propertyReference={props.propertyReference} onOpenChange={setExpanded} onPendingChange={setPending} />
   </>;
 }

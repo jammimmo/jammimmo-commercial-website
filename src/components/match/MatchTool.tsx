@@ -203,6 +203,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
 
   async function submitLead(e: React.FormEvent) {
     e.preventDefault();
+    if (qualificationPending || qualificationExpanded) return;
     setTouchedPhone(true);
     if (!phoneValid) return;
     setSubmitState('sending');
@@ -463,14 +464,14 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
           </div>
 
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
-            <button
+            {!qualificationPending && <button
               type="button"
               onClick={() => setPhase('capture')}
               className="flex-1 inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-primary text-primary-foreground font-semibold text-[15px] shadow-lg hover:translate-y-[-1px] transition-transform"
             >
               {t('match.result.cta', lang)}
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </button>}
             <button
               type="button"
               onClick={() => {
@@ -488,7 +489,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
 
       {/* ─────────────────────────── Capture (single field) ─────────────────────────── */}
       {phase === 'capture' && (
-        <form onSubmit={submitLead} noValidate>
+        <form hidden={qualificationPending} onSubmit={submitLead} noValidate>
           <div className="rounded-2xl border border-clay bg-card p-5 mb-5">
             <p className="text-sm font-semibold mb-1">{t('match.capture.title', lang)}</p>
             <p className="text-muted-foreground text-sm">{t('match.capture.body', lang)}</p>
@@ -548,7 +549,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
 
           <button
             type="submit"
-            disabled={submitState === 'sending'}
+            disabled={qualificationPending || qualificationExpanded || submitState === 'sending'}
             className="mt-5 w-full inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-secondary text-secondary-foreground font-semibold text-[15px] shadow-lg disabled:opacity-50 hover:translate-y-[-1px] transition-transform"
           >
             {submitState === 'sending' ? (
