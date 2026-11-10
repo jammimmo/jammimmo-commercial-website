@@ -28,7 +28,7 @@
   "src/components/match/MatchTool.tsx": "6b0f55e706dfe5a42365ec4bb43136424a033b439be457a07ef3c4cbdab3d0b0",
   "src/components/property/PropertyMap.tsx": "87f7783e84217d9bfffadb65abb4ed4de643f35582fff0842c12bb23a856391c",
   "src/components/property/VectorBasemap.tsx": "abd3c2823bbccdb79acc902c0b40337276b1ce018df9c75f80d450100bee46f2",
-  "src/i18n/locales/fr.json": "dc58471e3e1a1ddb2189992a901c0458f958d498d53e5dfbb2a75c247f209142",
+  "src/i18n/locales/fr.json": "212fd4e46ea1dd8e586309f975bcb20554ce26e0562cf7612cb7b1151376a7c9",
   "src/layouts/BaseLayout.astro": "f63eb8f2a1093e67cd3be656cc7e0128561aaa4bb637242d250e7a5e34157190",
   "src/lib/analytics.ts": "4fe45081ad4d28012d561e22627b62fb7fa9d51beafdd7811eed87a037012dd1",
   "src/lib/i18n.ts": "2e64fb7f181a9295a1fb06f70c43342e91fde496d4c026a082ac41ca463617c6",

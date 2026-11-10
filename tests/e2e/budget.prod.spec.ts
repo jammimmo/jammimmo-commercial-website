@@ -32,7 +32,7 @@ test.describe('Feature en prod — outil /budget', () => {
 
     // Résultat : la valeur = biens RÉELS + sélection WhatsApp, aucun chiffre inventé.
     await expect(page.getByText('Parler de votre budget avec un conseiller')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Voir les biens dans mon budget' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Parcourir le catalogue', exact: true })).toBeVisible();
 
     // Pic d'intention → capture
     await page.getByRole('button', { name: 'Transmettre mon projet' }).click();
