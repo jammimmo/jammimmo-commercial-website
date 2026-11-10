@@ -2,7 +2,7 @@
  * Sénégalais number formatting helpers.
  * Sourced from admin: PropertyForm.tsx ~ formatFCFA().
  */
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import { typeLabel } from './status';
 
 /**
@@ -34,6 +34,12 @@ export function formatRentalPrice(price: number, transactionType: string): strin
     : formatFCFA(price);
 }
 
+export function formatListingPrice(price: number, transactionType: string, lang: Lang, intent = ''): string {
+  if (transactionType !== 'Vente & Location') return formatRentalPrice(price, transactionType);
+  if (intent === 'Vente' || !Number.isFinite(price) || price <= 0) return t('property.price.onRequest', lang);
+  return `${t('property.detail.rentalPrice', lang)} : ${formatFCFA(price)}`;
+}
+
 /**
  * Localized SEO `<title>` for a property detail page.
  * Surface unit + " — " price-as-headline + brand suffix, localized per lang.
@@ -45,7 +51,7 @@ export function propertySeoTitle(
 ): string {
   const unit = lang === 'en' ? 'sqm' : 'm²';
   const surfaceFrag = p.surface > 0 ? `${p.surface}${unit} ` : '';
-  const price = formatRentalPrice(p.price, p.transaction_type);
+  const price = formatListingPrice(p.price, p.transaction_type, lang);
   return `${typeLabel(p.type, lang)} ${surfaceFrag}${p.quartier} ${p.city} — ${price} | Jamm Immobilier`;
 }
 

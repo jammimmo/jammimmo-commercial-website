@@ -55,6 +55,13 @@ describe('roundNice', () => {
 });
 
 describe('estimateComps', () => {
+  it('includes a mixed listing only in rental comparables', () => {
+    const mixed = makeProp({ transaction_type: 'Vente & Location', price: 320_000, surface: 100 });
+    const input = { typeBiens: mixed.type, quartier: mixed.quartier, surface: 100 };
+    expect(estimateComps([mixed], { ...input, transaction: 'vente' }).basis).toBe('none');
+    expect(estimateComps([mixed], { ...input, transaction: 'location' }).range?.median).toBe(320_000);
+  });
+
   it('uses the quartier basis when there are enough comps and excludes wrong type/tx/price-0', () => {
     const r = estimateComps(catalogue, { typeBiens: 'Appartement', transaction: 'vente', quartier: 'Almadies', surface: 120 });
     expect(r.basis).toBe('quartier');

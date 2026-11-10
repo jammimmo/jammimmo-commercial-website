@@ -6,6 +6,7 @@ import ListingsMap from './ListingsMap';
 import { t, type Lang } from '@/lib/i18n';
 import { MIN_QUERY_CHARS } from '@/lib/places';
 import { resolveListingText } from '@/lib/listing-localization';
+import { comparePublicPrices, matchesPublicPriceBounds } from '@/lib/public-listing-price';
 import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
 
 type SortKey = 'relevance' | 'price_asc' | 'price_desc' | 'newest';
@@ -85,9 +86,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
     const result = properties.filter((p) => {
       if (filters.type && p.type !== filters.type) return false;
       // Inclusive of the dual « Vente & Location » listings: a Vente (resp.
-      // Location) filter must also match them — mirrors estimate-comps /
-      // match-filter transactionMatches, so the tools' cross-sell links surface
-      // the same listings the tools counted as comps/matches.
+      // Location) filter must also match them when no price bound is applied.
       if (filters.transaction) {
         const tt = p.transaction_type;
         const ok =
@@ -99,8 +98,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
         if (!ok) return false;
       }
       if (filters.city && p.city !== filters.city) return false;
-      if (filters.priceMin && p.price < filters.priceMin) return false;
-      if (filters.priceMax && filters.priceMax > 0 && p.price > filters.priceMax) return false;
+      if (!matchesPublicPriceBounds(p, filters.transaction, filters.priceMin, filters.priceMax)) return false;
       if (filters.bedsMin && p.bedrooms < filters.bedsMin) return false;
       // Same site-wide standard as the place autocompletes: only start matching
       // once the query is long enough (a 1–2 char text search isn't meaningful).
@@ -115,8 +113,8 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
       }
       return true;
     });
-    if (sort === 'price_asc') result.sort((a, b) => a.price - b.price);
-    else if (sort === 'price_desc') result.sort((a, b) => b.price - a.price);
+    if (sort === 'price_asc' || sort === 'price_desc')
+      result.sort((a, b) => comparePublicPrices(a, b, filters.transaction, sort === 'price_asc'));
     else if (sort === 'newest')
       result.sort((a, b) => {
         const da = a.published_at ? Date.parse(a.published_at) : 0;
@@ -341,6 +339,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
                       href={hrefByRef[p.reference] ?? `/biens/${p.reference.toLowerCase()}`}
                       active={activeRef === p.reference}
                       lang={lang}
+                      priceIntent={filters.transaction}
                       onEnter={() => setActiveRef(p.reference)}
                       onLeave={() => setActiveRef((curr) => (curr === p.reference ? null : curr))}
                     />
@@ -356,6 +355,8 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
               properties={filtered}
               activeRef={activeRef}
               onPinClick={onPinClick}
+              lang={lang}
+              priceIntent={filters.transaction}
             />
           </div>
         </div>
@@ -389,6 +390,8 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
             <ListingsMap
               properties={filtered}
               activeRef={activeRef}
+              lang={lang}
+              priceIntent={filters.transaction}
               onPinClick={(ref) => {
                 onPinClick(ref);
                 setMobileMapOpen(false);

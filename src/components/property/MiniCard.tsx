@@ -4,7 +4,8 @@ import { Bed, Maximize2, Play, Images } from 'lucide-react';
 import type { PublicProperty } from '@/types/property';
 import { youtubeIdFromUrl, youtubeThumb } from '@/lib/youtube';
 import { t, type Lang } from '@/lib/i18n';
-import { formatRentalPrice } from '@/lib/format';
+import { formatListingPrice } from '@/lib/format';
+import { getTransactionBadge, transactionLabel } from '@/lib/status';
 import FavoriteToggle from './FavoriteToggle';
 
 interface Props {
@@ -12,14 +13,9 @@ interface Props {
   href: string;
   active?: boolean;
   lang?: Lang;
+  priceIntent?: string;
   onEnter?: () => void;
   onLeave?: () => void;
-}
-
-function formatPrice(p: PublicProperty): string {
-  // Shared formatter (deterministic grouping) → cartes liste et fiche bien
-  // affichent EXACTEMENT le même format de prix.
-  return formatRentalPrice(p.price, p.transaction_type);
 }
 
 /**
@@ -33,8 +29,9 @@ function formatPrice(p: PublicProperty): string {
  * Active state (card hovered or map pin clicked) highlights with the
  * primary border + lifted shadow.
  */
-export default function MiniCard({ property: p, href, active, lang = 'fr', onEnter, onLeave }: Props) {
+export default function MiniCard({ property: p, href, active, lang = 'fr', priceIntent, onEnter, onLeave }: Props) {
   const localizedText = resolveListingText(p, lang);
+  const transactionBadge = getTransactionBadge(p.transaction_type);
   const videoId = youtubeIdFromUrl(p.video_links[0]);
   const videoThumb = youtubeThumb(p.video_links[0]);
   const split = !!videoId && p.images.length >= 1;
@@ -90,14 +87,10 @@ export default function MiniCard({ property: p, href, active, lang = 'fr', onEnt
         <span
           className={
             'absolute top-3 left-3 z-[2] inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold backdrop-blur ' +
-            (p.transaction_type === 'Location'
-              ? 'bg-secondary text-secondary-foreground'
-              : 'bg-primary text-primary-foreground')
+            transactionBadge.badgeClass
           }
         >
-          {p.transaction_type === 'Location'
-            ? t('common.transaction.rental', lang)
-            : t('common.transaction.sale', lang)}
+          {transactionLabel(p.transaction_type, lang)}
         </span>
 
         {/* Photo-count badge — Zillow-style */}
@@ -109,7 +102,11 @@ export default function MiniCard({ property: p, href, active, lang = 'fr', onEnt
       </div>
 
       <div className="p-4">
-        <div className="font-serif text-[19px] font-normal tracking-tight"><span className="bidi-ltr">{formatPrice(p)}</span></div>
+        <div className="font-serif text-[19px] font-normal tracking-tight">
+          <span className={p.transaction_type === 'Vente & Location' ? undefined : 'bidi-ltr'}>
+            {formatListingPrice(p.price, p.transaction_type, lang, priceIntent)}
+          </span>
+        </div>
         <div className="mt-1.5 text-[14px] font-medium text-foreground/85 line-clamp-1">{localizedText.title}</div>
         <div className="mt-2 flex flex-wrap gap-3 text-[12.5px] text-muted-foreground">
           {p.bedrooms > 0 && (

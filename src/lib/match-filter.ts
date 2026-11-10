@@ -7,6 +7,7 @@
  * rather than an empty screen. Tiebreak: freshness (updated_at desc).
  */
 import type { PublicProperty } from '@/types/property';
+import { publicPriceForTransaction } from './public-listing-price';
 
 export type MatchTransaction = 'acheter' | 'louer';
 
@@ -47,6 +48,7 @@ export function rankMatches(
   limit = 3,
 ): PublicProperty[] {
   const tr = criteria.transaction;
+  const priceTransaction = tr === 'acheter' ? 'Vente' : 'Location';
   const zoneQ = norm(criteria.zone ?? '');
   // NB: '0' is a truthy string → bedroom floor 0 (studio) is an active filter,
   // matching every listing (p.bedrooms >= 0). Preserves the original behaviour.
@@ -59,7 +61,8 @@ export function rankMatches(
       let score = 0;
       if (criteria.typeBiens && p.type === criteria.typeBiens) score += 3;
       if (bedFloor !== null && p.bedrooms >= bedFloor) score += 2;
-      if (budget > 0 && p.price > 0 && p.price <= budget) score += 2;
+      const price = publicPriceForTransaction(p, priceTransaction);
+      if (budget > 0 && price !== null && price <= budget) score += 2;
       if (zoneQ && (norm(p.quartier).includes(zoneQ) || norm(p.city).includes(zoneQ))) score += 3;
       return { p, score };
     })

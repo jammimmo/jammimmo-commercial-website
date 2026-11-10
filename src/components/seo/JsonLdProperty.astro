@@ -39,10 +39,10 @@ const offerExtras =
 
 // Only emit an Offer when we have a real positive price. A price of 0 / null
 // ("prix sur demande") makes the Offer invalid in Google's Rich Results Test,
-// so for those we drop `offers` entirely — the RealEstateListing still
-// validates without it.
+// so for those we drop `offers` entirely. The single mixed-listing price is
+// rent only and must not be published as an unqualified sale offer.
 const offers =
-  p.price > 0
+  p.price > 0 && p.transaction_type !== 'Vente & Location'
     ? {
         '@type': 'Offer',
         price: p.price,

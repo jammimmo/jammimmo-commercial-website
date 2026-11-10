@@ -54,6 +54,13 @@ describe('norm', () => {
 });
 
 describe('rankMatches', () => {
+  it('does not reward a mixed listing as within the purchase budget based on its rent', () => {
+    const mixed = makeProp({ transaction_type: 'Vente & Location', price: 320_000, updated_at: '2026-06-01' });
+    const sale = makeProp({ transaction_type: 'Vente', price: 40_000_000 });
+    expect(rankMatches([mixed, sale], { transaction: 'acheter', budgetNumber: 50_000_000 })).toEqual([sale, mixed]);
+    expect(rankMatches([mixed, sale], { transaction: 'louer', budgetNumber: 400_000 })).toEqual([mixed]);
+  });
+
   it('hard-filters out non-matching transactions', () => {
     const props = [
       makeProp({ reference: 'SALE', transaction_type: 'Vente' }),

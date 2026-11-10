@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { t, type Lang, localizedPath } from '@/lib/i18n';
 import { readCompare, COMPARE_KEY, clearCompare } from '@/lib/compare';
-import { formatRentalPrice } from '@/lib/format';
+import { formatListingPrice } from '@/lib/format';
 import { formatPublicRef } from '@/lib/reference';
 import { typeLabel, transactionLabel } from '@/lib/status';
 import type { PublicProperty } from '@/types/property';
@@ -79,7 +79,7 @@ export default function CompareTable({ lang }: Props) {
     [t('compare.row.transaction', lang), (p) => transactionLabel(p.transaction_type, lang)],
     [t('compare.row.city', lang), (p) => p.city],
     [t('estimate.label.quartier', lang), (p) => p.quartier],
-    [t('compare.row.price', lang), (p) => formatRentalPrice(p.price, p.transaction_type)],
+    [t('compare.row.price', lang), (p) => formatListingPrice(p.price, p.transaction_type, lang)],
     [t('property.facts.surface', lang), (p) => (p.surface > 0 ? `${p.surface} m²` : '—')],
     [t('property.facts.bedrooms', lang), (p) => (p.bedrooms > 0 ? String(p.bedrooms) : '—')],
     [t('property.detail.commodities', lang), (p) => (p.commodities.length > 0 ? p.commodities.slice(0, 5).join(', ') : '—')],

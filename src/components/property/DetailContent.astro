@@ -29,7 +29,9 @@ const { property: p, similar, lang } = Astro.props;
 
 const status = getStatusBadge(p.status);
 const transaction = getTransactionBadge(p.transaction_type);
-const isRental = p.transaction_type === 'Location';
+const isRental = p.transaction_type !== 'Vente';
+const isMixed = p.transaction_type === 'Vente & Location';
+const mixedPriceUnknown = isMixed && p.price <= 0;
 
 const facts: Array<{ icon: 'bed' | 'surface' | 'type' | 'bath' | 'floor' | 'sparkles'; label: string; value: string }> = [];
 if (p.bedrooms > 0) facts.push({ icon: 'bed', label: t('property.facts.bedrooms', lang), value: String(p.bedrooms) });
@@ -70,10 +72,11 @@ const hasEnviron = p.nearby_commerce.length > 0;
 const documentEntries = Object.entries(p.documents || {})
   .filter(([, url]) => typeof url === 'string' && url.length > 0);
 
-const priceLabel = formatRentalPrice(p.price, p.transaction_type);
-const priceCaption = isRental
+const priceLabel = mixedPriceUnknown ? t('property.price.onRequest', lang) : formatRentalPrice(p.price, p.transaction_type);
+const priceCaption = mixedPriceUnknown ? transactionLabel(p.transaction_type, lang) : isRental
   ? t('property.detail.rentalPrice', lang)
   : t('property.detail.salePrice', lang);
+const mobilePriceCaption = isMixed ? priceCaption : t(isRental ? 'property.priceShort.rent' : 'property.priceShort.sale', lang);
 
 // Sépare VRAIES photos et VIDÉOS : le champ `images` peut contenir des miniatures
 // YouTube (img.youtube.com/vi/<id>) mêlées aux photos R2 → on les retire de la
@@ -289,7 +292,7 @@ const trLabels = {
                 {priceCaption}
               </div>
               <div class="flex flex-wrap items-baseline gap-3 mt-2">
-                <div class="font-serif font-light text-[clamp(24px,2.6vw,36px)] leading-none tracking-tight bidi-ltr">
+                <div class:list={['font-serif font-light text-[clamp(24px,2.6vw,36px)] leading-none tracking-tight', !mixedPriceUnknown && 'bidi-ltr']}>
                   {priceLabel}
                 </div>
                 {p.negotiable && (
@@ -639,9 +642,9 @@ const trLabels = {
 >
   <div class="flex-1 min-w-0">
     <div class="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold leading-none">
-      {isRental ? t('property.priceShort.rent', lang) : t('property.priceShort.sale', lang)}
+      {mobilePriceCaption}
     </div>
-    <div data-cta-price class="font-serif text-[18px] font-normal leading-tight tracking-tight break-words bidi-ltr">
+    <div data-cta-price class:list={['font-serif text-[18px] font-normal leading-tight tracking-tight break-words', !mixedPriceUnknown && 'bidi-ltr']}>
       {priceLabel}
     </div>
   </div>

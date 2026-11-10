@@ -24,7 +24,11 @@ function quote(row: PropertyFact, field: FactField): string | null {
   // invitation to invent a longer quotation to meet editorial quote limits.
   if (field === 'title') return row.title;
   if (field === 'description') return row.description.trim() ? row.description.slice(0, 600) : null;
-  if (field === 'price') return row.price > 0 ? formatFCFA(row.price) : null;
+  if (field === 'price') {
+    if (row.price <= 0) return null;
+    const amount = formatFCFA(row.price);
+    return row.transaction_type === 'Vente & Location' ? `${amount} / mois` : amount;
+  }
   if (field === 'surface') return row.surface > 0 ? `${row.surface} m²` : null;
   if (field === 'bedrooms') return row.bedrooms > 0 ? String(row.bedrooms) : null;
   if (field === 'location') return row.quartier || row.city || null;
@@ -98,6 +102,10 @@ export function propertyFactAnswer(question: string, current: string, page: Page
   const row = candidates[0];
   if (allowed.length && !allowed.includes(propertySourceId(row))) return { content: 'Les informations de cette annonce ne font pas partie des sources activées pour cet assistant. Notre équipe peut vous renseigner.', citations: [], mode: 'sources', handoffSuggested: true };
   const words = normalize(current);
+  const isMixed = row.transaction_type === 'Vente & Location';
+  const asksRent = /\b(loyer|louer|rent|rental)\b/.test(words);
+  const asksSalePrice = isMixed && (/\b(prix (?:de vente|d['’]achat)|sale price|purchase price)\b/.test(words)
+    || (!asksRent && /\b(vente|achat|acheter|vendre|sale|buy|purchase)\b/.test(words)));
   const availability = /\b(disponib[a-z]*|encore libre|reserve|vendu|loue|available|availability)\b/.test(words);
   const requested: FactField[] = [];
   if (/\b(description|decris|decrivez|details|describe)\b/.test(words)) requested.push('description');
@@ -112,14 +120,20 @@ export function propertyFactAnswer(question: string, current: string, page: Page
   if (!requested.length && !availability && !unsupported) requested.push('price', 'surface', 'bedrooms');
   const citations: Citation[] = [], lines: string[] = [row.title]; let missing = false;
   for (const field of requested.slice(0, 3)) {
+    if (field === 'price' && asksSalePrice) {
+      lines.push('Prix de vente : non renseigné dans les données publiques capturées.');
+      missing = true;
+      if (!asksRent) continue;
+    }
+    const label = field === 'price' && isMixed ? 'Loyer mensuel publié' : labels[field];
     const source = citation(row, field);
-    if (!source) { lines.push(`${labels[field]} : non renseigné dans les données publiques capturées.`); missing = true; continue; }
+    if (!source) { lines.push(`${label} : non renseigné dans les données publiques capturées.`); missing = true; continue; }
     citations.push(source);
     let value = source.quote;
     if (field === 'location' && row.quartier && row.city) value += ' · ' + row.city;
     if (field === 'price' && row.transaction_type === 'Location') value += row.rentalPeriod
       ? ({ month: ' / mois', night: ' / nuit', week: ' / semaine' }[row.rentalPeriod]) : ' (période non précisée dans les données capturées)';
-    lines.push(`${labels[field]} : ${value}.`);
+    lines.push(`${label} : ${value}.`);
   }
   if (availability) lines.push('Je ne peux pas confirmer si ce bien est encore disponible.');
   if (unsupported) lines.push('Ces conditions ne sont pas confirmées par les données publiques capturées ; notre équipe peut vérifier.');

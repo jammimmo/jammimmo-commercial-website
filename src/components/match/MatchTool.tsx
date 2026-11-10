@@ -42,7 +42,7 @@ import { track } from '@/lib/analytics';
 import { SITE } from '@/lib/site-config';
 import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
 import { QualificationEntry, type QualificationPrefill } from '@/components/forms/PublicQualificationForm';
-import { formatRentalPrice } from '@/lib/format';
+import { formatListingPrice } from '@/lib/format';
 import { rankMatches } from '@/lib/match-filter';
 import { buildBiensLink } from '@/lib/biens-filter';
 import type { PublicProperty } from '@/types/property';
@@ -436,7 +436,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
                         {p.city}
                       </span>
                       <span className="block text-sm font-semibold text-primary mt-1">
-                        {formatRentalPrice(p.price, p.transaction_type)}
+                        {formatListingPrice(p.price, p.transaction_type, lang, form.transaction === 'acheter' ? 'Vente' : 'Location')}
                       </span>
                     </span>
                     <ArrowRight className="w-4 h-4 text-muted-foreground group-hover/card:translate-x-0.5 transition shrink-0" />

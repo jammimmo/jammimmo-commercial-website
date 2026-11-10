@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PublicProperty } from '@/types/property';
+import { t, type Lang } from '@/lib/i18n';
+import { publicPriceForTransaction } from '@/lib/public-listing-price';
 import { STREETS_VECTOR, SATELLITE, MAP_BASE_OPTIONS } from '@/lib/map-tiles';
 import VectorBasemap from './VectorBasemap';
 
@@ -7,14 +9,20 @@ interface Props {
   properties: PublicProperty[];
   /** Highlight this reference (e.g. card-hover) */
   activeRef: string | null;
+  lang: Lang;
+  priceIntent: string;
   /** Click a pin → bubble up so the list can scroll to that card */
   onPinClick?: (ref: string) => void;
 }
 
 const FCFA = new Intl.NumberFormat('fr-FR', { notation: 'compact', maximumFractionDigits: 1 });
 
-function compactPrice(p: PublicProperty): string {
+function compactPrice(p: PublicProperty, lang: Lang, priceIntent: string): string {
   const v = FCFA.format(p.price).toUpperCase();
+  if (p.transaction_type === 'Vente & Location') {
+    return publicPriceForTransaction(p, priceIntent) === null ? t('property.price.onRequest', lang)
+      : `${t('property.detail.rentalPrice', lang)} · ${v} FCFA`;
+  }
   return p.transaction_type === 'Location' ? `${v} FCFA/mois` : `${v} FCFA`;
 }
 
@@ -27,7 +35,7 @@ function compactPrice(p: PublicProperty): string {
  * react-leaflet + CSS are loaded dynamically — the map weight is not paid
  * until this component mounts.
  */
-export default function ListingsMap({ properties, activeRef, onPinClick }: Props) {
+export default function ListingsMap({ properties, activeRef, lang, priceIntent, onPinClick }: Props) {
   type LeafletMod = typeof import('react-leaflet');
   type Leaflet = typeof import('leaflet');
   const [RL, setRL] = useState<LeafletMod | null>(null);
@@ -93,7 +101,7 @@ export default function ListingsMap({ properties, activeRef, onPinClick }: Props
       iconAnchor: [40, 32],
       html: `
         <div class="price-pin ${isActive ? 'is-active' : ''}" data-ref="${p.reference.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}">
-          <span class="price-pin-label">${compactPrice(p)}</span>
+          <span class="price-pin-label">${compactPrice(p, lang, priceIntent)}</span>
           <span class="price-pin-tail"></span>
         </div>
       `,

@@ -1,7 +1,7 @@
 ---
 import { resolveListingText } from '@/lib/listing-localization';
 import type { PublicProperty } from '@/types/property';
-import { formatRentalPrice, formatLocation } from '@/lib/format';
+import { formatListingPrice, formatLocation } from '@/lib/format';
 import { formatPublicRef } from '@/lib/reference';
 import { getStatusBadge, getTransactionBadge, statusLabel, transactionLabel } from '@/lib/status';
 import { localizedPath, t, type Lang } from '@/lib/i18n';
@@ -188,7 +188,7 @@ const [phA, phB] = palette[hash]!;
 
     <div class="flex items-baseline justify-between mt-3 pt-3.5 border-t border-clay">
       <div class="font-serif text-[22px] font-normal tracking-tight">
-        <span class="bidi-ltr">{formatRentalPrice(p.price, p.transaction_type)}</span>
+        <span class={p.transaction_type === 'Vente & Location' ? undefined : 'bidi-ltr'}>{formatListingPrice(p.price, p.transaction_type, lang)}</span>
         {p.negotiable && (
           <span class="ml-2 text-[11px] font-sans font-semibold text-terra align-middle">{t('property.price.negotiable', lang)}</span>
         )}
