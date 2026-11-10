@@ -50,7 +50,7 @@
   "src/components/chat/chat-client.ts": "facb808a12f6069240e6d6f59e2b924fe29ad3c9069dd9f63d6909b8e42d3bca",
   "src/lib/biens-filter.ts": "399b433b4d7cb4db240c613025feb80e851d7cbd7f9a087f7fe0efc2d0eae8e7",
   "src/components/property/ListingsView.tsx": "114c4ed1d80fb55e5a2d3348a234009de9f0a2b3e0b82e33967bf6b5bc36c2f9",
-  "src/components/property/ListingsMap.tsx": "a9b06f69566648f6dd0f419e903cd89fe5020679a5ca6fdd456a138f5a3dffb2",
-  "src/lib/format.ts": "0dc1d2fa52dfde80679b8c5a5ff862307d790c76ed522ff4fd5f2459306fd1a4",
+  "src/components/property/ListingsMap.tsx": "8fbdb44712b02d27f9e72f42960c977333af5198c47938ffbf2068a043659590",
+  "src/lib/format.ts": "310df8d87166168709d20401e3b4a5e78e15f4b3ca8a3a5f72c95034a1da5bec",
   "src/components/property/ListingsContent.astro": "453a7d0229b3f778deb789f2c3e8ef3c6b67cb6996ecb838ce5a078af35049a1"
 }

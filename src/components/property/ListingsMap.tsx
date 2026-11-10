@@ -24,7 +24,8 @@ function compactPrice(p: PublicProperty, lang: Lang, priceIntent: string): strin
     return publicPriceForTransaction(p, priceIntent) === null ? t('property.price.onRequest', lang)
       : `${t('property.detail.rentalPrice', lang)} · ${isolateCurrencyAmount(`${v} FCFA`, lang)}`;
   }
-  return p.transaction_type === 'Location' ? `${v} FCFA/mois` : `${v} FCFA`;
+  const amount = p.transaction_type === 'Location' ? `${v} FCFA/mois` : `${v} FCFA`;
+  return isolateCurrencyAmount(amount, lang);
 }
 
 /**

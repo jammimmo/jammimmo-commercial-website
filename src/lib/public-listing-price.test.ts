@@ -54,5 +54,7 @@ describe('public mixed-listing price', () => {
 
   it('isolates the complete currency amount after the Arabic caption', () => {
     expect(formatListingPrice(320_000, 'Vente & Location', 'ar')).toBe('الإيجار الشهري : \u2066320 000 FCFA\u2069');
+    expect(formatListingPrice(42_000_000, 'Vente', 'ar')).toBe('\u206642 000 000 FCFA\u2069');
+    expect(formatListingPrice(320_000, 'Location', 'ar')).toBe('\u2066320 000 FCFA / mois\u2069');
   });
 });
