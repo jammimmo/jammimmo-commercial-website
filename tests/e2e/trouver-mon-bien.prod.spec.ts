@@ -37,8 +37,8 @@ test.describe('Feature en prod — outil /trouver-mon-bien', () => {
     await page.getByRole('button', { name: 'Voir mes biens' }).click();
 
     // — Résultat : l'offre + le CTA s'affichent (présents avec OU sans biens) —
-    await expect(page.getByText('Votre sélection complète + des alertes sur WhatsApp')).toBeVisible();
-    const cta = page.getByRole('button', { name: 'Recevoir ma sélection sur WhatsApp' });
+    await expect(page.getByText('Parler de votre recherche avec un conseiller')).toBeVisible();
+    const cta = page.getByRole('button', { name: 'Transmettre ma recherche' });
     await expect(cta).toBeVisible();
 
     // — Pic d'intention → capture —
@@ -46,6 +46,6 @@ test.describe('Feature en prod — outil /trouver-mon-bien', () => {
 
     // UN SEUL champ requis = WhatsApp. On NE soumet PAS (pas de faux lead en prod).
     await expect(page.locator('#match-phone')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Recevoir ma sélection', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Envoyer ma demande', exact: true })).toBeVisible();
   });
 });

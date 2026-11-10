@@ -31,14 +31,14 @@ test.describe('Feature en prod — outil /budget', () => {
     await page.getByRole('button', { name: 'Voir le résultat' }).click();
 
     // Résultat : la valeur = biens RÉELS + sélection WhatsApp, aucun chiffre inventé.
-    await expect(page.getByText('Une sélection personnalisée + des alertes sur WhatsApp')).toBeVisible();
+    await expect(page.getByText('Parler de votre budget avec un conseiller')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Voir les biens dans mon budget' })).toBeVisible();
 
     // Pic d'intention → capture
-    await page.getByRole('button', { name: 'Recevoir ma sélection sur WhatsApp' }).click();
+    await page.getByRole('button', { name: 'Transmettre mon projet' }).click();
 
     // UN SEUL champ requis = WhatsApp. On NE soumet PAS (pas de faux lead en prod).
     await expect(page.locator('#bud-phone')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Recevoir ma sélection', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Envoyer ma demande', exact: true })).toBeVisible();
   });
 });
