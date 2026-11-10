@@ -24,6 +24,15 @@ from `wrangler.toml` — no extra secrets needed.
 
 ## Schema
 
+For the current Pages intake, verify migrations `0004_intake_lead_quota.sql`
+and `0005_lead_qualification_v1.sql` on the existing `INTAKE_DB` before release.
+`/api/leads` requires the exact `INTAKE_ALLOWED_ORIGIN` and an existing runtime
+`INTAKE_IP_HASH_SALT` of at least 16 characters. It allows 10 requests per minute
+per hashed IP before reading the body, and up to five new valid submissions per
+hour. The two counters share the D1 table and use different keys. Recovering an
+existing submission uses the short limit, while leaving the hourly quota intact.
+Starting a short window also prunes up to 100 counters older than 24 hours.
+
 | Table | Purpose |
 |---|---|
 | `leads` | Contact form submissions from `/api/leads` |

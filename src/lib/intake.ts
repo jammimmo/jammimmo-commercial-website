@@ -68,7 +68,7 @@ export async function qualifiedLeadFingerprint(canonicalBusinessJSON: string): P
   return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-/** Native burst limit applies to every route request. Only new initial attempts
+/** The short burst limit also applies to recovery. Only new initial attempts
  * consume hourly write quota. Racing attempts may conservatively consume two
  * quota slots but PK uniqueness prevents two leads for the same original UUID.
  * Recovery is existing-only: normal purge can remove the row and leave a hold.

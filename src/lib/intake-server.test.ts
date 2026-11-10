@@ -74,8 +74,7 @@ function twoCallerQuota() {
   return async () => { if (++arrivals === 2) release(); await gate; return 'allowed' as const; };
 }
 function env(db: D1Database): Record<string, unknown> {
-  return { INTAKE_DB: db, INTAKE_ALLOWED_ORIGIN: 'https://jammimmo.com', INTAKE_IP_HASH_SALT: 'fictional-test-salt-no-secret',
-    LEAD_BURST_RL: { limit: async () => ({ success: true }) } };
+  return { INTAKE_DB: db, INTAKE_ALLOWED_ORIGIN: 'https://jammimmo.com', INTAKE_IP_HASH_SALT: 'fictional-test-salt-no-secret' };
 }
 async function post(body: unknown, runtime: Record<string, unknown>, headers: Record<string, string> = {}) {
   const request = new Request('https://jammimmo.com/api/leads', { method: 'POST', headers: { origin: 'https://jammimmo.com', 'content-type': 'application/json', ...headers }, body: JSON.stringify(body) });
@@ -107,7 +106,7 @@ describe('public qualified intake — real SQL and bounded HTTP, no Cloudflare e
     }
   });
 
-  it('rejects NUL in qualified free strings before any D1 query instead of accepting an unmirrorable lead', async () => {
+  it('rejects NUL in qualified free strings without querying or storing lead data', async () => {
     const d = database();
     const inputs = [payload({ message: 'private\u0000value' }), payload({ qualification: { ...payload().qualification, city: 'Dakar\u0000' } })];
     for (const input of inputs) {
@@ -115,7 +114,8 @@ describe('public qualified intake — real SQL and bounded HTTP, no Cloudflare e
       if (parsed.ok === false) expect(parsed.issues).toContainEqual({ path: input.message ? 'message' : 'qualification.city', code: 'unsupported_storage_text' });
       expect((await post(input, env(d.db))).status).toBe(422);
     }
-    expect(d.calls).toEqual([]); expect(d.rows()).toEqual([]);
+    expect(d.calls.every(call => /^(?:INSERT INTO|DELETE FROM) intake_rate_limits/.test(call.query))).toBe(true);
+    expect(d.rows()).toEqual([]);
   });
 
   it('rejects isolated surrogates but preserves accented text and correctly paired emoji', async () => {
@@ -212,11 +212,11 @@ describe('public qualified intake — real SQL and bounded HTTP, no Cloudflare e
     expect(isAllowedIntakeOrigin('http://127.0.0.1:4239', undefined, true)).toBe(true);
   });
 
-  it('fails closed for absent/throwing/malformed burst limiter and missing salt or DB', async () => {
+  it('fails closed when the D1 counter is unavailable or the salt or DB is missing', async () => {
     const d = database();
-    for (const binding of [undefined, { limit: async () => { throw new Error('provider detail'); } }, { limit: async () => ({ success: 'wrong' }) }])
-      expect((await post(payload(), { ...env(d.db), LEAD_BURST_RL: binding })).status).toBe(503);
-    expect((await post(payload(), { ...env(d.db), LEAD_BURST_RL: { limit: async () => ({ success: false }) } })).status).toBe(429);
+    const unavailable = await post(payload(), { ...env(d.db), INTAKE_DB: { prepare() { throw new Error('provider detail'); } } });
+    expect(unavailable.status).toBe(503);
+    expect(await unavailable.json()).toEqual({ error: 'Intake temporarily unavailable' });
     expect((await post(payload(), { ...env(d.db), INTAKE_IP_HASH_SALT: 'short' })).status).toBe(503);
     expect((await post(payload(), { ...env(d.db), INTAKE_DB: undefined })).status).toBe(503); expect(d.calls).toEqual([]);
     const hash = await hashClientIp('192.0.2.7', 'fictional-test-salt-no-secret'); expect(hash).toMatch(/^[a-f0-9]{32}$/); expect(hash).not.toContain('192.0.2.7');
@@ -227,7 +227,29 @@ describe('public qualified intake — real SQL and bounded HTTP, no Cloudflare e
     for (const body of [{ ...payload(), qualification: undefined }, { ...payload(), qualification: null }, { ...payload(), delivery_mode: undefined }, { full_name: 'Legacy fictif', phone: '......' }])
       expect((await post(body, env(d.db))).status).toBe(422);
     const response = await post({ ...payload(), message: '😀'.repeat(2100) }, env(d.db), { 'content-length': '1' });
-    expect(response.status).toBe(413); expect(d.calls).toEqual([]);
+    expect(response.status).toBe(413);
+    expect(d.sql.prepare("SELECT rate_key, count FROM intake_rate_limits WHERE rate_key LIKE 'lead-hour:%'").all()).toEqual([]);
+    expect(d.rows()).toEqual([]);
+  });
+
+  it('enforces the Pages burst limit through D1 before accepting a body, without writes after saturation', async () => {
+    const d = database(), runtime = env(d.db);
+    const bad = { full_name: 'Legacy fictif', phone: '......' };
+    const burst = await Promise.all(Array.from({ length: 11 }, () => post(bad, runtime)));
+    expect(burst.filter(response => response.status === 422)).toHaveLength(10);
+    expect(burst.filter(response => response.status === 429)).toHaveLength(1);
+    expect(burst.find(response => response.status === 429)?.headers.get('Retry-After')).toBe('60');
+    const before = d.sql.prepare('SELECT total_changes() AS changes').get();
+    expect((await post(payload(), runtime)).status).toBe(429);
+    expect(d.sql.prepare('SELECT total_changes() AS changes').get()).toEqual(before);
+    expect(d.sql.prepare('SELECT rate_key, count FROM intake_rate_limits').all()).toEqual([
+      { rate_key: 'lead-burst:' + await hashClientIp('192.0.2.7', 'fictional-test-salt-no-secret'), count: 10 },
+    ]);
+    expect(d.rows()).toEqual([]);
+    d.sql.exec("UPDATE intake_rate_limits SET window_started_at = unixepoch() - 60 WHERE rate_key LIKE 'lead-burst:%'");
+    expect((await post(payload(), runtime)).status).toBe(201);
+    expect((await post(payload({ delivery_mode: 'recover' }), runtime)).status).toBe(200);
+    expect(d.sql.prepare("SELECT count FROM intake_rate_limits WHERE rate_key LIKE 'lead-hour:%'").get()?.count).toBe(1);
   });
 
   it('enforces an exact five-write hourly quota with real concurrent SQLite statements and window reset', async () => {
@@ -244,18 +266,20 @@ describe('public qualified intake — real SQL and bounded HTTP, no Cloudflare e
     expect((await post(payload(), env(d.db))).status).toBe(503); expect(d.rows()).toEqual([]); expect(d.inserts()).toEqual([]);
   });
 
-  it('cleans at most100 counters older than24h on a valid POST while keeping recent and active quota intact', async () => {
+  it('cleans at most 100 expired counters when a burst window starts, even before an invalid body', async () => {
     const d = database();
     const old = d.sql.prepare('INSERT INTO intake_rate_limits VALUES (?, unixepoch() - 86401, 5)');
     for (let index = 0; index < 105; index++) old.run('expired:' + String(index).padStart(3, '0'));
     d.sql.exec("INSERT INTO intake_rate_limits VALUES ('lead-hour:recent-counter', unixepoch() - 7200, 3), ('lead-hour:still-active', unixepoch(), 5)");
     const recent = d.sql.prepare("SELECT * FROM intake_rate_limits WHERE rate_key NOT LIKE 'expired:%' ORDER BY rate_key").all();
-    expect((await post(payload(), env(d.db))).status).toBe(201);
+    expect((await post({ full_name: 'Legacy fictif', phone: '......' }, env(d.db))).status).toBe(422);
     expect(d.sql.prepare("SELECT count(*) AS n FROM intake_rate_limits WHERE rate_key LIKE 'expired:%'").get()?.n).toBe(5);
     for (const row of recent) expect(d.sql.prepare('SELECT * FROM intake_rate_limits WHERE rate_key = ?').get(String(row.rate_key))).toEqual(row);
+    expect((await post(payload(), env(d.db))).status).toBe(201);
     const cleanup = d.calls.findIndex(call => call.query.startsWith('DELETE FROM intake_rate_limits'));
-    const quota = d.calls.findIndex(call => call.query.startsWith('INSERT INTO intake_rate_limits'));
+    const quota = d.calls.findIndex(call => typeof call.args[0] === 'string' && call.args[0].startsWith('lead-hour:'));
     expect(cleanup).toBeGreaterThanOrEqual(0); expect(quota).toBeGreaterThan(cleanup);
+    expect(d.calls.filter(call => call.query.startsWith('DELETE FROM intake_rate_limits'))).toHaveLength(1);
     expect(await consumeD1FixedWindow(d.db, 'lead-hour:still-active', 5, 3600)).toBe('limited');
   });
 

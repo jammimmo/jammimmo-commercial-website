@@ -4,11 +4,11 @@ import { acceptQualifiedLead, insertLead } from '@/lib/intake';
 import { parseQualifiedLeadEnvelope, PublicLeadIdentitySchema, type QualifiedLeadAcknowledgement } from '@/lib/qualified-lead-wire';
 import { hashClientIp, isAllowedIntakeOrigin, isJsonContentType } from '@/lib/intake-security';
 import { PayloadTooLargeError, readBoundedRequestText } from '@/lib/bounded-request';
-import { checkRequiredRateLimit, consumeD1FixedWindow, pruneExpiredIntakeRateLimits, type NativeRateLimitBinding, type RateLimitDecision } from '@/lib/intake-rate-limit';
+import { consumeD1FixedWindow } from '@/lib/intake-rate-limit';
 
 export const prerender = false;
 interface IntakeEnv {
-  INTAKE_DB?: D1Database; INTAKE_IP_HASH_SALT?: string; INTAKE_ALLOWED_ORIGIN?: string; LEAD_BURST_RL?: NativeRateLimitBinding;
+  INTAKE_DB?: D1Database; INTAKE_IP_HASH_SALT?: string; INTAKE_ALLOWED_ORIGIN?: string;
 }
 interface CFLocals { runtime?: { env?: IntakeEnv } }
 // Preserve unqualified property_id callers. Qualified bodies are closed and
@@ -26,16 +26,13 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   if (!db || !ip || !salt || salt.length < 16) return unavailable();
   let ipHash: string;
   try { ipHash = await hashClientIp(ip, salt); } catch { return unavailable(); }
-  const burst = await checkRequiredRateLimit(env?.LEAD_BURST_RL, 'lead:' + ipHash);
+  const burst = await consumeD1FixedWindow(db, 'lead-burst:' + ipHash, 10, 60, { pruneOnNewWindow: true });
   if (burst === 'limited') return limited('60');
   if (burst !== 'allowed') return unavailable();
   let body: unknown;
   try { body = JSON.parse(await readBoundedRequestText(request, 8192)); }
   catch (error) { return error instanceof PayloadTooLargeError ? json({ error: 'Payload too large' }, 413) : json({ error: 'Invalid JSON' }, 400); }
-  const hourly = async (): Promise<RateLimitDecision> => {
-    if (!(await pruneExpiredIntakeRateLimits(db))) return 'unavailable';
-    return consumeD1FixedWindow(db, 'lead-hour:' + ipHash, 5, 3600);
-  };
+  const hourly = () => consumeD1FixedWindow(db, 'lead-hour:' + ipHash, 5, 3600);
   const qualified = !!body && typeof body === 'object' && ['qualification', 'submission_id', 'delivery_mode']
     .some(key => Object.prototype.hasOwnProperty.call(body, key));
   if (qualified) {
