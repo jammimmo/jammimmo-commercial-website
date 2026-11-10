@@ -248,6 +248,7 @@ test(`${selected.profile} · ${selected.flow} · ${selected.lang}`, async ({ pag
   await launcherHidden(page); expect(anonymousSessionRequests).toBe(0);
   if (selected.profile === 'desktop') await expect(qualification(page).getByLabel('Votre projet', { exact: true })).toHaveValue('buy');
   else await choose(page, 'Votre projet', selected.profile === 'portrait' ? 'lease_management' : 'rent');
+  if (selected.profile === 'desktop') await choose(page, 'Type de bien', 'apartment');
   await checkControls(page); await capture(page, '02-qualification-project');
   if (selected.profile === 'desktop') {
     const help = qualification(page).getByRole('button', { name: 'Besoin d’aide ?', exact: true });
@@ -303,12 +304,15 @@ test(`${selected.profile} · ${selected.flow} · ${selected.lang}`, async ({ pag
     const ring = await submit.evaluate(node => getComputedStyle(node).boxShadow);
     expect(ring).not.toBe('none'); await expect(submit).toBeFocused();
   }
+  const catalogue = qualification(page).getByRole('link', { name: 'Voir les annonces', exact: true });
+  await expect(catalogue).toHaveCount(0);
   await capture(page, '07-review-submit-visible'); await submit.click();
   await expect.poll(() => submitted.length).toBe(1);
   expect(submitted[0]).not.toHaveProperty('property_id');
   expect(submitted[0]).toMatchObject({ delivery_mode: 'submit', qualification: { financing: { availability: 'no' } } });
   if (selected.flow === 'unknown-recover') {
     await expect(qualification(page).getByRole('status')).toContainText('La réception n’est pas confirmée');
+    await expect(catalogue).toHaveCount(0);
     await reach(page, button(page, 'Vérifier le même envoi')); await unobstructedActions(page, 'Vérifier le même envoi', 'recover'); await capture(page, '08a-unknown-last-action');
     await readStatus(page); await capture(page, '08b-unknown-no-ack');
     await action(page, 'Retour'); expect(submitted).toHaveLength(1);
@@ -321,6 +325,11 @@ test(`${selected.profile} · ${selected.flow} · ${selected.lang}`, async ({ pag
   }
   await expect(qualification(page).getByRole('status')).toContainText('Votre demande a été reçue');
   await reach(page, button(page, 'Retour')); await readStatus(page); await capture(page, '10-exact-ack-accepted');
+  const expectedCatalogue = { desktop: '/biens?transaction=Vente&type=Appartement', portrait: '/biens', landscape: '/biens?transaction=Location' };
+  await expect(catalogue).toHaveAttribute('href', expectedCatalogue[selected.profile]);
+  const catalogueView = await reach(page, catalogue);
+  expect(catalogueView.height).toBeGreaterThanOrEqual(44);
+  await capture(page, '11-catalogue-after-exact-ack');
   expect(submitted).toHaveLength(selected.flow === 'unknown-recover' ? 2 : 1);
   expect(anonymousSessionRequests).toBe(selected.profile === 'desktop' ? 1 : 0);
 });

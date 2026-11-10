@@ -67,6 +67,7 @@ describe('optional public qualification', () => {
     await click('Envoyer ma demande');
     expect(calls).toHaveLength(1); expect(calls[0]).toMatchObject({ qualification: { operation: 'invest', financing: { availability: 'no' }, budget: { basis: null }, criteria: { features: [] } } });
     expect(host.textContent).toContain('Votre demande a été reçue'); expect(host.querySelector('input[type="file"]')).toBeNull();
+    expect(host.querySelector('a[href="/biens"]')?.textContent).toBe(t('error.browseListings', 'fr'));
   });
   it('shows the range error and preserves the project when moving back', async () => {
     fakeFetch(); act(() => root.render(createElement(PublicQualificationForm, { lang: 'fr', onBack: vi.fn() })));
@@ -86,11 +87,17 @@ describe('optional public qualification', () => {
   });
   it('keeps Unknown visible on return and resumes the same request without an automatic POST', async () => {
     fakeFetch(true); act(() => root.render(createElement(QualificationEntry, { lang: 'fr' })));
-    await click('Préciser mon projet'); await contactStep('rent'); await click('Envoyer ma demande'); expect(calls).toHaveLength(1);
+    await click('Préciser mon projet');
+    change(t('qualification.propertyType', 'fr'), 'warehouse');
+    change(t('qualification.zone', 'fr'), 'Lieu privé fictif');
+    change(t('qualification.max', 'fr'), '300000');
+    await contactStep('rent'); await click('Envoyer ma demande'); expect(calls).toHaveLength(1);
+    expect(host.querySelector('a[href^="/biens"]')).toBeNull();
     await click('Retour'); expect(host.textContent).toContain('La réception n’est pas confirmée'); expect(calls).toHaveLength(1);
     await click('Reprendre le même envoi'); expect(button('Vérifier le même envoi')).toBeTruthy(); expect(calls).toHaveLength(1);
     await click('Vérifier le même envoi'); expect(calls).toHaveLength(2); expect(calls[1]).toEqual({ ...calls[0], delivery_mode: 'recover' });
     expect(host.textContent).toContain('Votre demande a été reçue');
+    expect(host.querySelector('a[href="/biens?transaction=Location&type=Hangar"]')?.textContent).toBe(t('error.browseListings', 'fr'));
   });
   it('suspends the mounted contact form until the qualified request is confirmed', async () => {
     let loseResponse: (() => void) | undefined;

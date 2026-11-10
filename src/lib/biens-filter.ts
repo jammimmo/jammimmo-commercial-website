@@ -7,6 +7,7 @@
  * page reads (`transaction`, `priceMax`, `type`, `q`).
  */
 import { localizedPath, type Lang } from './i18n';
+import type { PublicLeadQualificationV1 } from './public-lead-qualification';
 
 export interface BiensFilterInput {
   /** 'acheter' → Vente, 'louer' → Location. Empty = omit. */
@@ -39,4 +40,27 @@ export function buildBiensLink(input: BiensFilterInput, lang: Lang): string {
   const qs = buildBiensQuery(input);
   const base = localizedPath('/biens', lang);
   return qs ? `${base}?${qs}` : base;
+}
+
+const qualificationListingTypes: Partial<Record<NonNullable<PublicLeadQualificationV1['propertyType']>, string>> = {
+  apartment: 'Appartement',
+  villa: 'Villa',
+  house: 'Maison',
+  land: 'Terrain',
+  shop: 'Magasin',
+  office: 'Bureau',
+  warehouse: 'Hangar',
+};
+
+/** Only exact catalogue enums travel in this URL. The catalogue has no
+ * equivalent transaction for investment or lease management. */
+export function buildQualificationCatalogueLink(
+  { operation, propertyType }: Pick<PublicLeadQualificationV1, 'operation' | 'propertyType'>,
+  lang: Lang,
+): string {
+  if (operation !== 'buy' && operation !== 'rent') return buildBiensLink({}, lang);
+  return buildBiensLink({
+    transaction: operation === 'buy' ? 'acheter' : 'louer',
+    typeBiens: propertyType === null ? undefined : qualificationListingTypes[propertyType],
+  }, lang);
 }

@@ -1,6 +1,7 @@
 import { useId, useRef, useState, type ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { t, getDir, type Lang } from '@/lib/i18n';
+import { buildQualificationCatalogueLink } from '@/lib/biens-filter';
 import {
   parsePublicLeadQualification, PUBLIC_LEAD_QUALIFICATION_OPERATIONS as OPERATIONS,
   PUBLIC_LEAD_QUALIFICATION_PROPERTY_TYPES as TYPES, PUBLIC_LEAD_QUALIFICATION_URGENCIES as URGENCIES,
@@ -102,7 +103,13 @@ export default function PublicQualificationForm({ lang, prefill = {}, propertyRe
   return <section dir={getDir(lang)} className="space-y-5 rounded-2xl border border-input bg-background p-4 text-foreground sm:p-6" data-qualification-open={active ? 'true' : undefined} data-chat-private data-rrweb-mask data-clarity-mask="true">
     <header className="space-y-2"><h2 ref={heading} tabIndex={-1} className="font-serif text-2xl leading-tight outline-none">{q('title')}</h2><p className="text-sm text-muted-foreground">{q('intro')}</p></header>
     <ol className="grid grid-cols-3 gap-2 text-sm" aria-label={q('title')}>{[0, 1, 2].map(index => <li key={index} aria-current={step === index ? 'step' : undefined} className={`min-w-0 break-words border-b-2 pb-2 ${step === index ? 'border-primary font-semibold' : 'border-input text-muted-foreground'}`}>{index + 1}. {q(`step${index}`)}</li>)}</ol>
-    {state === 'accepted' ? <p role="status" className="rounded-xl border border-emerald/30 bg-emerald/10 p-4">{q('accepted')}</p> : <form noValidate onSubmit={e => { e.preventDefault(); if (!locked) { if (step < 2) { if (validate(step === 0 ? 0 : 1).valid) move(step + 1); } else submit(); } }}>
+    {state === 'accepted' ? <div className="space-y-3">
+      <p role="status" className="rounded-xl border border-emerald/30 bg-emerald/10 p-4">{q('accepted')}</p>
+      {submission && <a href={buildQualificationCatalogueLink(submission.qualification, lang)}
+        className={`${button} inline-flex max-w-full items-center bg-primary text-primary-foreground`}>
+        {t('error.browseListings', lang)}
+      </a>}
+    </div> : <form noValidate onSubmit={e => { e.preventDefault(); if (!locked) { if (step < 2) { if (validate(step === 0 ? 0 : 1).valid) move(step + 1); } else submit(); } }}>
       {locked && <p role="status" className="mb-4 rounded-xl border border-input p-4 text-sm">{q(state === 'sending' ? 'sending' : state === 'rate_limited' ? 'rateLimited' : 'unknown')}</p>}
       <fieldset disabled={locked} className="min-w-0 space-y-4">
         {step === 0 && <>
