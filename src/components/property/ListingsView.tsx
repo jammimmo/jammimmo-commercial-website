@@ -373,20 +373,20 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
       </button>
 
       {mobileMapOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-background flex flex-col">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-clay">
+        <div className="lg:hidden fixed inset-0 z-[55] bg-background flex flex-col">
+          <div className="flex shrink-0 items-center justify-between px-4 py-3 border-b border-clay">
             <span className="font-semibold">
               {t('listings.mapOpenCount', lang).replace('{count}', String(filtered.length))}
             </span>
             <button
               type="button"
               onClick={() => setMobileMapOpen(false)}
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-card border border-clay text-[13px] font-semibold"
+              className="inline-flex min-h-11 items-center gap-2 px-3 py-2 rounded-full bg-card border border-clay text-[13px] font-semibold"
             >
               <ListIcon className="w-4 h-4" /> {t('listings.listToggle', lang)}
             </button>
           </div>
-          <div className="flex-1">
+          <div className="min-h-0 flex-1">
             <ListingsMap
               properties={filtered}
               activeRef={activeRef}

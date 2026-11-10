@@ -51,4 +51,8 @@ describe('public mixed-listing price', () => {
     expect(formatListingPrice(320_000, 'Location', 'fr')).toBe('320 000 FCFA / mois');
     expect(propertySeoTitle(mixed, 'fr')).toContain('Loyer mensuel : 320 000 FCFA');
   });
+
+  it('isolates the complete currency amount after the Arabic caption', () => {
+    expect(formatListingPrice(320_000, 'Vente & Location', 'ar')).toBe('الإيجار الشهري : \u2066320 000 FCFA\u2069');
+  });
 });

@@ -34,10 +34,15 @@ export function formatRentalPrice(price: number, transactionType: string): strin
     : formatFCFA(price);
 }
 
+/** Keep the digits and FCFA together when a price follows an Arabic caption. */
+export function isolateCurrencyAmount(amount: string, lang: Lang): string {
+  return lang === 'ar' ? `\u2066${amount}\u2069` : amount;
+}
+
 export function formatListingPrice(price: number, transactionType: string, lang: Lang, intent = ''): string {
   if (transactionType !== 'Vente & Location') return formatRentalPrice(price, transactionType);
   if (intent === 'Vente' || !Number.isFinite(price) || price <= 0) return t('property.price.onRequest', lang);
-  return `${t('property.detail.rentalPrice', lang)} : ${formatFCFA(price)}`;
+  return `${t('property.detail.rentalPrice', lang)} : ${isolateCurrencyAmount(formatFCFA(price), lang)}`;
 }
 
 /**

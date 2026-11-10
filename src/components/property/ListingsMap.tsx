@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PublicProperty } from '@/types/property';
+import { isolateCurrencyAmount } from '@/lib/format';
 import { t, type Lang } from '@/lib/i18n';
 import { publicPriceForTransaction } from '@/lib/public-listing-price';
 import { STREETS_VECTOR, SATELLITE, MAP_BASE_OPTIONS } from '@/lib/map-tiles';
@@ -21,7 +22,7 @@ function compactPrice(p: PublicProperty, lang: Lang, priceIntent: string): strin
   const v = FCFA.format(p.price).toUpperCase();
   if (p.transaction_type === 'Vente & Location') {
     return publicPriceForTransaction(p, priceIntent) === null ? t('property.price.onRequest', lang)
-      : `${t('property.detail.rentalPrice', lang)} · ${v} FCFA`;
+      : `${t('property.detail.rentalPrice', lang)} · ${isolateCurrencyAmount(`${v} FCFA`, lang)}`;
   }
   return p.transaction_type === 'Location' ? `${v} FCFA/mois` : `${v} FCFA`;
 }
@@ -75,14 +76,14 @@ export default function ListingsMap({ properties, activeRef, lang, priceIntent, 
   // Fallback: nothing geo-located
   if (placed.length === 0) {
     return (
-      <div className="grid place-items-center bg-muted text-muted-foreground rounded-2xl border border-clay h-full min-h-[300px]">
+      <div className="grid place-items-center bg-muted text-muted-foreground rounded-2xl border border-clay h-full">
         Aucun bien géolocalisé
       </div>
     );
   }
 
   if (!RL || !L) {
-    return <div className="bg-muted rounded-2xl border border-clay h-full min-h-[300px] animate-pulse" />;
+    return <div className="bg-muted rounded-2xl border border-clay h-full animate-pulse" />;
   }
 
   // Fit all markers in view
@@ -195,7 +196,7 @@ export default function ListingsMap({ properties, activeRef, lang, priceIntent, 
           zoom={11}
           maxZoom={SATELLITE.maxZoom}
           scrollWheelZoom
-          style={{ height: '100%', width: '100%', minHeight: 360 }}
+          style={{ height: '100%', width: '100%' }}
           {...MAP_BASE_OPTIONS}
         >
           {/* Custom attribution control — drops the "Leaflet" prefix. The
