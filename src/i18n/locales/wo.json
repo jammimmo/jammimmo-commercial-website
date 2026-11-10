@@ -725,6 +725,13 @@
   "match.done.wa": "Waxtaan léegi ci WhatsApp",
 
   "match.recap.header": "Match-o-mètre — sama wut:",
+  "match.result.budgetTitle": "Li ñu gis ci sa budget",
+  "match.result.noBudgetFitTitle": "Amul ceer bu ñu yégle te nekk ci sa budget",
+  "match.result.budgetStatus.fit": "Ci sa budget",
+  "match.result.budgetStatus.unknownSale": "Ceeru jaay bi war nañu koo dëggal",
+  "match.result.budgetStatus.unknownRent": "Njëgu loyer bi war nañu koo dëggal",
+  "match.result.budgetStatus.over": "Dafa weesu sa budget",
+  "match.result.catalogue": "Seetal annonce yi",
   "match.recap.matchesHeader": "Kër yu jege ñu gis:",
   "match.wa.intro": "Salaam Jamm Immobilier, lii la may wut.",
   "match.lead.anonName": "Wut kër",

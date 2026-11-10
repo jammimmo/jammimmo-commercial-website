@@ -11,6 +11,7 @@ import PublicQualificationForm, { QualificationEntry } from '../components/forms
 import ChatWidget from '../components/chat/ChatWidget';
 import { ChatClient, DEFAULT_POLICY } from '../components/chat/chat-client';
 import { t } from './i18n';
+import type { PublicProperty } from '@/types/property';
 let host: HTMLDivElement, root: Root;
 const calls: Record<string, unknown>[] = [];
 beforeEach(() => { Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true }); host = document.createElement('div'); document.body.append(host); root = createRoot(host); calls.length = 0; });
@@ -142,6 +143,50 @@ describe('optional public qualification', () => {
     expect(legacyForm.querySelector<HTMLInputElement>('#first_name')?.value).toBe('Awa');
     expect(legacyForm.querySelector<HTMLInputElement>('#phone')?.value).toBe('+221000000004');
   });
+  it.each([500_000, 50_000_000, null])('distinguishes published purchase prices in MatchTool for budget %s', async budget => {
+    const listing: PublicProperty = {
+      id: 'fictitious-match', reference: 'DUAL', title: 'Bien mixte fictif', type: 'Appartement',
+      transaction_type: 'Vente & Location', status: 'Disponible', city: 'Dakar', quartier: 'Ngor',
+      address: null, geo: null, price: 320_000, negotiable: false, commercial_message: '', surface: 70,
+      bedrooms: 2, images: [], video_links: [], attributes: {}, commodities: [], nearby_commerce: [],
+      documents: {}, flux_passage: null, tags: [], description: '', published_at: null, updated_at: '2026-01-02',
+    };
+    const sale: PublicProperty = {
+      ...listing, id: 'fictitious-sale', reference: 'SALE', title: 'Bien à vendre fictif',
+      transaction_type: 'Vente', price: 42_000_000, updated_at: '2026-01-01',
+    };
+    act(() => root.render(createElement(MatchTool, {
+      lang: 'fr', properties: [listing, sale], hrefByRef: { DUAL: '/biens/fictif-mixte', SALE: '/biens/fictif-vente' },
+    })));
+    await click(t('match.transaction.acheter', 'fr'));
+    for (let step = 0; step < 3; step++) await click(t('match.next', 'fr'));
+    if (budget !== null) {
+      const input = host.querySelector<HTMLInputElement>('#match-amount')!;
+      act(() => { input.value = String(budget); Simulate.change(input); });
+    }
+    await click(t('match.next', 'fr'));
+    await click(t('match.seeResult', 'fr'));
+
+    const cards = [...host.querySelectorAll('a[data-track="match.openListing"]')];
+    const dualCard = cards.find(card => card.getAttribute('href') === '/biens/fictif-mixte');
+    const saleCard = cards.find(card => card.getAttribute('href') === '/biens/fictif-vente');
+    expect(dualCard?.textContent).toContain('Conditions sur demande');
+    expect(dualCard?.textContent).not.toMatch(/320\s*000/);
+    expect(host.querySelector('a[data-track="match.seeAll"]')?.textContent).toBe('Parcourir le catalogue');
+    if (budget === 500_000) {
+      expect(host.textContent).toContain('Aucun prix publié dans votre budget');
+      expect(saleCard?.textContent).toContain('Hors budget');
+      expect(dualCard?.textContent).toContain('Prix de vente à confirmer');
+    } else if (budget === 50_000_000) {
+      expect(cards).toEqual([saleCard, dualCard]);
+      expect(saleCard?.textContent).toContain('Dans votre budget');
+      expect(dualCard?.textContent).toContain('Prix de vente à confirmer');
+    } else {
+      expect(cards).toEqual([dualCard, saleCard]);
+      expect(host.textContent).not.toMatch(/Hors budget|Dans votre budget|Prix de vente à confirmer/);
+    }
+  });
+
   it('keeps MatchTool results but suspends its alternate lead capture during recovery', async () => {
     fakeFetch(true);
     act(() => root.render(createElement(MatchTool, { lang: 'fr', properties: [], hrefByRef: {} })));

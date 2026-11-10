@@ -724,6 +724,13 @@
   "match.done.wa": "Chat now on WhatsApp",
 
   "match.recap.header": "Property matcher — my search:",
+  "match.result.budgetTitle": "Results based on your budget",
+  "match.result.noBudgetFitTitle": "No published price within your budget",
+  "match.result.budgetStatus.fit": "Within your budget",
+  "match.result.budgetStatus.unknownSale": "Sale price to be confirmed",
+  "match.result.budgetStatus.unknownRent": "Rent to be confirmed",
+  "match.result.budgetStatus.over": "Over budget",
+  "match.result.catalogue": "Browse the catalogue",
   "match.recap.matchesHeader": "Close matches found:",
   "match.wa.intro": "Hello Jamm Immobilier, here is what I'm looking for.",
   "match.lead.anonName": "Property search",

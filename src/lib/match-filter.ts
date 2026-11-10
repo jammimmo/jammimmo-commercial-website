@@ -2,14 +2,21 @@
  * Pure catalogue filter + fit-ranking for the « Match-o-mètre » (MatchTool).
  *
  * Extracted out of MatchTool.tsx so the ranking is unit-testable. transaction is
- * a HARD filter (you can't buy a rental-only listing); type / bedrooms / budget /
- * zone are SOFT (+points) so the tool always surfaces the closest REAL matches
- * rather than an empty screen. Tiebreak: freshness (updated_at desc).
+ * a hard filter. A published price within a supplied budget takes precedence.
+ * Type, bedrooms and zone rank both budget fits and other suggestions.
+ * Tiebreak: freshness (updated_at desc).
  */
 import type { PublicProperty } from '@/types/property';
 import { publicPriceForTransaction } from './public-listing-price';
 
 export type MatchTransaction = 'acheter' | 'louer';
+
+export function matchBudgetStatus(p: PublicProperty, transaction: MatchTransaction, budget = 0) {
+  if (!Number.isFinite(budget) || budget <= 0) return 'not_set';
+  const price = publicPriceForTransaction(p, transaction === 'acheter' ? 'Vente' : 'Location');
+  if (price === null) return 'unknown';
+  return price <= budget ? 'fit' : 'over';
+}
 
 export function transactionMatches(p: PublicProperty, tr: MatchTransaction): boolean {
   if (tr === 'acheter') {
@@ -39,8 +46,8 @@ export interface MatchCriteria {
 
 /**
  * Rank the catalogue by fit and return the top `limit` real listings.
- * Soft scoring: +3 type match, +2 bedroom floor met, +2 within budget,
- * +3 zone name match (quartier or city). Pure — no network, no randomness.
+ * Within each budget group: +3 type match, +2 bedroom floor met,
+ * +3 zone name match (quartier or city).
  */
 export function rankMatches(
   properties: PublicProperty[],
@@ -48,12 +55,10 @@ export function rankMatches(
   limit = 3,
 ): PublicProperty[] {
   const tr = criteria.transaction;
-  const priceTransaction = tr === 'acheter' ? 'Vente' : 'Location';
   const zoneQ = norm(criteria.zone ?? '');
   // NB: '0' is a truthy string → bedroom floor 0 (studio) is an active filter,
   // matching every listing (p.bedrooms >= 0). Preserves the original behaviour.
   const bedFloor = criteria.bedrooms ? Number(criteria.bedrooms) : null;
-  const budget = criteria.budgetNumber && criteria.budgetNumber > 0 ? criteria.budgetNumber : 0;
 
   return properties
     .filter((p) => transactionMatches(p, tr))
@@ -61,15 +66,15 @@ export function rankMatches(
       let score = 0;
       if (criteria.typeBiens && p.type === criteria.typeBiens) score += 3;
       if (bedFloor !== null && p.bedrooms >= bedFloor) score += 2;
-      const price = publicPriceForTransaction(p, priceTransaction);
-      if (budget > 0 && price !== null && price <= budget) score += 2;
       if (zoneQ && (norm(p.quartier).includes(zoneQ) || norm(p.city).includes(zoneQ))) score += 3;
-      return { p, score };
+      const withinBudget = matchBudgetStatus(p, tr, criteria.budgetNumber) === 'fit';
+      return { p, score, withinBudget };
     })
     // Symmetric comparator: equal score → fresher first; true tie (same score
     // AND same updated_at) → 0 so the sort stays stable/consistent.
     .sort(
       (a, b) =>
+        Number(b.withinBudget) - Number(a.withinBudget) ||
         b.score - a.score ||
         (a.p.updated_at < b.p.updated_at ? 1 : a.p.updated_at > b.p.updated_at ? -1 : 0),
     )

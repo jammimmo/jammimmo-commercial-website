@@ -724,6 +724,13 @@
   "match.done.wa": "Discuter dès maintenant sur WhatsApp",
 
   "match.recap.header": "Match-o-mètre — ma recherche :",
+  "match.result.budgetTitle": "Résultats selon votre budget",
+  "match.result.noBudgetFitTitle": "Aucun prix publié dans votre budget",
+  "match.result.budgetStatus.fit": "Dans votre budget",
+  "match.result.budgetStatus.unknownSale": "Prix de vente à confirmer",
+  "match.result.budgetStatus.unknownRent": "Loyer à confirmer",
+  "match.result.budgetStatus.over": "Hors budget",
+  "match.result.catalogue": "Parcourir le catalogue",
   "match.recap.matchesHeader": "Biens proches trouvés :",
   "match.wa.intro": "Bonjour Jamm Immobilier, voici ce que je recherche.",
   "match.lead.anonName": "Recherche bien",

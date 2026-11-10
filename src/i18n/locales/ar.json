@@ -724,6 +724,13 @@
   "match.done.wa": "تحدث الآن على WhatsApp",
 
   "match.recap.header": "مطابق العقارات — بحثي:",
+  "match.result.budgetTitle": "النتائج حسب ميزانيتك",
+  "match.result.noBudgetFitTitle": "لا توجد أسعار منشورة ضمن ميزانيتك",
+  "match.result.budgetStatus.fit": "ضمن ميزانيتك",
+  "match.result.budgetStatus.unknownSale": "سعر البيع بحاجة إلى تأكيد",
+  "match.result.budgetStatus.unknownRent": "الإيجار بحاجة إلى تأكيد",
+  "match.result.budgetStatus.over": "يتجاوز الميزانية",
+  "match.result.catalogue": "تصفّح قائمة العقارات",
   "match.recap.matchesHeader": "التطابقات القريبة الموجودة:",
   "match.wa.intro": "مرحباً Jamm Immobilier، إليك ما أبحث عنه.",
   "match.lead.anonName": "بحث عن عقار",

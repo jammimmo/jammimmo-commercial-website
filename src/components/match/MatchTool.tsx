@@ -43,7 +43,7 @@ import { SITE } from '@/lib/site-config';
 import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
 import { QualificationEntry, type QualificationPrefill } from '@/components/forms/PublicQualificationForm';
 import { formatListingPrice } from '@/lib/format';
-import { rankMatches } from '@/lib/match-filter';
+import { matchBudgetStatus, rankMatches } from '@/lib/match-filter';
 import { buildBiensLink } from '@/lib/biens-filter';
 import type { PublicProperty } from '@/types/property';
 
@@ -136,12 +136,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
 
   const typeMeta = PROPERTY_TYPES.find((p) => p.key === form.type);
 
-  /**
-   * Real listings ranked by FIT. transaction is a hard filter (you can't buy a
-   * rental-only listing); type / bedrooms / budget / zone are soft (+points) so
-   * we always surface the closest REAL matches rather than an empty screen.
-   * Tiebreak: freshness (updated_at desc). Top 3.
-   */
+  // The catalogue ranks published prices within budget first and keeps alternatives.
   const matches = useMemo(() => {
     if (!form.transaction) return [];
     return rankMatches(
@@ -156,6 +151,18 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
       3,
     );
   }, [properties, form.transaction, typeMeta, form.bedrooms, budgetNumber, form.zone]);
+
+  const { transaction } = form;
+  const matchResults = transaction
+    ? matches.map((p) => ({ p, budgetStatus: matchBudgetStatus(p, transaction, budgetNumber) }))
+    : [];
+  const hasBudget = Number.isFinite(budgetNumber) && budgetNumber > 0;
+  const hasBudgetFit = matchResults.some(({ budgetStatus }) => budgetStatus === 'fit');
+  let resultTitle = 'match.result.emptyTitle';
+  if (matchResults.length) {
+    resultTitle = 'match.result.title';
+    if (hasBudget) resultTitle = hasBudgetFit ? 'match.result.budgetTitle' : 'match.result.noBudgetFitTitle';
+  }
 
   // Human labels.
   const transactionLabel = form.transaction ? t(`match.transaction.noun.${form.transaction}`, lang) : '';
@@ -404,9 +411,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
             {t('match.result.eyebrow', lang)}
           </p>
           <p className="font-serif text-xl sm:text-2xl leading-snug">
-            {matches.length
-              ? t('match.result.title', lang)
-              : t('match.result.emptyTitle', lang)}
+            {t(resultTitle, lang)}
           </p>
           <p className="text-muted-foreground text-sm mt-1.5">
             {matches.length ? t('match.result.sub', lang) : t('match.result.emptySub', lang)}
@@ -414,7 +419,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
 
           {matches.length > 0 && (
             <ul className="mt-5 space-y-3">
-              {matches.map((p) => (
+              {matchResults.map(({ p, budgetStatus }) => (
                 <li key={p.reference}>
                   <a
                     href={hrefByRef[p.reference]}
@@ -436,8 +441,17 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
                         {p.city}
                       </span>
                       <span className="block text-sm font-semibold text-primary mt-1">
-                        {formatListingPrice(p.price, p.transaction_type, lang, form.transaction === 'acheter' ? 'Vente' : 'Location')}
+                        {budgetStatus === 'unknown'
+                          ? t('property.price.onRequest', lang)
+                          : formatListingPrice(p.price, p.transaction_type, lang, form.transaction === 'acheter' ? 'Vente' : 'Location')}
                       </span>
+                      {budgetStatus !== 'not_set' && (
+                        <span className="block text-xs font-semibold text-foreground mt-1">
+                          {budgetStatus === 'unknown'
+                            ? t(form.transaction === 'acheter' ? 'match.result.budgetStatus.unknownSale' : 'match.result.budgetStatus.unknownRent', lang)
+                            : t(`match.result.budgetStatus.${budgetStatus}`, lang)}
+                        </span>
+                      )}
                     </span>
                     <ArrowRight className="w-4 h-4 text-muted-foreground group-hover/card:translate-x-0.5 transition shrink-0" />
                   </a>
@@ -453,7 +467,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
               className="mt-5 w-full inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full border border-input bg-card text-foreground font-semibold text-[15px] hover:bg-muted transition"
             >
               <Search className="w-4 h-4" />
-              {t('match.result.seeAll', lang)}
+              {t('match.result.catalogue', lang)}
             </a>
           )}
 

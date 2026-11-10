@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { rankMatches, transactionMatches, norm } from './match-filter';
+import { matchBudgetStatus, rankMatches, transactionMatches, norm } from './match-filter';
 import type { PublicProperty } from '@/types/property';
 
 let seq = 0;
@@ -61,6 +61,27 @@ describe('rankMatches', () => {
     expect(rankMatches([mixed, sale], { transaction: 'louer', budgetNumber: 400_000 })).toEqual([mixed]);
   });
 
+  it('ranks published budget fits before stronger alternatives and preserves the skipped-budget order', () => {
+    const fit = makeProp({ type: 'Appartement', quartier: 'Yoff', price: 50_000_000 });
+    const over = makeProp({ type: 'Villa', quartier: 'Médina', bedrooms: 4, price: 70_000_000 });
+    const unknown = makeProp({ type: 'Villa', quartier: 'Médina', transaction_type: 'Vente & Location', price: 320_000 });
+    const props = [unknown, over, fit];
+    const criteria = { transaction: 'acheter', typeBiens: 'Villa', zone: 'medina', bedrooms: '4' } as const;
+    expect(rankMatches(props, { ...criteria, budgetNumber: 50_000_000 })).toEqual([fit, over, unknown]);
+    expect(rankMatches(props, criteria)).toEqual([over, unknown, fit]);
+  });
+
+  it('classifies the available amount for the selected transaction, including an exact rent fit', () => {
+    const mixed = makeProp({ transaction_type: 'Vente & Location', price: 320_000 });
+    const missingRent = makeProp({ transaction_type: 'Location', price: 0 });
+    const over = makeProp({ price: 42_000_000 });
+    expect(matchBudgetStatus(mixed, 'acheter', 500_000)).toBe('unknown');
+    expect(matchBudgetStatus(mixed, 'louer', 320_000)).toBe('fit');
+    expect(matchBudgetStatus(missingRent, 'louer', 320_000)).toBe('unknown');
+    expect(matchBudgetStatus(over, 'acheter', 500_000)).toBe('over');
+    expect(matchBudgetStatus(over, 'acheter')).toBe('not_set');
+  });
+
   it('hard-filters out non-matching transactions', () => {
     const props = [
       makeProp({ reference: 'SALE', transaction_type: 'Vente' }),
@@ -70,7 +91,7 @@ describe('rankMatches', () => {
     expect(out.map((p) => p.reference)).toEqual(['SALE']);
   });
 
-  it('ranks by fit: type + budget + zone score higher', () => {
+  it('ranks with the type and zone preferences', () => {
     const best = makeProp({ reference: 'BEST', type: 'Villa', price: 40_000_000, quartier: 'Almadies' });
     const mid = makeProp({ reference: 'MID', type: 'Villa', price: 90_000_000, quartier: 'Yoff' });
     const weak = makeProp({ reference: 'WEAK', type: 'Appartement', price: 90_000_000, quartier: 'Pikine' });
