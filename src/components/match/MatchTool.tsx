@@ -467,7 +467,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
               className="mt-5 w-full inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full border border-input bg-card text-foreground font-semibold text-[15px] hover:bg-muted transition"
             >
               <Search className="w-4 h-4" />
-              {t('match.result.catalogue', lang)}
+              {t('match.result.seeAll', lang)}
             </a>
           )}
 
