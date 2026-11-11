@@ -42,8 +42,8 @@ function poisonCredentials(env, names = ['ADMIN_SUPABASE_URL', 'ADMIN_SUPABASE_S
   return env;
 }
 
-test('local, CI and preview select approved97 without touching even credential accessors', async () => {
-  for (const env of [{}, { CI: 'true', GITHUB_ACTIONS: 'true' }, { ...production(), CF_PAGES_BRANCH: 'feature/preview', CATALOGUE_BUILD_SOURCE: undefined }]) {
+test('local and CI select approved97 without touching even credential accessors', async () => {
+  for (const env of [{}, { CI: 'true', GITHUB_ACTIONS: 'true' }]) {
     const result = await prepareCatalogueBuild(poisonCredentials(env), root, { fetcher: () => { throw new Error('Network forbidden'); } });
     assert.equal(result.CATALOGUE_BUILD_SOURCE, SNAPSHOT_SOURCE); assert.equal(result.CATALOGUE_SNAPSHOT_SHA256, SNAPSHOT_SHA256);
     for (const key of ['ADMIN_SUPABASE_URL', 'ADMIN_SUPABASE_SERVICE_ROLE_KEY', 'ADMIN_SUPABASE_ANON_KEY']) assert.equal(result[key], '');
@@ -54,6 +54,9 @@ test('unknown/ambiguous contexts and stale production snapshot fail before crede
   const cases = [
     { CF_PAGES_BRANCH: 'main' }, { CF_PAGES: '0' }, { ...production(), CF_PAGES_COMMIT_SHA: '' },
     { ...production(), CF_PAGES_URL: 'https://evil.example/' }, { ...production(), CF_PAGES_URL: 'https://jammimmo-vitrine.pages.dev.evil.example/' },
+    { ...production(), CF_PAGES_URL: 'https://fixture.jammimmo-vitrine.pages.dev:443/' },
+    { ...production(), CF_PAGES_URL: 'https://other.fixture.jammimmo-vitrine.pages.dev/' },
+    { ...production(), CF_PAGES_URL: undefined },
     { ...production(), CF_PAGES_BRANCH: '' }, { ...production(), CATALOGUE_BUILD_SOURCE: undefined },
     { ...production(), CATALOGUE_BUILD_SOURCE: SNAPSHOT_SOURCE, CATALOGUE_SNAPSHOT_SHA256: SNAPSHOT_SHA256 },
     { ...production(), CF_PAGES_BRANCH: 'preview' }, { CATALOGUE_BUILD_SOURCE: 'trusted-production' },
@@ -238,10 +241,9 @@ test('enabled production prepares only the three narratives from the same valida
   for (const key of ['ADMIN_SUPABASE_URL', 'ADMIN_SUPABASE_SERVICE_ROLE_KEY', 'ADMIN_SUPABASE_ANON_KEY', 'PUBLIC_SUPABASE_URL', 'PUBLIC_SUPABASE_ANON_KEY']) assert.equal(env[key], '');
 });
 
-test('local, preview and disabled production never read the translation secret or translation I/O', async t => {
+test('local and disabled production never read the translation secret or translation I/O', async t => {
   for (const input of [
     { LISTING_TRANSLATIONS_ENABLED: 'true' },
-    { ...production(), CF_PAGES_BRANCH: 'preview', CATALOGUE_BUILD_SOURCE: undefined, LISTING_TRANSLATIONS_ENABLED: 'true' },
     { ...production(), LISTING_TRANSLATIONS_ENABLED: 'false' },
   ]) {
     const folder = input.CF_PAGES_BRANCH === 'main' ? await scratch(t) : root;

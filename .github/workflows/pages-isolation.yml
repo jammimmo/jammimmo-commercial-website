@@ -1,0 +1,36 @@
+name: Audit hosted Pages isolation
+
+on:
+  workflow_dispatch:
+    inputs:
+      staging_project:
+        description: Optional name of the separate static staging project
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+
+      - name: Compare effective Pages environment settings
+        env:
+          CLOUDFLARE_PAGES_READ_TOKEN: ${{ secrets.CLOUDFLARE_PAGES_READ_TOKEN }}
+          PAGES_STAGING_PROJECT: ${{ inputs.staging_project }}
+        run: |
+          if [ -n "$PAGES_STAGING_PROJECT" ]; then
+            node scripts/check-pages-preview-isolation.mjs --staging-project "$PAGES_STAGING_PROJECT"
+          else
+            node scripts/check-pages-preview-isolation.mjs
+          fi
