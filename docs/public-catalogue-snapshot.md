@@ -63,9 +63,9 @@ mistakes; they do not protect secrets from hostile parent/checkout/install code.
 
 Preparation uses only the existing public `PUBLIC_SUPABASE_URL` and
 `PUBLIC_SUPABASE_ANON_KEY` configuration for project `ygaawqgwxlbtkcuqecxh`.
-Their actual presence in Pages is a release prerequisite, not inferred from
-source. No key is created, copied from admin, or given a broader role. A legacy
-JWT must identify this project and role `anon`; a publishable key remains subject
+The ordinary command receives them from Pages. The dedicated production entry
+below supplies the same pair from the reviewed build profile. A legacy JWT
+must identify this project and role `anon`; a publishable key remains subject
 to server RLS. Secret/service-role substitutions are refused before I/O.
 `ADMIN_SUPABASE_*` are never read. Both public settings are also blanked in the
 Astro child because the renderer needs only the prepared public data.
@@ -132,14 +132,27 @@ During the database incident a new production build may therefore fail safely;
 the already deployed catalogue remains available, and publication updates are
 pending rather than falsely reported by this build as refreshed.
 
-Before release, verify the real Pages production branch/build command and the
-source credential scope in the UI. Replace the old production
-`CATALOGUE_BUILD_SOURCE=public-snapshot-20261031` with `trusted-production` and
-**remove** `CATALOGUE_SNAPSHOT_SHA256`; keep Node22.20. Preview credentials must be
-absent at provisioning, including checkout/install, independently of the child
-scrubber. Do not copy admin credentials into Pages, add a secret, widen a grant
-or change an RLS policy for this release. Source preparation and mocked tests
-are not proof that these remote prerequisites have been met.
+Before release, verify the real Pages production branch, build command and
+public source scope. The ordinary `pnpm build` keeps the environment contract
+above. If Pages stores the retired production snapshot settings as encrypted
+rows, select the reviewed command `pnpm install --frozen-lockfile && pnpm run
+build:pages-live` in the existing Pages project build configuration. Keep Node
+22.20 and the `dist` output directory.
+
+`build:pages-live` runs only on the verified Pages production context. Its
+tracked build-only profile contains the existing anon key for the same project.
+The entry accepts either no source settings, `trusted-production` without a
+snapshot hash, or the exact retired snapshot source and hash together. It
+passes fresh-production inputs to the same preparation wrapper in all three
+cases. Other hashes, partial settings, conflicting public source values and
+prepared-artifact overrides stop before source preparation. The renderer
+receives the prepared artifact and no database credentials. No Wrangler
+runtime binding is added for these build inputs.
+
+The dedicated command refuses Preview and local contexts. Keep Preview
+credentials absent at provisioning, including checkout/install, independently
+of the command. The production build command must be selected before the exact
+release is triggered. Local tests cannot attest the effective provider settings.
 
 Filtering and limits preserve the four existing signatures. Publication date
 remains the primary list order; price remains secondary when requested. All

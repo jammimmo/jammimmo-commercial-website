@@ -8,6 +8,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "node scripts/build-approved-catalogue.mjs",
+    "build:pages-live": "node scripts/build-approved-catalogue.mjs --pages-live",
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
