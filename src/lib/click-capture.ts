@@ -94,6 +94,7 @@ export function initClickCapture(): void {
   document.addEventListener(
     'click',
     (e) => {
+      if ((e.target as Element | null)?.closest?.('[data-chat-private]')) return;
       const now = Date.now();
       if (now - lastSent < MIN_INTERVAL_MS) return;
       lastSent = now;

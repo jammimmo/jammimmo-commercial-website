@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "node scripts/build-approved-catalogue.mjs",
+    "build:pages-live": "node scripts/build-approved-catalogue.mjs --pages-live",
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
@@ -66,7 +67,7 @@
     "wrangler": "^4.95.0"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.20.0"
   },
   "packageManager": "pnpm@9.0.0"
 }

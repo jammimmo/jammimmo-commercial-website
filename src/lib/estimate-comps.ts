@@ -12,6 +12,7 @@
  */
 import type { PublicProperty } from '@/types/property';
 import { norm } from './match-filter';
+import { publicPriceForTransaction } from './public-listing-price';
 
 export type EstimateTransaction = 'vente' | 'location';
 export type CompBasis = 'quartier' | 'type' | 'none';
@@ -56,13 +57,6 @@ export interface EstimateResult {
   estimate: Stat | null;
 }
 
-function transactionMatches(p: PublicProperty, tr: EstimateTransaction): boolean {
-  if (tr === 'vente') {
-    return p.transaction_type === 'Vente' || p.transaction_type === 'Vente & Location';
-  }
-  return p.transaction_type === 'Location' || p.transaction_type === 'Vente & Location';
-}
-
 function median(sorted: number[]): number {
   const n = sorted.length;
   if (n === 0) return 0;
@@ -94,9 +88,8 @@ export function estimateComps(
   const minComps = opts.minComps ?? MIN_COMPS;
   const compLimit = opts.compLimit ?? COMP_LIMIT;
 
-  const sameTypeTx = properties.filter(
-    (p) => p.type === input.typeBiens && transactionMatches(p, input.transaction) && p.price > 0,
-  );
+  const transaction = input.transaction === 'vente' ? 'Vente' : 'Location';
+  const sameTypeTx = properties.filter((p) => p.type === input.typeBiens && publicPriceForTransaction(p, transaction) !== null);
 
   const zoneQ = norm(input.quartier);
   const inQuartier = zoneQ

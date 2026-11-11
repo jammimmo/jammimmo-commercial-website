@@ -3,9 +3,13 @@ import { listPublicProperties } from '@/lib/supabase.build';
 import ListingsView from './ListingsView.tsx';
 import CompareBar from './CompareBar.tsx';
 import { t, getLang, localizedPath } from '@/lib/i18n';
+import { resolveListingText, listingDisplayView } from '@/lib/listing-localization';
+import { serializeJsonLd } from '@/lib/json-ld';
 
 const lang = getLang(Astro.url);
-const properties = await listPublicProperties({ limit: 200 });
+// The validated artifact is bounded at preparation. Do not silently hide newer
+// public rows when the catalogue grows beyond the former 200-row page cap.
+const properties = await listPublicProperties();
 const cities = [...new Set(properties.map((p) => p.city).filter(Boolean))].sort();
 
 // Build a ref → /biens/<ref> map server-side so the React island doesn't
@@ -31,7 +35,7 @@ const listingsLd = {
         '@type': 'ListItem',
         position: i + 1,
         url: `${siteUrl}${hrefByRef[p.reference]}`,
-        name: p.title,
+        name: resolveListingText(p, lang).title,
       })),
     },
   }),
@@ -65,7 +69,7 @@ const listingsLd = {
 
 <ListingsView
   client:only="react"
-  properties={properties}
+  properties={properties.map(property => listingDisplayView(property, lang))}
   cities={cities}
   hrefByRef={hrefByRef}
   lang={lang}
@@ -79,10 +83,10 @@ const listingsLd = {
       {properties.map((p) => (
         <a href={hrefByRef[p.reference]} class="block rounded-2xl border border-clay bg-card overflow-hidden">
           <div class="aspect-[16/10] bg-ink">
-            {p.images[0] && <img src={p.images[0]} alt={p.title} class="w-full h-full object-cover" />}
+            {p.images[0] && <img src={p.images[0]} alt={resolveListingText(p, lang).title} class="w-full h-full object-cover" />}
           </div>
           <div class="p-4">
-            <div class="font-serif text-lg">{p.title}</div>
+            <div class="font-serif text-lg">{resolveListingText(p, lang).title}</div>
             <div class="text-sm text-muted-foreground mt-1">{p.city} · {p.quartier}</div>
           </div>
         </a>
@@ -93,4 +97,4 @@ const listingsLd = {
 
 <CompareBar client:idle lang={lang} />
 
-<script type="application/ld+json" is:inline set:html={JSON.stringify(listingsLd)}></script>
+<script type="application/ld+json" is:inline set:html={serializeJsonLd(listingsLd)}></script>

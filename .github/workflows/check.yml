@@ -1,7 +1,7 @@
 name: Build check
 
 # Push to main is built + deployed by Cloudflare Pages via GitHub integration.
-# This workflow only smoke-builds PRs.
+# PR checks use the approved public snapshot and isolated chatbot UI fixtures.
 on:
   pull_request:
     branches: [main]
@@ -15,7 +15,8 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # Chat admission tests execute the real node:sqlite builtin.
+          node-version: '22.20.0'
           cache: 'pnpm'
 
       - name: Install
@@ -24,11 +25,62 @@ jobs:
       - name: Typecheck (astro check)
         run: pnpm check
 
+      - name: Typecheck chatbot acceptance harness and browser options
+        # Node types are already locked and privately hoisted by pnpm9.
+        run: pnpm exec tsc --noEmit --target ES2022 --module ESNext --moduleResolution bundler --strict --skipLibCheck --types node --typeRoots node_modules/.pnpm/node_modules/@types tests/chatbot/widget.spec.ts playwright.chatbot.config.ts
+
       - name: Unit tests (vitest)
         run: pnpm test
 
-      - name: Build (smoke — admin credentials optional on fork PRs)
+      - name: Preview and production catalogue build containment
+        run: node --test --test-concurrency=1 scripts/build-approved-catalogue.test.mjs scripts/catalogue-artifact.test.mjs
+
+      - name: Listing translation build preparation (offline)
+        run: node --experimental-strip-types --test scripts/prepare-listing-translations.test.mjs
+
+      - name: Build (approved public snapshot — no admin database access)
         env:
-          ADMIN_SUPABASE_URL: ${{ secrets.ADMIN_SUPABASE_URL }}
-          ADMIN_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.ADMIN_SUPABASE_SERVICE_ROLE_KEY }}
+          CATALOGUE_BUILD_SOURCE: public-snapshot-20261031
+          CATALOGUE_SNAPSHOT_SHA256: 60f64ea76325fd5f5098e6938e768c983963a6ec892b11f9584c73f2fef8c8cb
+          ADMIN_SUPABASE_URL: ''
+          ADMIN_SUPABASE_SERVICE_ROLE_KEY: ''
+          ADMIN_SUPABASE_ANON_KEY: ''
         run: pnpm build
+
+      - name: Install locked Playwright browsers and system dependencies
+        run: pnpm exec playwright install --with-deps chromium webkit
+
+      - name: Chatbot UI acceptance (isolated fixtures — Chromium and WebKit)
+        env:
+          CHAT_UI_WEBKIT: 'true'
+          PUBLIC_CHAT_UI_QA: 'true'
+          ADMIN_SUPABASE_URL: ''
+          ADMIN_SUPABASE_SERVICE_ROLE_KEY: ''
+          ADMIN_SUPABASE_ANON_KEY: ''
+        run: pnpm exec playwright test --config=playwright.chatbot.config.ts
+
+      - name: Chatbot reduced-motion acceptance (isolated fixtures)
+        env:
+          CHAT_UI_WEBKIT: 'true'
+          CHAT_UI_MOTION: 'reduce'
+          CHAT_UI_EVIDENCE: 'test-results/chatbot-reduced'
+          PUBLIC_CHAT_UI_QA: 'true'
+          ADMIN_SUPABASE_URL: ''
+          ADMIN_SUPABASE_SERVICE_ROLE_KEY: ''
+          ADMIN_SUPABASE_ANON_KEY: ''
+        run: pnpm exec playwright test --config=playwright.chatbot.config.ts --project=desktop --project=webkit-portrait --grep='draft survives'
+
+      - name: Preserve chatbot UI diagnostics
+        if: always()
+        # Artifact quota/transport failures must not replace the QA result.
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: chatbot-ui-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            test-results/chatbot
+            playwright-report/chatbot
+            test-results/chatbot-reduced
+            test-results/chatbot-reduced-report
+          if-no-files-found: warn
+          retention-days: 7

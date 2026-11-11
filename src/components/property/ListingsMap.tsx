@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PublicProperty } from '@/types/property';
+import { isolateCurrencyAmount } from '@/lib/format';
+import { t, type Lang } from '@/lib/i18n';
+import { publicPriceForTransaction } from '@/lib/public-listing-price';
 import { STREETS_VECTOR, SATELLITE, MAP_BASE_OPTIONS } from '@/lib/map-tiles';
 import VectorBasemap from './VectorBasemap';
 
@@ -7,15 +10,22 @@ interface Props {
   properties: PublicProperty[];
   /** Highlight this reference (e.g. card-hover) */
   activeRef: string | null;
+  lang: Lang;
+  priceIntent: string;
   /** Click a pin → bubble up so the list can scroll to that card */
   onPinClick?: (ref: string) => void;
 }
 
 const FCFA = new Intl.NumberFormat('fr-FR', { notation: 'compact', maximumFractionDigits: 1 });
 
-function compactPrice(p: PublicProperty): string {
+function compactPrice(p: PublicProperty, lang: Lang, priceIntent: string): string {
   const v = FCFA.format(p.price).toUpperCase();
-  return p.transaction_type === 'Location' ? `${v} FCFA/mois` : `${v} FCFA`;
+  if (p.transaction_type === 'Vente & Location') {
+    return publicPriceForTransaction(p, priceIntent) === null ? t('property.price.onRequest', lang)
+      : `${t('property.detail.rentalPrice', lang)} · ${isolateCurrencyAmount(`${v} FCFA`, lang)}`;
+  }
+  const amount = p.transaction_type === 'Location' ? `${v} FCFA/mois` : `${v} FCFA`;
+  return isolateCurrencyAmount(amount, lang);
 }
 
 /**
@@ -27,7 +37,7 @@ function compactPrice(p: PublicProperty): string {
  * react-leaflet + CSS are loaded dynamically — the map weight is not paid
  * until this component mounts.
  */
-export default function ListingsMap({ properties, activeRef, onPinClick }: Props) {
+export default function ListingsMap({ properties, activeRef, lang, priceIntent, onPinClick }: Props) {
   type LeafletMod = typeof import('react-leaflet');
   type Leaflet = typeof import('leaflet');
   const [RL, setRL] = useState<LeafletMod | null>(null);
@@ -67,14 +77,14 @@ export default function ListingsMap({ properties, activeRef, onPinClick }: Props
   // Fallback: nothing geo-located
   if (placed.length === 0) {
     return (
-      <div className="grid place-items-center bg-muted text-muted-foreground rounded-2xl border border-clay h-full min-h-[300px]">
+      <div className="grid place-items-center bg-muted text-muted-foreground rounded-2xl border border-clay h-full">
         Aucun bien géolocalisé
       </div>
     );
   }
 
   if (!RL || !L) {
-    return <div className="bg-muted rounded-2xl border border-clay h-full min-h-[300px] animate-pulse" />;
+    return <div className="bg-muted rounded-2xl border border-clay h-full animate-pulse" />;
   }
 
   // Fit all markers in view
@@ -92,8 +102,8 @@ export default function ListingsMap({ properties, activeRef, onPinClick }: Props
       className: 'jamm-price-marker', // wrapper class — overridden below in CSS
       iconAnchor: [40, 32],
       html: `
-        <div class="price-pin ${isActive ? 'is-active' : ''}" data-ref="${p.reference}">
-          <span class="price-pin-label">${compactPrice(p)}</span>
+        <div class="price-pin ${isActive ? 'is-active' : ''}" data-ref="${p.reference.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}">
+          <span class="price-pin-label">${compactPrice(p, lang, priceIntent)}</span>
           <span class="price-pin-tail"></span>
         </div>
       `,
@@ -187,7 +197,7 @@ export default function ListingsMap({ properties, activeRef, onPinClick }: Props
           zoom={11}
           maxZoom={SATELLITE.maxZoom}
           scrollWheelZoom
-          style={{ height: '100%', width: '100%', minHeight: 360 }}
+          style={{ height: '100%', width: '100%' }}
           {...MAP_BASE_OPTIONS}
         >
           {/* Custom attribution control — drops the "Leaflet" prefix. The

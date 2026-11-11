@@ -1,3 +1,4 @@
+import { resolveListingText } from '@/lib/listing-localization';
 /**
  * « Match-o-mètre » — quiz acheteur/locataire (60 s) qui affiche 3 biens RÉELS
  * correspondants, puis capture WhatsApp. Distinct de BudgetTool (qui filtre puis
@@ -40,8 +41,9 @@ import { t, type Lang } from '@/lib/i18n';
 import { track } from '@/lib/analytics';
 import { SITE } from '@/lib/site-config';
 import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
-import { formatRentalPrice } from '@/lib/format';
-import { rankMatches } from '@/lib/match-filter';
+import { QualificationEntry, type QualificationPrefill } from '@/components/forms/PublicQualificationForm';
+import { formatListingPrice } from '@/lib/format';
+import { matchBudgetStatus, rankMatches } from '@/lib/match-filter';
 import { buildBiensLink } from '@/lib/biens-filter';
 import type { PublicProperty } from '@/types/property';
 
@@ -96,6 +98,8 @@ interface FormState {
 const INITIAL: FormState = { transaction: '', type: '', bedrooms: '', budget: '', zone: '' };
 
 export default function MatchTool({ lang, properties, hrefByRef }: Props) {
+  const [qualificationPending, setQualificationPending] = useState(false);
+  const [qualificationExpanded, setQualificationExpanded] = useState(false);
   const [phase, setPhase] = useState<'wizard' | 'result' | 'capture' | 'done'>('wizard');
   const [form, setForm] = useState<FormState>(INITIAL);
   const [stepIndex, setStepIndex] = useState(0);
@@ -132,12 +136,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
 
   const typeMeta = PROPERTY_TYPES.find((p) => p.key === form.type);
 
-  /**
-   * Real listings ranked by FIT. transaction is a hard filter (you can't buy a
-   * rental-only listing); type / bedrooms / budget / zone are soft (+points) so
-   * we always surface the closest REAL matches rather than an empty screen.
-   * Tiebreak: freshness (updated_at desc). Top 3.
-   */
+  // The catalogue ranks published prices within budget first and keeps alternatives.
   const matches = useMemo(() => {
     if (!form.transaction) return [];
     return rankMatches(
@@ -152,6 +151,18 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
       3,
     );
   }, [properties, form.transaction, typeMeta, form.bedrooms, budgetNumber, form.zone]);
+
+  const { transaction } = form;
+  const matchResults = transaction
+    ? matches.map((p) => ({ p, budgetStatus: matchBudgetStatus(p, transaction, budgetNumber) }))
+    : [];
+  const hasBudget = Number.isFinite(budgetNumber) && budgetNumber > 0;
+  const hasBudgetFit = matchResults.some(({ budgetStatus }) => budgetStatus === 'fit');
+  let resultTitle = 'match.result.emptyTitle';
+  if (matchResults.length) {
+    resultTitle = 'match.result.title';
+    if (hasBudget) resultTitle = hasBudgetFit ? 'match.result.budgetTitle' : 'match.result.noBudgetFitTitle';
+  }
 
   // Human labels.
   const transactionLabel = form.transaction ? t(`match.transaction.noun.${form.transaction}`, lang) : '';
@@ -175,7 +186,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
     if (form.zone.trim()) lines.push(`- ${t('match.label.zone', lang)}: ${form.zone.trim()}`);
     if (matches.length) {
       lines.push('', t('match.recap.matchesHeader', lang));
-      for (const p of matches) lines.push(`• ${p.title} (${p.reference}) — ${p.quartier}, ${p.city}`);
+      for (const p of matches) lines.push(`• ${resolveListingText(p, lang).title} (${p.reference}) — ${p.quartier}, ${p.city}`);
     }
     return lines.join('\n');
   }, [lang, transactionLabel, typeLabel, bedroomsLabel, budgetNumber, budgetDisplay, form.zone, matches]);
@@ -199,6 +210,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
 
   async function submitLead(e: React.FormEvent) {
     e.preventDefault();
+    if (qualificationPending || qualificationExpanded) return;
     setTouchedPhone(true);
     if (!phoneValid) return;
     setSubmitState('sending');
@@ -227,8 +239,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
   }
 
   // ─────────────────────────── Success ───────────────────────────
-  if (phase === 'done') {
-    return (
+  const completed = phase === 'done' ? (
       <div
         role="status"
         aria-live="polite"
@@ -248,11 +259,11 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
           {t('match.done.wa', lang)}
         </a>
       </div>
-    );
-  }
+    ) : null;
 
   return (
-    <div className="bg-background text-foreground rounded-3xl shadow-xl p-6 sm:p-9">
+    <>
+    <div hidden={phase === 'done' || qualificationExpanded} className="bg-background text-foreground rounded-3xl shadow-xl p-6 sm:p-9">
       <div className="mb-6">
         <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-secondary-strong mb-2">
           <Sparkles className="w-4 h-4" aria-hidden="true" />
@@ -394,15 +405,13 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
       )}
 
       {/* ─────────────────────────── Result (real listings) ─────────────────────────── */}
-      {phase === 'result' && (
+      {phase === 'result' && !qualificationExpanded && (
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-wider text-secondary-strong mb-1.5">
             {t('match.result.eyebrow', lang)}
           </p>
           <p className="font-serif text-xl sm:text-2xl leading-snug">
-            {matches.length
-              ? t('match.result.title', lang)
-              : t('match.result.emptyTitle', lang)}
+            {t(resultTitle, lang)}
           </p>
           <p className="text-muted-foreground text-sm mt-1.5">
             {matches.length ? t('match.result.sub', lang) : t('match.result.emptySub', lang)}
@@ -410,7 +419,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
 
           {matches.length > 0 && (
             <ul className="mt-5 space-y-3">
-              {matches.map((p) => (
+              {matchResults.map(({ p, budgetStatus }) => (
                 <li key={p.reference}>
                   <a
                     href={hrefByRef[p.reference]}
@@ -419,21 +428,30 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
                   >
                     <span className="w-20 h-16 shrink-0 rounded-xl overflow-hidden bg-muted grid place-items-center">
                       {p.images[0] ? (
-                        <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover" loading="lazy" />
+                        <img src={p.images[0]} alt={resolveListingText(p, lang).title} className="w-full h-full object-cover" loading="lazy" />
                       ) : (
                         <Home className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
                       )}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block font-serif text-[15px] leading-snug truncate">{p.title}</span>
+                      <span className="block font-serif text-[15px] leading-snug truncate">{resolveListingText(p, lang).title}</span>
                       <span className="block text-xs text-muted-foreground mt-0.5 truncate">
                         {p.quartier}
                         {p.quartier && p.city ? ' · ' : ''}
                         {p.city}
                       </span>
                       <span className="block text-sm font-semibold text-primary mt-1">
-                        {formatRentalPrice(p.price, p.transaction_type)}
+                        {budgetStatus === 'unknown'
+                          ? t('property.price.onRequest', lang)
+                          : formatListingPrice(p.price, p.transaction_type, lang, form.transaction === 'acheter' ? 'Vente' : 'Location')}
                       </span>
+                      {budgetStatus !== 'not_set' && (
+                        <span className="block text-xs font-semibold text-foreground mt-1">
+                          {budgetStatus === 'unknown'
+                            ? t(form.transaction === 'acheter' ? 'match.result.budgetStatus.unknownSale' : 'match.result.budgetStatus.unknownRent', lang)
+                            : t(`match.result.budgetStatus.${budgetStatus}`, lang)}
+                        </span>
+                      )}
                     </span>
                     <ArrowRight className="w-4 h-4 text-muted-foreground group-hover/card:translate-x-0.5 transition shrink-0" />
                   </a>
@@ -460,14 +478,14 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
           </div>
 
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
-            <button
+            {!qualificationPending && <button
               type="button"
               onClick={() => setPhase('capture')}
               className="flex-1 inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-primary text-primary-foreground font-semibold text-[15px] shadow-lg hover:translate-y-[-1px] transition-transform"
             >
               {t('match.result.cta', lang)}
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </button>}
             <button
               type="button"
               onClick={() => {
@@ -485,7 +503,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
 
       {/* ─────────────────────────── Capture (single field) ─────────────────────────── */}
       {phase === 'capture' && (
-        <form onSubmit={submitLead} noValidate>
+        <form hidden={qualificationPending} onSubmit={submitLead} noValidate>
           <div className="rounded-2xl border border-clay bg-card p-5 mb-5">
             <p className="text-sm font-semibold mb-1">{t('match.capture.title', lang)}</p>
             <p className="text-muted-foreground text-sm">{t('match.capture.body', lang)}</p>
@@ -545,7 +563,7 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
 
           <button
             type="submit"
-            disabled={submitState === 'sending'}
+            disabled={qualificationPending || qualificationExpanded || submitState === 'sending'}
             className="mt-5 w-full inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-secondary text-secondary-foreground font-semibold text-[15px] shadow-lg disabled:opacity-50 hover:translate-y-[-1px] transition-transform"
           >
             {submitState === 'sending' ? (
@@ -588,6 +606,18 @@ export default function MatchTool({ lang, properties, hrefByRef }: Props) {
         </form>
       )}
     </div>
+    <div hidden={qualificationExpanded}>{completed}</div>
+      <div hidden={phase !== 'result' && !qualificationPending && !qualificationExpanded}>
+        <QualificationEntry lang={lang} onOpenChange={setQualificationExpanded} onPendingChange={setQualificationPending} prefill={{
+          operation: form.transaction === 'acheter' ? 'buy' : form.transaction === 'louer' ? 'rent' : undefined,
+          propertyType: form.type ? ({ appartement: 'apartment', villa: 'villa', maison: 'house', terrain: 'land', bureau: 'office', commerce: 'shop' } satisfies Record<PropertyTypeKey, QualificationPrefill['propertyType']>)[form.type] : undefined,
+          zone: form.zone || undefined, budgetMax: form.budget ? Number(form.budget) : undefined,
+          // 4+ is a floor, not an exact count; do not manufacture that answer.
+          bedrooms: form.bedrooms && form.bedrooms !== '4' ? Number(form.bedrooms) : undefined,
+          fullName: firstName || undefined, phone: phone || undefined,
+        }} />
+      </div>
+    </>
   );
 }
 

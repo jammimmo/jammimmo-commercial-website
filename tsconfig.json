@@ -3,7 +3,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@catalogue-public": ["src/data/public-catalogue-20261031.json"],
+      "@catalogue-facts": ["src/data/public-property-facts-20261031.json"],
+      "@catalogue-approval": ["src/data/public-catalogue-approval.json"]
     },
     "jsx": "react-jsx",
     "jsxImportSource": "react",

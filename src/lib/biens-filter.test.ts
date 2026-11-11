@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildBiensQuery, buildBiensLink } from './biens-filter';
+import { buildBiensQuery, buildBiensLink, buildQualificationCatalogueLink } from './biens-filter';
 
 describe('buildBiensQuery', () => {
   it('maps acheter → Vente and includes priceMax + type + q', () => {
@@ -44,5 +44,19 @@ describe('buildBiensLink', () => {
   });
   it('returns a bare /biens path when there are no params', () => {
     expect(buildBiensLink({}, 'fr')).toBe('/biens');
+  });
+});
+
+describe('buildQualificationCatalogueLink', () => {
+  it('prepares the localized catalogue with exact existing filter values', () => {
+    expect(buildQualificationCatalogueLink({ operation: 'buy', propertyType: 'shop' }, 'en')).toBe('/en/biens?transaction=Vente&type=Magasin');
+    expect(buildQualificationCatalogueLink({ operation: 'rent', propertyType: 'warehouse' }, 'ar')).toBe('/ar/biens?transaction=Location&type=Hangar');
+  });
+
+  it('does not invent a filter for an unsupported property type or operation', () => {
+    expect(buildQualificationCatalogueLink({ operation: 'buy', propertyType: 'farmland' }, 'fr')).toBe('/biens?transaction=Vente');
+    expect(buildQualificationCatalogueLink({ operation: 'rent', propertyType: null }, 'wo')).toBe('/wo/biens?transaction=Location');
+    expect(buildQualificationCatalogueLink({ operation: 'invest', propertyType: 'apartment' }, 'it')).toBe('/it/biens');
+    expect(buildQualificationCatalogueLink({ operation: 'lease_management', propertyType: 'office' }, 'es')).toBe('/es/biens');
   });
 });

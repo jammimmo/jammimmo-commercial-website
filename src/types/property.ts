@@ -1,3 +1,5 @@
+import type { ListingTranslationMap } from '@/lib/listing-localization';
+
 /**
  * Source of truth for the Property shape, kept in sync with the admin DB.
  * After applying a migration on the admin side, regenerate Supabase types:
@@ -29,7 +31,8 @@ export type FluxPassage = 'F1' | 'F2' | 'F3' | 'F4' | 'F5' | null;
 
 export interface NearbyCommerce {
   name: string;
-  distance: '100m' | '500m' | '1km';
+  /** Stored public label; the editor's suggested distances are not a DB enum. */
+  distance: string;
 }
 
 /**
@@ -44,7 +47,7 @@ export interface GpsZone {
   centerLat: number;
   /** Decoy centre longitude (≠ the real position). */
   centerLng: number;
-  /** Radius of the displayed zone, in metres (500 m). */
+  /** Display radius: historical capture500m; freshly prepared coarse grid1500m. */
   radiusM: number;
 }
 
@@ -94,10 +97,14 @@ export interface DbProperty {
  * This is the ONLY shape that should ever leave the server boundary.
  */
 export interface PublicProperty {
+  /** Current-source public narrative overlays; French fields remain unchanged. */
+  translations?: ListingTranslationMap;
   id: string;
   reference: string;            // displayed truncated as "Ref #00019"
   title: string;
-  type: PropertyType;
+  // The public catalogue already includes legacy types such as Studio,
+  // Terrain nu and Parking. Preserve them; typeLabel accepts these strings.
+  type: string;
   transaction_type: TransactionType;
   status: PropertyStatus;
   city: string;

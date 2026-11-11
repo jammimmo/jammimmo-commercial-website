@@ -20,6 +20,20 @@ binding = "INTAKE_DB"
 database_name = "jammimmo-intake"
 database_id = "b4847f4d-9c30-4996-9770-077a73e5b0c1"
 
+# Shared binding: existing gated chat and trusted publication-time localization.
+# Listing requests require their separate HMAC secret and durable reservation.
+[ai]
+binding = "AI"
+
+# Dedicated private chat bucket, created 2026-10-31; public access disabled.
+# Shared only by chat processing in Estate Flow. No public object URLs.
+# Files stay disabled until scanner pairing AND the native R2 expiry rule
+# for chat/quarantine/ have been verified; see docs/chatbot-deployment.md.
+[[r2_buckets]]
+binding = "CHAT_FILES"
+bucket_name = "jammimmo-chat-private"
+
 # No [vars] block on purpose — runtime env (REVALIDATE_HMAC_SECRET,
-# GH_DISPATCH_TOKEN, GH_REPO) is set via the Cloudflare Pages dashboard /
-# `wrangler pages secret put` so secrets never sit in this repo.
+# GH_DISPATCH_TOKEN, GH_REPO and CHAT_* release gates) is set via the
+# Cloudflare Pages dashboard / `wrangler pages secret put` so secrets never
+# sit in this repo. Binding declarations alone do not enable chat/AI/files.

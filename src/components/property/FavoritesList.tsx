@@ -1,3 +1,4 @@
+import { resolveListingText } from '@/lib/listing-localization';
 import { useEffect, useState } from 'react';
 import { Loader2, HeartCrack, ArrowRight } from 'lucide-react';
 import { t, type Lang, localizedPath } from '@/lib/i18n';
@@ -45,7 +46,7 @@ export default function FavoritesList({ lang }: Props) {
     setLoading(true);
     Promise.all(
       refs.map((r) =>
-        fetch(`/api/property/${encodeURIComponent(r.reference.trim().toLowerCase())}.json`).then(
+        fetch(`/api/property/${encodeURIComponent(r.reference.trim().toLowerCase())}.json`, { cache: 'no-store' }).then(
           (res) => (res.ok ? res.json() : null),
         ),
       ),
@@ -122,7 +123,7 @@ export default function FavoritesList({ lang }: Props) {
       <RecallCta
         lang={lang}
         keyPrefix="page.favorites.recall"
-        items={data.map((p) => ({ reference: p.reference, title: p.title }))}
+        items={data.map((p) => ({ reference: p.reference, title: resolveListingText(p, lang).title }))}
       />
     </>
   );

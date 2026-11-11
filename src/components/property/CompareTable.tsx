@@ -1,8 +1,9 @@
+import { resolveListingText } from '@/lib/listing-localization';
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { t, type Lang, localizedPath } from '@/lib/i18n';
 import { readCompare, COMPARE_KEY, clearCompare } from '@/lib/compare';
-import { formatRentalPrice } from '@/lib/format';
+import { formatListingPrice } from '@/lib/format';
 import { formatPublicRef } from '@/lib/reference';
 import { typeLabel, transactionLabel } from '@/lib/status';
 import type { PublicProperty } from '@/types/property';
@@ -41,7 +42,7 @@ export default function CompareTable({ lang }: Props) {
     // their original casing, so we trim + lower-case here before fetching.
     Promise.all(
       refs.map((r) =>
-        fetch(`/api/property/${encodeURIComponent(r.trim().toLowerCase())}.json`).then((res) =>
+        fetch(`/api/property/${encodeURIComponent(r.trim().toLowerCase())}.json`, { cache: 'no-store' }).then((res) =>
           res.ok ? res.json() : null,
         ),
       ),
@@ -78,7 +79,7 @@ export default function CompareTable({ lang }: Props) {
     [t('compare.row.transaction', lang), (p) => transactionLabel(p.transaction_type, lang)],
     [t('compare.row.city', lang), (p) => p.city],
     [t('estimate.label.quartier', lang), (p) => p.quartier],
-    [t('compare.row.price', lang), (p) => formatRentalPrice(p.price, p.transaction_type)],
+    [t('compare.row.price', lang), (p) => formatListingPrice(p.price, p.transaction_type, lang)],
     [t('property.facts.surface', lang), (p) => (p.surface > 0 ? `${p.surface} m²` : '—')],
     [t('property.facts.bedrooms', lang), (p) => (p.bedrooms > 0 ? String(p.bedrooms) : '—')],
     [t('property.detail.commodities', lang), (p) => (p.commodities.length > 0 ? p.commodities.slice(0, 5).join(', ') : '—')],
@@ -114,12 +115,12 @@ export default function CompareTable({ lang }: Props) {
           >
             <div className="aspect-[4/3] rounded-xl overflow-hidden bg-ink mb-3">
               {p.images[0] ? (
-                <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover" />
+                <img src={p.images[0]} alt={resolveListingText(p, lang).title} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-primary to-primary/60" />
               )}
             </div>
-            <h3 className="font-serif text-lg leading-tight group-hover:text-primary transition">{p.title}</h3>
+            <h3 className="font-serif text-lg leading-tight group-hover:text-primary transition">{resolveListingText(p, lang).title}</h3>
           </a>
         ))}
       </div>
@@ -147,7 +148,7 @@ export default function CompareTable({ lang }: Props) {
       <RecallCta
         lang={lang}
         keyPrefix="page.compare.recall"
-        items={data.map((p) => ({ reference: p.reference, title: p.title }))}
+        items={data.map((p) => ({ reference: p.reference, title: resolveListingText(p, lang).title }))}
       />
     </div>
   );

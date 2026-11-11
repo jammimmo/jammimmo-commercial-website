@@ -5,6 +5,8 @@ import MiniCard from './MiniCard';
 import ListingsMap from './ListingsMap';
 import { t, type Lang } from '@/lib/i18n';
 import { MIN_QUERY_CHARS } from '@/lib/places';
+import { resolveListingText } from '@/lib/listing-localization';
+import { comparePublicPrices, matchesPublicPriceBounds } from '@/lib/public-listing-price';
 import PlaceAutocomplete from '@/components/places/PlaceAutocomplete';
 
 type SortKey = 'relevance' | 'price_asc' | 'price_desc' | 'newest';
@@ -84,9 +86,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
     const result = properties.filter((p) => {
       if (filters.type && p.type !== filters.type) return false;
       // Inclusive of the dual « Vente & Location » listings: a Vente (resp.
-      // Location) filter must also match them — mirrors estimate-comps /
-      // match-filter transactionMatches, so the tools' cross-sell links surface
-      // the same listings the tools counted as comps/matches.
+      // Location) filter must also match them when no price bound is applied.
       if (filters.transaction) {
         const tt = p.transaction_type;
         const ok =
@@ -98,8 +98,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
         if (!ok) return false;
       }
       if (filters.city && p.city !== filters.city) return false;
-      if (filters.priceMin && p.price < filters.priceMin) return false;
-      if (filters.priceMax && filters.priceMax > 0 && p.price > filters.priceMax) return false;
+      if (!matchesPublicPriceBounds(p, filters.transaction, filters.priceMin, filters.priceMax)) return false;
       if (filters.bedsMin && p.bedrooms < filters.bedsMin) return false;
       // Same site-wide standard as the place autocompletes: only start matching
       // once the query is long enough (a 1–2 char text search isn't meaningful).
@@ -107,14 +106,15 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
         const q = filters.q.toLowerCase();
         if (
           !p.title.toLowerCase().includes(q) &&
+          !resolveListingText(p, lang).title.toLowerCase().includes(q) &&
           !p.city.toLowerCase().includes(q) &&
           !(p.quartier?.toLowerCase().includes(q))
         ) return false;
       }
       return true;
     });
-    if (sort === 'price_asc') result.sort((a, b) => a.price - b.price);
-    else if (sort === 'price_desc') result.sort((a, b) => b.price - a.price);
+    if (sort === 'price_asc' || sort === 'price_desc')
+      result.sort((a, b) => comparePublicPrices(a, b, filters.transaction, sort === 'price_asc'));
     else if (sort === 'newest')
       result.sort((a, b) => {
         const da = a.published_at ? Date.parse(a.published_at) : 0;
@@ -122,7 +122,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
         return db - da;
       });
     return result;
-  }, [properties, filters, sort]);
+  }, [properties, filters, lang, sort]);
 
   // ── Sync URL when filters change ────────────────────────────
   useEffect(() => {
@@ -339,6 +339,7 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
                       href={hrefByRef[p.reference] ?? `/biens/${p.reference.toLowerCase()}`}
                       active={activeRef === p.reference}
                       lang={lang}
+                      priceIntent={filters.transaction}
                       onEnter={() => setActiveRef(p.reference)}
                       onLeave={() => setActiveRef((curr) => (curr === p.reference ? null : curr))}
                     />
@@ -354,6 +355,8 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
               properties={filtered}
               activeRef={activeRef}
               onPinClick={onPinClick}
+              lang={lang}
+              priceIntent={filters.transaction}
             />
           </div>
         </div>
@@ -363,29 +366,32 @@ export default function ListingsView({ properties, cities, hrefByRef, lang }: Pr
       <button
         type="button"
         onClick={() => setMobileMapOpen(true)}
+        data-chat-obstruction
         className="lg:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-30 inline-flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground font-semibold shadow-lg"
       >
         <MapIcon className="w-4 h-4" /> {t('listings.mapToggle', lang)} ({filtered.length})
       </button>
 
       {mobileMapOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-background flex flex-col">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-clay">
+        <div className="lg:hidden fixed inset-0 z-[55] bg-background flex flex-col">
+          <div className="flex shrink-0 items-center justify-between px-4 py-3 border-b border-clay">
             <span className="font-semibold">
               {t('listings.mapOpenCount', lang).replace('{count}', String(filtered.length))}
             </span>
             <button
               type="button"
               onClick={() => setMobileMapOpen(false)}
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-card border border-clay text-[13px] font-semibold"
+              className="inline-flex min-h-11 items-center gap-2 px-3 py-2 rounded-full bg-card border border-clay text-[13px] font-semibold"
             >
               <ListIcon className="w-4 h-4" /> {t('listings.listToggle', lang)}
             </button>
           </div>
-          <div className="flex-1">
+          <div className="min-h-0 flex-1">
             <ListingsMap
               properties={filtered}
               activeRef={activeRef}
+              lang={lang}
+              priceIntent={filters.transaction}
               onPinClick={(ref) => {
                 onPinClick(ref);
                 setMobileMapOpen(false);

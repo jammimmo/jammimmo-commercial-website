@@ -1,6 +1,7 @@
 ---
+import { resolveListingText } from '@/lib/listing-localization';
 import type { PublicProperty } from '@/types/property';
-import { formatRentalPrice, formatLocation } from '@/lib/format';
+import { formatListingPrice, formatLocation } from '@/lib/format';
 import { formatPublicRef } from '@/lib/reference';
 import { getStatusBadge, getTransactionBadge, statusLabel, transactionLabel } from '@/lib/status';
 import { localizedPath, t, type Lang } from '@/lib/i18n';
@@ -18,6 +19,7 @@ interface Props {
 }
 
 const { property: p, lang, hideCompare = false, delay = '' } = Astro.props;
+const localizedText = resolveListingText(p, lang);
 
 const statusBadge = getStatusBadge(p.status);
 const transactionBadge = getTransactionBadge(p.transaction_type);
@@ -51,7 +53,7 @@ const [phA, phB] = palette[hash]!;
   class:list={['group reveal relative flex flex-col bg-card rounded-[22px] overflow-hidden border border-clay transition-all duration-500 hover:translate-y-[-6px] hover:shadow-[0_40px_80px_-40px_hsl(var(--ink)/.3)]', delay]}
   data-property-ref={p.reference}
 >
-  <a href={href} class="block relative aspect-[4/3] overflow-hidden bg-ink" aria-label={p.title}>
+  <a href={href} class="block relative aspect-[4/3] overflow-hidden bg-ink" aria-label={localizedText.title}>
     {split ? (
       <!-- Split thumb: video LEFT, 2×2 photo mosaic RIGHT. Aspect-[4/3]
            kept on the outer link; inner grid fills it absolutely. -->
@@ -66,7 +68,7 @@ const [phA, phB] = palette[hash]!;
         >
           <img
             src={videoThumb}
-            alt={`Visite vidéo — ${p.title}`}
+            alt={`Visite vidéo — ${localizedText.title}`}
             loading="lazy"
             decoding="async"
             class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -100,7 +102,7 @@ const [phA, phB] = palette[hash]!;
       <>
         <img
           src={heroImage}
-          alt={p.title}
+          alt={localizedText.title}
           loading="lazy"
           decoding="async"
           class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -159,7 +161,7 @@ const [phA, phB] = palette[hash]!;
   <FavoriteToggle
     client:visible
     reference={p.reference}
-    title={p.title}
+    title={localizedText.title}
     lang={lang}
     variant="icon"
   />
@@ -174,7 +176,7 @@ const [phA, phB] = palette[hash]!;
 
     <a href={href} class="block group/title">
       <h3 class="font-serif font-normal text-[22px] tracking-tight leading-tight m-0 group-hover/title:text-primary transition">
-        {p.title}
+        {localizedText.title}
       </h3>
     </a>
 
@@ -186,7 +188,7 @@ const [phA, phB] = palette[hash]!;
 
     <div class="flex items-baseline justify-between mt-3 pt-3.5 border-t border-clay">
       <div class="font-serif text-[22px] font-normal tracking-tight">
-        <span class="bidi-ltr">{formatRentalPrice(p.price, p.transaction_type)}</span>
+        <span class={p.transaction_type === 'Vente & Location' ? undefined : 'bidi-ltr'}>{formatListingPrice(p.price, p.transaction_type, lang)}</span>
         {p.negotiable && (
           <span class="ml-2 text-[11px] font-sans font-semibold text-terra align-middle">{t('property.price.negotiable', lang)}</span>
         )}
@@ -196,7 +198,7 @@ const [phA, phB] = palette[hash]!;
       </a>
     </div>
 
-    {!hideCompare && <CompareToggle client:visible reference={p.reference} title={p.title} lang={lang} />}
+    {!hideCompare && <CompareToggle client:visible reference={p.reference} title={localizedText.title} lang={lang} />}
   </div>
 </article>
 

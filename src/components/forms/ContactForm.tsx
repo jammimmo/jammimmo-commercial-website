@@ -5,10 +5,13 @@ import { z } from 'zod';
 import { Loader2, ArrowRight, Check } from 'lucide-react';
 import { t, type Lang } from '@/lib/i18n';
 import { track } from '@/lib/analytics';
+import { QualificationEntry } from './PublicQualificationForm';
 
 interface Props {
   lang: Lang;
   propertyId?: string;
+  /** Public catalogue reference, distinct from the legacy propertyId. */
+  propertyReference?: string;
   propertyTitle?: string;
   compact?: boolean;
 }
@@ -32,7 +35,7 @@ const makeSchema = (lang: Lang) =>
 
 type FormValues = z.infer<ReturnType<typeof makeSchema>>;
 
-export default function ContactForm({ lang, propertyId, propertyTitle, compact = false }: Props) {
+function LegacyContactForm({ lang, propertyId, propertyTitle, compact = false, inactive }: Props & { inactive: boolean }) {
   const [submitState, setSubmitState] = useState<'idle' | 'sending' | 'ok' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const {
@@ -42,6 +45,7 @@ export default function ContactForm({ lang, propertyId, propertyTitle, compact =
   } = useForm<FormValues>({ resolver: zodResolver(makeSchema(lang)) });
 
   async function onSubmit(values: FormValues) {
+    if (inactive) return;
     setSubmitState('sending');
     setErrorMsg('');
     try {
@@ -238,7 +242,7 @@ export default function ContactForm({ lang, propertyId, propertyTitle, compact =
 
       <button
         type="submit"
-        disabled={isSubmitting || submitState === 'sending'}
+        disabled={inactive || isSubmitting || submitState === 'sending'}
         className="mt-5 w-full inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-secondary text-secondary-foreground font-semibold text-[15px] shadow-lg disabled:opacity-50 hover:translate-y-[-1px] transition-transform"
       >
         {submitState === 'sending' ? (
@@ -255,4 +259,15 @@ export default function ContactForm({ lang, propertyId, propertyTitle, compact =
       </button>
     </form>
   );
+}
+
+/** Both forms retain their drafts when switching; qualification is optional. */
+export default function ContactForm(props: Props) {
+  const [expanded, setExpanded] = useState(false);
+  const [pending, setPending] = useState(false);
+  const legacyInactive = expanded || pending;
+  return <>
+    <div hidden={legacyInactive}><LegacyContactForm {...props} inactive={legacyInactive} /></div>
+    <QualificationEntry lang={props.lang} propertyReference={props.propertyReference} onOpenChange={setExpanded} onPendingChange={setPending} />
+  </>;
 }
