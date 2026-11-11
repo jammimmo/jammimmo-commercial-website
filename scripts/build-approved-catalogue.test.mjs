@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import { catalogueBuildEnvironment, pagesLiveBuildInput, prepareCatalogueBuild, SNAPSHOT_SOURCE, SNAPSHOT_SHA256 } from './build-approved-catalogue.mjs';
 import { catalogueBuildMode } from './catalogue-artifact.mjs';
 
-test('a new Pages preview without configured variables uses the approved capture and cannot inherit database credentials', () => {
+test('a local or CI build uses the approved capture without passing database credentials to Astro', () => {
   const input = { ADMIN_SUPABASE_URL: 'fixture-url', ADMIN_SUPABASE_SERVICE_ROLE_KEY: 'fixture-key', ADMIN_SUPABASE_ANON_KEY: 'fixture-anon', PATH: 'fixture-path' };
   const result = catalogueBuildEnvironment(input);
   assert.equal(result.CATALOGUE_BUILD_SOURCE, SNAPSHOT_SOURCE);
@@ -37,6 +37,18 @@ const production = {
 };
 const legacy = { CATALOGUE_BUILD_SOURCE: SNAPSHOT_SOURCE, CATALOGUE_SNAPSHOT_SHA256: SNAPSHOT_SHA256 };
 const readProfile = () => readFile(new URL('./pages-live-catalogue-source.json', import.meta.url), 'utf8');
+
+test('a hosted preview cannot start with or without the approved public capture', async () => {
+  for (const config of [{}, legacy, { CATALOGUE_BUILD_SOURCE: 'trusted-production' }]) {
+    const input = { ...production, CF_PAGES_BRANCH: 'feature/preview', ...config };
+    Object.defineProperty(input, 'ADMIN_SUPABASE_SERVICE_ROLE_KEY', {
+      enumerable: true, get: () => { throw new Error('Unexpected admin read'); },
+    });
+    await assert.rejects(prepareCatalogueBuild(input, '.', {
+      fetcher: () => { throw new Error('Unexpected source read'); },
+    }), /Hosted previews are disabled/);
+  }
+});
 
 test('the explicit Pages live entry recognizes the exact retired pair and leaves the ordinary build strict', async () => {
   const input = { ...production, ...legacy, PATH: 'fixture-path' };

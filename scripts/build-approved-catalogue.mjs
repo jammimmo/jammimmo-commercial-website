@@ -48,7 +48,7 @@ export async function pagesLiveBuildInput(input, readProfile = readPagesLiveProf
   });
 }
 
-// Local/CI/preview contain no DB code path. Production has a separate, explicit
+// Local and CI builds contain no DB code path. Production has a separate, explicit
 // preparation step and cannot silently publish the emergency snapshot again.
 export function catalogueBuildEnvironment(input) {
   if (catalogueBuildMode(input) !== SNAPSHOT_SOURCE) throw new Error('[catalogue build] Production needs fresh preparation.');

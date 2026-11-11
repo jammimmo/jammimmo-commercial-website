@@ -49,7 +49,8 @@ reader supports the existing lowercase-slug/uppercase-lookup round trip.
 ## Build contexts and freshness
 
 `pnpm build` runs `scripts/build-approved-catalogue.mjs` with Node **22.20+**.
-Local builds, CI and Pages previews use the immutable approved97 capture.
+Local builds and CI use the immutable approved97 capture. The build entry
+refuses hosted previews on the production Pages project.
 They never initialize a database client or read source credential values.
 An explicitly supplied snapshot source/hash must match the values above.
 
@@ -149,10 +150,33 @@ prepared-artifact overrides stop before source preparation. The renderer
 receives the prepared artifact and no database credentials. No Wrangler
 runtime binding is added for these build inputs.
 
-The dedicated command refuses Preview and local contexts. Keep Preview
-credentials absent at provisioning, including checkout/install, independently
-of the command. The production build command must be selected before the exact
-release is triggered. Local tests cannot attest the effective provider settings.
+The dedicated command accepts only the production branch. Keep the native
+Preview branch setting at **None** and remove Preview credentials before
+checkout or dependency installation. The production build command must be
+selected before the exact release is triggered.
+
+Run `node scripts/check-pages-preview-isolation.mjs` with an account-scoped
+`CLOUDFLARE_PAGES_READ_TOKEN` from a trusted shell. The **Audit hosted Pages
+isolation** GitHub workflow on `main` runs the same check and requires that
+repository secret. Missing credentials, incomplete provider metadata, active
+automatic previews, shared D1 or KV, and Supabase or other unapproved credentials
+fail the check. To check the provider settings of a separate static staging
+project, pass `--staging-project NAME`. That check requires no remote bindings
+or database credentials in either of its environments. A staging project that
+needs D1, KV or Supabase requires an approved resource inventory first.
+
+The workflow reports the current configuration. It neither deploys nor controls
+a deployment by itself. The read token belongs only to this audit. A separate
+static staging build can use the approved public capture from local CI without a
+Cloudflare or Supabase credential. Its hosting and upload pipeline require
+separate configuration. The repository's hosted build remains scoped to the
+production Pages project.
+
+The Wrangler Preview config clears D1, KV and R2 and omits the non-inherited
+AI binding. The CLI reads the provider's current settings separately. Source
+configuration and a local validation do not attest existing deployments. See
+the [Cloudflare Pages Wrangler configuration](https://developers.cloudflare.com/pages/functions/wrangler-configuration/)
+and [branch controls](https://developers.cloudflare.com/pages/configuration/branch-build-controls/).
 
 Filtering and limits preserve the four existing signatures. Publication date
 remains the primary list order; price remains secondary when requested. All

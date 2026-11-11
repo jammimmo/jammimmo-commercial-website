@@ -29,14 +29,16 @@ export function catalogueBuildContext(env) {
   requireValue(pages === '1', 'Unknown Pages context.');
   requireValue(typeof env.CF_PAGES_BRANCH === 'string' && env.CF_PAGES_BRANCH.trim().length > 0 && env.CF_PAGES_BRANCH.length <= 200, 'Missing Pages branch.');
   requireValue(/^[a-f0-9]{40}$/.test(env.CF_PAGES_COMMIT_SHA ?? ''), 'Missing Pages commit.');
-  let url; try { url = new URL(env.CF_PAGES_URL); } catch { throw new Error('[catalogue build] Missing Pages deployment URL.'); }
-  requireValue(url.protocol === 'https:' && !url.username && !url.password && !url.port && !url.search && !url.hash && url.pathname === '/'
-    && /^[a-z0-9-]+\.jammimmo-vitrine\.pages\.dev$/.test(url.hostname), 'Unknown Pages project.');
+  const url = env.CF_PAGES_URL;
+  requireValue(typeof url === 'string' && url.length > 0, 'Missing Pages deployment URL.');
+  requireValue(/^https:\/\/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.jammimmo-vitrine\.pages\.dev\/?$/.test(url),
+    'Unknown Pages project or invalid deployment URL.');
   return env.CF_PAGES_BRANCH === 'main' ? 'production' : 'preview';
 }
 
 export function catalogueBuildMode(env) {
   const context = catalogueBuildContext(env);
+  requireValue(context !== 'preview', 'Hosted previews are disabled on the production Pages project.');
   // Reject supplied child-only paths even locally. A caller cannot promote a
   // previously generated artifact by bypassing the fresh-source preparation.
   requireValue(env.CATALOGUE_ARTIFACT_DIR === undefined && env.CATALOGUE_ARTIFACT_SHA256 === undefined, 'Prepared artifact variables are child-only.');

@@ -37,3 +37,11 @@ bucket_name = "jammimmo-chat-private"
 # GH_DISPATCH_TOKEN, GH_REPO and CHAT_* release gates) is set via the
 # Cloudflare Pages dashboard / `wrangler pages secret put` so secrets never
 # sit in this repo. Binding declarations alone do not enable chat/AI/files.
+
+# The production Pages project does not build hosted previews. Clear its
+# database, KV and bucket configuration if Wrangler reads the Preview
+# environment. Workers AI is a non-inherited binding and absent here.
+[env.preview]
+d1_databases = []
+kv_namespaces = []
+r2_buckets = []

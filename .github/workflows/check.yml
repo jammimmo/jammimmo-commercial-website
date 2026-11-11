@@ -33,7 +33,7 @@ jobs:
         run: pnpm test
 
       - name: Preview and production catalogue build containment
-        run: node --test --test-concurrency=1 scripts/build-approved-catalogue.test.mjs scripts/catalogue-artifact.test.mjs
+        run: node --test --test-concurrency=1 scripts/build-approved-catalogue.test.mjs scripts/catalogue-artifact.test.mjs scripts/check-pages-preview-isolation.test.mjs
 
       - name: Listing translation build preparation (offline)
         run: node --experimental-strip-types --test scripts/prepare-listing-translations.test.mjs
